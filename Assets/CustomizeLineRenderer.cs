@@ -6,12 +6,10 @@ public class CustomizeLineRenderer : MonoBehaviour {
     LineRenderer lineRenderer;
     public Vector3[] linePositions;
 
+
 	// Use this for initialization
 	void Start ()
     {
-        
-
-
     }
 	
     public void SmoothCurve ()
@@ -19,6 +17,19 @@ public class CustomizeLineRenderer : MonoBehaviour {
         lineRenderer = gameObject.GetComponent<LineRenderer>();
 
         linePositions = Curver.MakeSmoothCurve(linePositions, 5);
+
+        lineRenderer.SetVertexCount(linePositions.Length);
+        int iterator = 0;
+        foreach (Vector3 position in linePositions)
+        {
+            lineRenderer.SetPosition(iterator, position);
+            iterator++;
+        }
+    }
+
+    public void RoughCurve ()
+    {
+        lineRenderer = gameObject.GetComponent<LineRenderer>();
 
         lineRenderer.SetVertexCount(linePositions.Length);
         int iterator = 0;
