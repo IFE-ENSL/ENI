@@ -9,12 +9,19 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     public GameObject CompetencePrefab;
     public GameObject SpiderWebWirePrefab;
     public float branchesSize = 20;
-
-    public int MaxValueIfNonPercentageDisplay = 20;
+    int greatestSkillValue = 0;
 
 	// Use this for initialization
 	void Start ()
     {
+        //Let's get the greatest skill value first
+        foreach (int skillPoint in CompetenceAmount)
+        {
+            if (skillPoint > greatestSkillValue)
+                greatestSkillValue = skillPoint;
+        }
+
+
 	    if (CompetenceAmount.Length < 4)
         {
             Array.Resize(ref CompetenceAmount, 4);
@@ -40,7 +47,11 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             newRotatedVector = Quaternion.AngleAxis(-addAngle, Vector3.forward) * newRotatedVector;
 
             //Set the position of the skill point, it should be on the associated branch
-            currentSkillPosition = new Vector3(0, CompetenceAmount[i] / MaxValueIfNonPercentageDisplay * branchesSize, 0); //THIS OBVSLY DON'T WORK AND I HAVE NO IDEA WHY
+            float percentageValue =  (float)CompetenceAmount[i] / (float)greatestSkillValue * branchesSize;
+            currentSkillPosition = new Vector3(0, percentageValue, 0); //THIS OBVSLY DON'T WORK AND I HAVE NO IDEA WHY
+
+
+
             currentSkillPosition = Quaternion.AngleAxis(-addAngle, Vector3.forward) * currentSkillPosition;
 
             Debug.DrawLine(Vector3.zero, currentSkillPosition, Color.red, Mathf.Infinity);
