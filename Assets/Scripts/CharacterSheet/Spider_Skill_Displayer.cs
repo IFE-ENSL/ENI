@@ -31,7 +31,6 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         float BranchAngle = 360 / CompetenceAmount.Length;
         float addAngle = BranchAngle;
 
-        Vector3 previousLineTip = Vector3.zero;
         Vector3[] newPositions = new Vector3[2];
 
         Vector3 previousSkillPosition = Vector3.zero;
