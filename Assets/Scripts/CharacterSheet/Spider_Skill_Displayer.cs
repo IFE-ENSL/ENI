@@ -47,7 +47,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
             //Set the position of the skill point, it should be on the associated branch
             float percentageValue =  (float)CompetenceAmount[i] / (float)greatestSkillValue * branchesSize;
-            currentSkillPosition = new Vector3(0, percentageValue, 0); //THIS OBVSLY DON'T WORK AND I HAVE NO IDEA WHY
+            currentSkillPosition = new Vector3(0, percentageValue, 0);
 
 
 

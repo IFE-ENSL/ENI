@@ -49,7 +49,7 @@ namespace Assets.Scripts.Menu
             if (connexion.isLogged)
             {
                 PlayerPrefs.SetString("username", login.text);
-                SceneManager.LoadScene("Menu");
+                SceneManager.LoadScene("MainBoard");
             }
             else if (connexion.error)
             {

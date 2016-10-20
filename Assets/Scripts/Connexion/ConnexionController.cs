@@ -43,8 +43,7 @@ namespace Assets.Scripts.Connexion
         }
 
         //Méthode permettant d'envoyer un log
-        public IEnumerator PostLog(string nomLog, string miniJeu, ILog donnees) //TO DO : Study how "donnees" works, this is what is receiving all of the log datas concerning the minigames it seems...
-            //Also, check UnityController.php at line 97 & Log.php & LogManagement (Every action is interesting, they all each seems to store the datas into the mySQL base)
+        public IEnumerator PostLog(string nomLog, string miniJeu, ILog donnees)
         {
             string sessionId = PlayerPrefs.GetString("sessionId");
             Dictionary<string, string> headers = new Dictionary<string, string> {{"Cookie", sessionId}};

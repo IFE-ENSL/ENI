@@ -1,24 +1,57 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class BoardStep : MonoBehaviour {
 
     GameObject playerPawn;
     Board_PlayerPawn playerPawnComponent;
+    public enum StepType { Empty, MiniGame, Mission, JobSheet };
+    public StepType currentStepType = StepType.Empty;
+
+    public string SceneToLoad;
 
     SpriteRenderer spriteRenderer;
-    //[HideInInspector]
+    [HideInInspector]
     public bool PawnOverThis = false;
-    //[HideInInspector]
+    [HideInInspector]
     public bool MouseOverThis = false;
+
+    TextMesh stepContentText;
+
 	// Use this for initialization
 	void Start ()
     {
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
 
+        stepContentText = transform.FindChild("ContentName").GetComponent<TextMesh>();
+
         playerPawn = GameObject.Find("Pawn");
         playerPawnComponent = playerPawn.GetComponent<Board_PlayerPawn>();
+
+        if (currentStepType != StepType.Empty)
+            DescriptiveTextSetUp();
+        else
+            stepContentText.text = "";
 	}
+
+    void DescriptiveTextSetUp ()
+    {
+        switch (currentStepType)
+        {
+            case StepType.JobSheet:
+                stepContentText.text = "Fiche Métier";
+                break;
+            case StepType.Mission:
+                stepContentText.text = "Mission";
+                break;
+            case StepType.MiniGame:
+                stepContentText.text = "Mini-Jeu";
+                break;
+        }
+
+        stepContentText.GetComponent<MeshRenderer>().enabled = false;
+    }
 	
 	// Update is called once per frame
 	void Update () 
@@ -27,6 +60,9 @@ public class BoardStep : MonoBehaviour {
         {
             Debug.Log("Display launch confirmation according to type & load method");
             playerPawnComponent.abortMove = true;
+
+            if (currentStepType != StepType.Empty)
+                SceneManager.LoadSceneAsync(SceneToLoad);
         }
 	}
 
@@ -51,6 +87,7 @@ public class BoardStep : MonoBehaviour {
         if (hit.name == "Pawn")
         {
             spriteRenderer.color = Color.red;
+            stepContentText.GetComponent<MeshRenderer>().enabled = true;
             PawnOverThis = true;
         }
     }
@@ -60,6 +97,7 @@ public class BoardStep : MonoBehaviour {
         if (hit.name == "Pawn")
         {
             spriteRenderer.color = Color.white;
+            stepContentText.GetComponent<MeshRenderer>().enabled = false;
             PawnOverThis = false;
         }
     }
