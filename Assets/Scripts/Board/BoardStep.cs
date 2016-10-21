@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using UnityEngine.UI;
 
 public class BoardStep : MonoBehaviour {
 
@@ -8,6 +9,7 @@ public class BoardStep : MonoBehaviour {
     Board_PlayerPawn playerPawnComponent;
     public enum StepType { Empty, MiniGame, Mission, JobSheet };
     public StepType currentStepType = StepType.Empty;
+    public Canvas GameUI;
 
     public string SceneToLoad;
 
@@ -23,6 +25,7 @@ public class BoardStep : MonoBehaviour {
 	void Start ()
     {
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
+        GameUI = transform.Find("Canvas").GetComponent<Canvas>();
 
         stepContentText = transform.FindChild("ContentName").GetComponent<TextMesh>();
 
@@ -62,7 +65,10 @@ public class BoardStep : MonoBehaviour {
             playerPawnComponent.abortMove = true;
 
             if (currentStepType != StepType.Empty)
+            {
+                GameUI.transform.FindChild("Loading").GetComponent<Text>().enabled = true;
                 SceneManager.LoadSceneAsync(SceneToLoad);
+            }
         }
 	}
 
