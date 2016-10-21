@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.UI;
 
-public class BoardStep : BoardManager {
+public class BoardStep : MonoBehaviour {
 
     static bool oneStepAlreadyHighlighted = false;
 
@@ -68,7 +68,7 @@ public class BoardStep : BoardManager {
 
             if (currentStepType != StepType.Empty)
             {
-                preventPlayerControl = true;
+                BoardManager.preventPlayerControl = true;
                 GameObject ConfirmationWindow = GameUI.transform.FindChild("ConfirmationWindow").gameObject;
                 Board_LaunchConfirmation confirmationWindowScript = ConfirmationWindow.GetComponent<Board_LaunchConfirmation>();
                 ConfirmationWindow.SetActive(true);

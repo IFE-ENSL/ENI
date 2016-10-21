@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class Board_LaunchConfirmation : BoardManager {
+public class Board_LaunchConfirmation : MonoBehaviour {
 
     [HideInInspector]
     public string SceneToLoadNext;
@@ -25,7 +25,7 @@ public class Board_LaunchConfirmation : BoardManager {
 
     public void CloseWindow ()
     {
-        preventPlayerControl = false;
+        BoardManager.preventPlayerControl = false;
         gameObject.SetActive(false);
     }
 

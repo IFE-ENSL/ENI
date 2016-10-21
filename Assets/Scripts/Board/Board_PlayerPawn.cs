@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Board_PlayerPawn : BoardManager {
+public class Board_PlayerPawn : MonoBehaviour {
 
     public GameObject startStep;
 
@@ -25,14 +25,15 @@ public class Board_PlayerPawn : BoardManager {
         }
 
         targetPosition = transform.position; //Make sure the pawn won't move at start
+        BoardManager.preventPlayerControl = false; //If we're coming back from a mini-game, for example, we have to let player have control again
 	}
 	
 	// Update is called once per frame
 	void Update ()
     {
-        Debug.Log(preventPlayerControl);
+        Debug.Log(BoardManager.preventPlayerControl);
 
-        if (!preventPlayerControl)
+        if (!BoardManager.preventPlayerControl)
         {
             if (Input.GetMouseButtonDown(0))
             {
