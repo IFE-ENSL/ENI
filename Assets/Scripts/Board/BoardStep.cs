@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class BoardStep : BoardManager {
 
+    static bool oneStepAlreadyHighlighted = false;
+
     GameObject playerPawn;
     Board_PlayerPawn playerPawnComponent;
     public enum StepType { Empty, MiniGame, Mission, JobSheet };
@@ -94,11 +96,12 @@ public class BoardStep : BoardManager {
 
     void OnTriggerStay2D (Collider2D hit)
     { 
-        if (hit.name == "Pawn")
+        if (hit.name == "Pawn" && !oneStepAlreadyHighlighted)
         {
             spriteRenderer.color = Color.red;
             stepContentText.GetComponent<MeshRenderer>().enabled = true;
             PawnOverThis = true;
+            oneStepAlreadyHighlighted = true;
         }
     }
 
@@ -109,6 +112,7 @@ public class BoardStep : BoardManager {
             spriteRenderer.color = Color.white;
             stepContentText.GetComponent<MeshRenderer>().enabled = false;
             PawnOverThis = false;
+            oneStepAlreadyHighlighted = false;
         }
     }
 }
