@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.UI;
 
-public class BoardStep : MonoBehaviour {
+public class BoardStep : BoardManager {
 
     GameObject playerPawn;
     Board_PlayerPawn playerPawnComponent;
@@ -25,7 +25,7 @@ public class BoardStep : MonoBehaviour {
 	void Start ()
     {
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
-        GameUI = transform.Find("Canvas").GetComponent<Canvas>();
+        GameUI = GameObject.Find("Canvas").GetComponent<Canvas>();
 
         stepContentText = transform.FindChild("ContentName").GetComponent<TextMesh>();
 
@@ -61,13 +61,17 @@ public class BoardStep : MonoBehaviour {
     {
 	    if (MouseOverThis && PawnOverThis && Input.GetMouseButtonDown(0))
         {
-            Debug.Log("Display launch confirmation according to type & load method");
+            //Display launch confirmation according to type
             playerPawnComponent.abortMove = true;
 
             if (currentStepType != StepType.Empty)
             {
-                GameUI.transform.FindChild("Loading").GetComponent<Text>().enabled = true;
-                SceneManager.LoadSceneAsync(SceneToLoad);
+                preventPlayerControl = true;
+                GameObject ConfirmationWindow = GameUI.transform.FindChild("ConfirmationWindow").gameObject;
+                Board_LaunchConfirmation confirmationWindowScript = ConfirmationWindow.GetComponent<Board_LaunchConfirmation>();
+                ConfirmationWindow.SetActive(true);
+                confirmationWindowScript.SceneToLoadNext = SceneToLoad;
+                confirmationWindowScript.UpdateContentName (stepContentText.text);
             }
         }
 	}

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Board_PlayerPawn : MonoBehaviour {
+public class Board_PlayerPawn : BoardManager {
 
     public GameObject startStep;
 
@@ -30,38 +30,43 @@ public class Board_PlayerPawn : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-	    if (Input.GetMouseButtonDown (0))
-        {
-            targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition); //Set where the player clicked before sending the pawn to this position
+        Debug.Log(preventPlayerControl);
 
-            //Let's check if where we clicked is a wall already near to the pawn, so we avoid jitter
-            if (Physics2D.Raycast(transform.position, Vector3.Normalize(targetPosition - transform.position), 1f, boardWallsLayer))
+        if (!preventPlayerControl)
+        {
+            if (Input.GetMouseButtonDown(0))
             {
-                Debug.DrawRay(transform.position, Vector3.Normalize(targetPosition - transform.position), Color.blue, 5F);
-                abortMove = true;
+                targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition); //Set where the player clicked before sending the pawn to this position
+
+                //Let's check if where we clicked is a wall already near to the pawn, so we avoid jitter
+                if (Physics2D.Raycast(transform.position, Vector3.Normalize(targetPosition - transform.position), 1f, boardWallsLayer))
+                {
+                    Debug.DrawRay(transform.position, Vector3.Normalize(targetPosition - transform.position), Color.blue, 5F);
+                    abortMove = true;
+                }
             }
+
+            targetPosition.z = 0; //Kill the Z to avoid weird stuff in 2D
+
+            if (!abortMove) // If this bool isn't marked true, we can move the pawn to the target position without troubles
+                transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * 3);
+            else
+            {
+                targetPosition = transform.position; //Else, it stays where it is.
+                abortMove = false;
+            }
+
+            //Next we check if the pawn is still moving by checking if it is near to its target position
+            //We Will reuse this for some method, for example to stop the move if we encounter a wall during a movement
+            distanceFromTargetPos = Vector3.SqrMagnitude(transform.position - targetPosition);
+
+            if (distanceFromTargetPos < .2f)
+            {
+                moving = false;
+            }
+            else
+                moving = true;
         }
-
-        targetPosition.z = 0; //Kill the Z to avoid weird stuff in 2D
-
-        if (!abortMove) // If this bool isn't marked true, we can move the pawn to the target position without troubles
-            transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * 3);
-        else
-        {
-            targetPosition = transform.position; //Else, it stays where it is.
-            abortMove = false;
-        }
-
-        //Next we check if the pawn is still moving by checking if it is near to its target position
-        //We Will reuse this for some method, for example to stop the move if we encounter a wall during a movement
-        distanceFromTargetPos = Vector3.SqrMagnitude (transform.position - targetPosition);
-
-        if (distanceFromTargetPos < .2f)
-        {
-            moving = false;
-        }
-        else
-            moving = true;
     }
 
     void OnCollisionEnter2D (Collision2D hit)
