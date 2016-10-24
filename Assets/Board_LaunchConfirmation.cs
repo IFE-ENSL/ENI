@@ -7,16 +7,31 @@ public class Board_LaunchConfirmation : MonoBehaviour {
 
     [HideInInspector]
     public string SceneToLoadNext;
+    public string defaultText = "Veux-tu lancer <Content> ?";
+    Text ContentTextDisplay;
 
+    void Start ()
+    {
+        ContentTextDisplay = transform.FindChild("ConfirmationText").GetComponent<Text>();
+        ContentTextDisplay.text = defaultText;
+        gameObject.SetActive(false);
+    }    
+            
     public void ConfirmLaunch ()
     {
         transform.parent.transform.FindChild("Loading").GetComponent<Text>().enabled = true;
-        SceneManager.LoadSceneAsync(SceneToLoadNext);
+
+        if (SceneToLoadNext != "")
+            SceneManager.LoadSceneAsync(SceneToLoadNext);
+        else
+        {
+            Debug.LogError("The scene field is empty. No scene to load.");
+            transform.parent.transform.FindChild("Loading").GetComponent<Text>().enabled = false;
+        }
     }
 
     public void UpdateContentName (string contentName)
     {
-        Text ContentTextDisplay = transform.FindChild("ConfirmationText").GetComponent<Text>();
         string previousText = ContentTextDisplay.text;
         previousText = previousText.Replace("<Content>", contentName);
         ContentTextDisplay.text = previousText;
@@ -26,21 +41,8 @@ public class Board_LaunchConfirmation : MonoBehaviour {
     public void CloseWindow ()
     {
         BoardManager.preventPlayerControl = false;
+        Text ContentTextDisplay = transform.FindChild("ConfirmationText").GetComponent<Text>();
+        ContentTextDisplay.text = defaultText;
         gameObject.SetActive(false);
     }
-
-    public void GiveBackControl ()
-    {
-
-    }
-
-    // Use this for initialization
-    void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update ()
-    {
-	}
 }

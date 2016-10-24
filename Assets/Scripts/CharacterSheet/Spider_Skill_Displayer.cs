@@ -10,6 +10,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     public GameObject SpiderWebWirePrefab;
     public float branchesSize = 20;
     int greatestSkillValue = 0;
+    public float spiderThickness = .1f;
 
 	// Use this for initialization
 	void Start ()
@@ -38,12 +39,14 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
         for (int i = 0; i < CompetenceAmount.Length; i++)
         {
-            GameObject spawnedCompetence = GameObject.Instantiate(CompetencePrefab, Vector3.zero, Quaternion.identity) as GameObject;
+            GameObject spawnedCompetence = GameObject.Instantiate(CompetencePrefab, transform.position, Quaternion.identity) as GameObject;
             spawnedCompetence.transform.SetParent(transform);
             spawnedCompetence.transform.name = "Competence" + i;
 
             Vector3 newRotatedVector = new Vector3(0, branchesSize, 0);
             newRotatedVector = Quaternion.AngleAxis(-addAngle, Vector3.forward) * newRotatedVector;
+
+            Debug.DrawLine(transform.position, transform.position + newRotatedVector, Color.red, Mathf.Infinity);
 
             //Set the position of the skill point, it should be on the associated branch
             float percentageValue =  (float)CompetenceAmount[i] / (float)greatestSkillValue * branchesSize;
@@ -53,20 +56,21 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
             currentSkillPosition = Quaternion.AngleAxis(-addAngle, Vector3.forward) * currentSkillPosition;
 
-            Debug.DrawLine(Vector3.zero, currentSkillPosition, Color.red, Mathf.Infinity);
+           // Debug.DrawLine(transform.position, transform.position + currentSkillPosition, Color.red, Mathf.Infinity);
 
-            newPositions[0] = Vector3.zero;
-            newPositions[1] = newRotatedVector;
+            newPositions[0] = transform.position;
+            newPositions[1] = newRotatedVector + transform.position;
 
             LineRenderer CompetenceLine = spawnedCompetence.GetComponent<LineRenderer>();
             CompetenceLine.SetPositions(newPositions);
+            CompetenceLine.SetWidth(spiderThickness, spiderThickness);
 
             if (firstBranchPosition == Vector3.zero)
                 firstBranchPosition = currentSkillPosition;
 
             addAngle -= BranchAngle;
 
-            SpawnWebWire(previousSkillPosition, currentSkillPosition);
+            SpawnWebWire(previousSkillPosition, currentSkillPosition); //Possibly because of previousSkillPosition, the first and last lines are fucked up. Fix it.
 
             previousSkillPosition = currentSkillPosition;
         }
@@ -76,22 +80,17 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     void SpawnWebWire (Vector3 previousLineTip, Vector3 newPositions)
     {
-        GameObject spawnedWebWire = GameObject.Instantiate(SpiderWebWirePrefab, Vector3.zero, Quaternion.identity) as GameObject;
+        GameObject spawnedWebWire = GameObject.Instantiate(SpiderWebWirePrefab, transform.position, Quaternion.identity) as GameObject;
 
         Vector3[] webWirePos = new Vector3[3];
-        webWirePos[0] = previousLineTip;
-        webWirePos[1] = Vector3.zero;
+        webWirePos[0] = previousLineTip + transform.position;
+        webWirePos[1] = transform.position;
 
-        webWirePos[2] = newPositions;
+        webWirePos[2] = newPositions + transform.position;
 
         spawnedWebWire.GetComponent<CustomizeLineRenderer>().linePositions = webWirePos;
+        spawnedWebWire.GetComponent<LineRenderer>().SetWidth(spiderThickness, spiderThickness);
         //spawnedWebWire.GetComponent<CustomizeLineRenderer>().RoughCurve();
         spawnedWebWire.GetComponent<CustomizeLineRenderer>().SmoothCurve();
     }
-	
-	// Update is called once per frame
-	void Update ()
-    {
-	    
-	}
 }
