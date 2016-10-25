@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using System.Collections;
 
 public class Board_PlayerPawn : MonoBehaviour {
@@ -43,6 +44,12 @@ public class Board_PlayerPawn : MonoBehaviour {
                 if (Physics2D.Raycast(transform.position, Vector3.Normalize(targetPosition - transform.position), 1f, boardWallsLayer))
                 {
                     Debug.DrawRay(transform.position, Vector3.Normalize(targetPosition - transform.position), Color.blue, 5F);
+                    abortMove = true;
+                }
+
+                //Or if we just clicked a UI Button
+                if (EventSystem.current.IsPointerOverGameObject())
+                {
                     abortMove = true;
                 }
             }

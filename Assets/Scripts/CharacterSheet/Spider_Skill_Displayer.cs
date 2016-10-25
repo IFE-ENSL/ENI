@@ -69,13 +69,6 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
             addAngle -= BranchAngle;
 
-            /*if (previousSkillPosition == Vector3.zero)
-            {
-                float previousPercentageValue = (float)CompetenceAmount[CompetenceAmount.Length - 1] / (float)greatestSkillValue * branchesSize;
-                previousSkillPosition = new Vector3(0, percentageValue, 0);
-                //previousSkillPosition = Quaternion.AngleAxis(-addAngle * 2, Vector3.forward) * currentSkillPosition;
-            }*/
-
             if (!firstLoop)
                 SpawnWebWire(previousSkillPosition, currentSkillPosition); //Possibly because of previousSkillPosition, the first and last lines are fucked up. Fix it.
             else
