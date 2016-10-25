@@ -3,6 +3,8 @@ using System.Collections;
 
 public class CustomizeLineRenderer : MonoBehaviour {
 
+   
+
     LineRenderer lineRenderer;
     public Vector3[] linePositions;
 
@@ -11,9 +13,16 @@ public class CustomizeLineRenderer : MonoBehaviour {
 	void Start ()
     {
     }
+
+    public void ClearCurve ()
+    {
+        //linePositions = null;
+    }
 	
     public void SmoothCurve ()
     {
+        ClearCurve(); //In case a smooth curve was calculated before, we must clear it.
+
         lineRenderer = gameObject.GetComponent<LineRenderer>();
 
         linePositions = Curver.MakeSmoothCurve(linePositions, 5);
@@ -27,8 +36,10 @@ public class CustomizeLineRenderer : MonoBehaviour {
         }
     }
 
-    public void RoughCurve ()
+    public void RoughCurve () //This is mainly used in debug to have a clear, rough view of the curve.
     {
+        ClearCurve();
+
         lineRenderer = gameObject.GetComponent<LineRenderer>();
 
         lineRenderer.SetVertexCount(linePositions.Length);

@@ -32,8 +32,6 @@ public class Board_PlayerPawn : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        Debug.Log(BoardManager.preventPlayerControl);
-
         if (!BoardManager.preventPlayerControl)
         {
             if (Input.GetMouseButtonDown(0))
