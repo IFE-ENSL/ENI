@@ -32,6 +32,8 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         float BranchAngle = 360 / CompetenceAmount.Length;
         float addAngle = BranchAngle;
 
+        bool firstLoop = true;
+
         Vector3[] newPositions = new Vector3[2];
 
         Vector3 previousSkillPosition = Vector3.zero;
@@ -51,9 +53,6 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             //Set the position of the skill point, it should be on the associated branch
             float percentageValue =  (float)CompetenceAmount[i] / (float)greatestSkillValue * branchesSize;
             currentSkillPosition = new Vector3(0, percentageValue, 0);
-
-
-
             currentSkillPosition = Quaternion.AngleAxis(-addAngle, Vector3.forward) * currentSkillPosition;
 
            // Debug.DrawLine(transform.position, transform.position + currentSkillPosition, Color.red, Mathf.Infinity);
@@ -70,12 +69,24 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
             addAngle -= BranchAngle;
 
-            SpawnWebWire(previousSkillPosition, currentSkillPosition); //Possibly because of previousSkillPosition, the first and last lines are fucked up. Fix it.
+            /*if (previousSkillPosition == Vector3.zero)
+            {
+                float previousPercentageValue = (float)CompetenceAmount[CompetenceAmount.Length - 1] / (float)greatestSkillValue * branchesSize;
+                previousSkillPosition = new Vector3(0, percentageValue, 0);
+                //previousSkillPosition = Quaternion.AngleAxis(-addAngle * 2, Vector3.forward) * currentSkillPosition;
+            }*/
+
+            if (!firstLoop)
+                SpawnWebWire(previousSkillPosition, currentSkillPosition); //Possibly because of previousSkillPosition, the first and last lines are fucked up. Fix it.
+            else
+                firstLoop = false;
 
             previousSkillPosition = currentSkillPosition;
         }
 
         SpawnWebWire(currentSkillPosition, firstBranchPosition);
+        //Resetting for a possible other loop
+        firstLoop = true;
 	}
 
     void SpawnWebWire (Vector3 previousLineTip, Vector3 newPositions)
