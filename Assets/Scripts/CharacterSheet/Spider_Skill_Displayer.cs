@@ -77,10 +77,6 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
             // Debug.DrawLine(transform.position, transform.position + currentSkillPosition, Color.red, Mathf.Infinity);
 
-
-
-
-
             spawnedBranches[i] = CompetenceLine;
 
             if (firstBranchPosition == Vector3.zero)
@@ -125,11 +121,22 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     void UpdateSpider ()
     {
+        //Reset greatestSkillValue for update
+        greatestSkillValue = 0;
+
+        //Let's get the greatest skill value first
+        foreach (int skillPoint in CompetenceAmount)
+        {
+            if (skillPoint > greatestSkillValue)
+                greatestSkillValue = skillPoint;
+        }
+
         Vector3[] newPositions = new Vector3[2];
 
         float BranchAngle = 360 / CompetenceAmount.Length;
         float addAngle = BranchAngle;
 
+        Vector3 firstBranchPosition = Vector3.zero;
         Vector3 previousSkillPosition = Vector3.zero;
         Vector3 currentSkillPosition = Vector3.zero;
 
@@ -137,7 +144,6 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         {
             Vector3 newRotatedVector = new Vector3(0, branchesSize, 0);
             newRotatedVector = Quaternion.AngleAxis(-addAngle, Vector3.forward) * newRotatedVector;
-
             newPositions[0] = transform.position;
             newPositions[1] = newRotatedVector + transform.position;
 
@@ -150,10 +156,13 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             currentSkillPosition = new Vector3(0, percentageValue, 0);
             currentSkillPosition = Quaternion.AngleAxis(-addAngle, Vector3.forward) * currentSkillPosition;
 
-            UpdateWebWirePositions(spawnedLines[i], previousSkillPosition, currentSkillPosition);
+            if (firstBranchPosition == Vector3.zero)
+                firstBranchPosition = currentSkillPosition;
+
+            if ( i != 0 )
+                UpdateWebWirePositions(spawnedLines[i - 1], previousSkillPosition, currentSkillPosition);
+
             /*
-
-
             if (i != 0)
             {
                 spawnedLines[i - 1].SetVertexCount(3);
@@ -163,7 +172,11 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             addAngle -= BranchAngle;
 
             previousSkillPosition = currentSkillPosition;
-        } //OK clean all of this up and don't forget to generate the last web line. Oh, and the first one is glitched out, take example in the start function to avoid this.
+        }
+
+         UpdateWebWirePositions(spawnedLines[CompetenceAmount.Length - 1], currentSkillPosition, firstBranchPosition);
+
+        //OK clean all of this up and don't forget to generate the last web line. Oh, and the first one is glitched out, take example in the start function to avoid this.
 
         /*foreach (LineRenderer line in spawnedLines)
         {
@@ -184,6 +197,6 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     void Update ()
     {
-        //UpdateSpider();
+        UpdateSpider();
     }
 }
