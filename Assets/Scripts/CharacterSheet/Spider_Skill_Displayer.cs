@@ -23,6 +23,13 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         spawnedLines = new LineRenderer[CompetenceAmount.Length];
         spawnedBranches = new LineRenderer[CompetenceAmount.Length];
 
+        //Let's make sure the competence amount won't be spawned with a value inferior to 1.
+        for (int i = 0; i < CompetenceAmount.Length; i++)
+        {
+            if (CompetenceAmount[i] <= 0)
+                CompetenceAmount[i] = 1;
+        }
+
         //Let's get the greatest skill value first
         foreach (int skillPoint in CompetenceAmount)
         {
