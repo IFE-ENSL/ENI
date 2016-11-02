@@ -7,6 +7,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     //TO DO: Factorize and clean this code before fixing the dynamic updating of the spider. It's a mess here, phew !
 
     public int[] CompetenceAmount;
+    public static int[] staticSkillAmount; // TO DO
     Transform firstBranch;
     public GameObject CompetencePrefab;
     public GameObject SpiderWebWirePrefab;

@@ -5,14 +5,24 @@ using System.Collections;
 public class CharacterSheetManager : MonoBehaviour {
 
     Camera SheetCamera;
+    GameObject gameCanvas;
 
     void Start ()
     {
         SheetCamera = transform.Find("CharacterSheetCamera").GetComponent<Camera>();
+        gameCanvas = GameObject.Find("GameUI");
     }
 
-    public void ToggleDisplaySheet () //Should deactivate characterMoves when clicking on a button, else, the pawn goes crazy...
+    public void ToggleDisplaySheet ()
     {
+        if (gameCanvas != null)
+        {
+            if (gameCanvas.activeSelf)
+                gameCanvas.SetActive(false);
+            else
+                gameCanvas.SetActive(true);
+        }
+
         if (SheetCamera.depth == -2)
         {
             SheetCamera.depth = 0;
