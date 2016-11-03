@@ -7,6 +7,8 @@ public class CharacterSheetManager : MonoBehaviour {
     Camera SheetCamera;
     GameObject gameCanvas;
 
+    public int[] CompetenceAmount;
+
     void Start ()
     {
         SheetCamera = transform.Find("CharacterSheetCamera").GetComponent<Camera>();
@@ -31,6 +33,8 @@ public class CharacterSheetManager : MonoBehaviour {
         {
             SheetCamera.depth = -2;
         }
+
+        Debug.Log("Toggled Player Sheet");
 
         //Let's add some controls constraints according to the scene we're in
         Scene currentScene = SceneManager.GetActiveScene();
