@@ -30,6 +30,8 @@ namespace Assets.Scripts.Utility
                 Instantiate(ironCoin, _startPositions[i], Quaternion.identity);
                 yield return new WaitForSeconds(1f);
             }
+
+
         }
     }
 }

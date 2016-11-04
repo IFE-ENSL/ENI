@@ -28,11 +28,18 @@ namespace Assets.Scripts.Management
             if (nbrPers == 5)
             {
                 if (sGlobale.satisfactionGlobale < 60)
-                    _pieceRobot.Bras = (int) TypePieceRobot.Bronze;
+                {
+                    _pieceRobot.Bras = (int)TypePieceRobot.Bronze;
+
+                }
                 else if (sGlobale.satisfactionGlobale < 80)
-                    _pieceRobot.Bras = (int) TypePieceRobot.Argent;
+                {
+                    _pieceRobot.Bras = (int)TypePieceRobot.Argent;
+                }
                 else if (sGlobale.satisfactionGlobale > 80)
-                    _pieceRobot.Bras = (int) TypePieceRobot.Or;
+                {
+                    _pieceRobot.Bras = (int)TypePieceRobot.Or;
+                }
                 StartCoroutine(_winScript.Win((int) _pieceRobot.Bras + 1));
                 imagesDirecteur[(int) _pieceRobot.Bras].SetActive(true);
                 StartCoroutine(LoadNextLevel());

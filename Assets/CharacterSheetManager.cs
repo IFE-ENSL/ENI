@@ -6,6 +6,7 @@ public class CharacterSheetManager : MonoBehaviour {
 
     Camera SheetCamera;
     GameObject gameCanvas;
+    Canvas sheetCanvas;
 
     public int[] CompetenceAmount;
 
@@ -13,6 +14,7 @@ public class CharacterSheetManager : MonoBehaviour {
     {
         SheetCamera = transform.Find("CharacterSheetCamera").GetComponent<Camera>();
         gameCanvas = GameObject.Find("GameUI");
+        sheetCanvas = transform.Find("CharacterSheetCanvas").GetComponent<Canvas>();
     }
 
     public void ToggleDisplaySheet ()
@@ -24,6 +26,11 @@ public class CharacterSheetManager : MonoBehaviour {
             else
                 gameCanvas.SetActive(true);
         }
+
+        if (sheetCanvas.enabled)
+            sheetCanvas.enabled = false;
+        else
+            sheetCanvas.enabled = true;
 
         if (SheetCamera.depth == -2)
         {

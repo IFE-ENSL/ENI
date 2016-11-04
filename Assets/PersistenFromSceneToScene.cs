@@ -4,7 +4,8 @@ using System.Collections;
 public class PersistenFromSceneToScene : MonoBehaviour
 {
 
-    public static PersistenFromSceneToScene Instance;
+    public static PersistenFromSceneToScene DataPersistenceInstance;
+
 
     public int[] competenceAmount;
 
@@ -13,12 +14,12 @@ public class PersistenFromSceneToScene : MonoBehaviour
 	// Use this for initialization
 	void Awake ()
     {
-        if (Instance == null)
+        if (DataPersistenceInstance == null)
         {
             DontDestroyOnLoad(gameObject);
-            Instance = this;
+            DataPersistenceInstance = this;
         }
-        else if (Instance != this)
+        else if (DataPersistenceInstance != this)
         {
             Destroy(gameObject);
         }

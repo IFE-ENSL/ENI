@@ -35,11 +35,48 @@ namespace Assets.Scripts.Connexion
         private SaveManager sm;
         public ManagementConnexion mConnexion;
 
-        void Start()
+        public static ConnexionController ConnexionControllerInstance;
+
+        void Awake()
         {
-            if (dontDestroyOnLoad)
-                DontDestroyOnLoad(this.gameObject);
+            if (dontDestroyOnLoad) //If we won't destroy this on load, let's make it a singleton object, to make sure there's no double of this object in any scene
+            {
+                if (ConnexionControllerInstance == null)
+                {
+                    DontDestroyOnLoad(gameObject);
+                    ConnexionControllerInstance = this;
+                }
+                else if (ConnexionControllerInstance != this)
+                {
+                    Destroy(gameObject);
+                }
+            }
+
+
+        }
+
+        void Start ()
+        {
             sm = FindObjectOfType<SaveManager>();
+
+            CheckLog();
+        }
+        
+        void OnLevelWasLoaded () //Beware : This function does not exist in Unity 5.4+, check "SceneManager.sceneLoaded += YourMethod();" instead
+        {
+            Debug.Log("Scene Loaded");
+            CheckLog();
+        }
+
+        //Let's make sure that if we're in game, we're properly logged, else, let us take back the player to the login screen
+        void CheckLog ()
+        {
+            if (!isLogged && SceneManager.GetActiveScene().name != "Login")
+            {
+                Debug.Break();
+                Debug.LogWarning("Lost login connexion during the game!");
+                SceneManager.LoadScene("Login");
+            }
         }
 
         //Méthode permettant d'envoyer un log
