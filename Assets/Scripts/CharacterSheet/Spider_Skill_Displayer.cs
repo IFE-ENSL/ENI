@@ -25,7 +25,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     public void LoadPlayerStats ()
     {
-        if (PersistenFromSceneToScene.DataPersistenceInstance.competenceAmount.Length > 0)
+        if (PersistenFromSceneToScene.DataPersistenceInstance.competenceAmount.Count > 0)
             characterSheet.CompetenceAmount = PersistenFromSceneToScene.DataPersistenceInstance.competenceAmount;
     }
 
@@ -38,13 +38,13 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         LoadPlayerStats();
 
         //Force the Competence amount to be of at least 4 different skills.
-	    if (characterSheet.CompetenceAmount.Length < 4)
+	    if (characterSheet.CompetenceAmount.Count < 4)
         {
-            Array.Resize(ref characterSheet.CompetenceAmount, 4);
+            //Array.Resize(ref characterSheet.CompetenceAmount, 4);
         }
 
         //Let's make sure the competence amount won't be spawned with a value inferior to 1.
-        for (int i = 0; i < characterSheet.CompetenceAmount.Length; i++)
+        for (int i = 0; i < characterSheet.CompetenceAmount.Count; i++)
         {
             if (characterSheet.CompetenceAmount[i] <= 0)
                 characterSheet.CompetenceAmount[i] = 1;
@@ -57,15 +57,15 @@ public class Spider_Skill_Displayer : MonoBehaviour {
                 greatestSkillValue = skillPoint;
         }
 
-        spawnedLines = new LineRenderer[characterSheet.CompetenceAmount.Length];
-        spawnedBranches = new LineRenderer[characterSheet.CompetenceAmount.Length];
+        spawnedLines = new LineRenderer[characterSheet.CompetenceAmount.Count];
+        spawnedBranches = new LineRenderer[characterSheet.CompetenceAmount.Count];
 
         InitializeSpider();
 	}
 
     void InitializeSpider ()
     {
-        float BranchAngle = 360 / characterSheet.CompetenceAmount.Length;
+        float BranchAngle = 360 / characterSheet.CompetenceAmount.Count;
         float addAngle = BranchAngle;
 
         Vector3[] newPositions = new Vector3[2];
@@ -74,7 +74,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         Vector3 previousSkillPosition = Vector3.zero;
         Vector3 currentSkillPosition = Vector3.zero;
 
-        for (int i = 0; i < characterSheet.CompetenceAmount.Length; i++)
+        for (int i = 0; i < characterSheet.CompetenceAmount.Count; i++)
         {
             //Spawn a branch, parent it to the spider object, then rename it for clarity's sake.
             GameObject spawnedCompetence = GameObject.Instantiate(CompetencePrefab, transform.position, Quaternion.identity) as GameObject;
@@ -116,7 +116,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             previousSkillPosition = currentSkillPosition;
         }
 
-        spawnedLines[characterSheet.CompetenceAmount.Length - 1] = SpawnWebWire(currentSkillPosition, firstBranchPosition, characterSheet.CompetenceAmount.Length - 1);
+        spawnedLines[characterSheet.CompetenceAmount.Count - 1] = SpawnWebWire(currentSkillPosition, firstBranchPosition, characterSheet.CompetenceAmount.Count - 1);
     }
 
     LineRenderer SpawnWebWire (Vector3 previousLineTip, Vector3 newPositions, int spawnNumber)
@@ -157,14 +157,14 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
         Vector3[] newPositions = new Vector3[2];
 
-        float BranchAngle = 360 / characterSheet.CompetenceAmount.Length;
+        float BranchAngle = 360 / characterSheet.CompetenceAmount.Count;
         float addAngle = BranchAngle;
 
         Vector3 firstBranchPosition = Vector3.zero;
         Vector3 previousSkillPosition = Vector3.zero;
         Vector3 currentSkillPosition = Vector3.zero;
 
-        for (int i= 0; i < characterSheet.CompetenceAmount.Length; i++)
+        for (int i= 0; i < characterSheet.CompetenceAmount.Count; i++)
         {
             Vector3 newRotatedVector = new Vector3(0, branchesSize, 0);
             newRotatedVector = Quaternion.AngleAxis(-addAngle, Vector3.forward) * newRotatedVector;
@@ -198,7 +198,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             previousSkillPosition = currentSkillPosition;
         }
 
-         UpdateWebWirePositions(spawnedLines[characterSheet.CompetenceAmount.Length - 1], currentSkillPosition, firstBranchPosition);
+         UpdateWebWirePositions(spawnedLines[characterSheet.CompetenceAmount.Count - 1], currentSkillPosition, firstBranchPosition);
 
         //OK clean all of this up and don't forget to generate the last web line. Oh, and the first one is glitched out, take example in the start function to avoid this.
 

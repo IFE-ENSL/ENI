@@ -16,9 +16,10 @@ public class CheckStartScene {
     {
         Debug.Log("Changed play state");
 
-        if(SceneManager.GetActiveScene().name != "Login")
+        if(SceneManager.GetActiveScene().name != "Login" && EditorApplication.isPlaying)
         {
             SceneManager.LoadScene("Login");
+            Debug.ClearDeveloperConsole();
         }
     }
 }

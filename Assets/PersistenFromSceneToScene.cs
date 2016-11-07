@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class PersistenFromSceneToScene : MonoBehaviour
 {
@@ -7,7 +8,7 @@ public class PersistenFromSceneToScene : MonoBehaviour
     public static PersistenFromSceneToScene DataPersistenceInstance;
 
 
-    public int[] competenceAmount;
+    public List<int> competenceAmount;
 
 
 
