@@ -22,6 +22,8 @@ public class CharacterSheetManager : MonoBehaviour, ISerializationCallbackReceiv
     int previousNamesLength = 0;
     int previousCompetenceLength = 0;
 
+    //Is called right before Unity Serializes anything
+    //This permits to make sure the skill names & points lists always have the same length when editing them in the inspector
     public void OnBeforeSerialize()
     {
         if (skillNames.Count != CompetenceAmount.Count)
@@ -31,7 +33,6 @@ public class CharacterSheetManager : MonoBehaviour, ISerializationCallbackReceiv
 
             if (previousNamesLength != skillNames.Count)
             {
-                //CompetenceAmount.Capacity = skillNames.Count;
                 diff = CompetenceAmount.Count - skillNames.Count;
                 diff = Mathf.Abs(diff);
 
@@ -54,7 +55,6 @@ public class CharacterSheetManager : MonoBehaviour, ISerializationCallbackReceiv
 
             else if (previousCompetenceLength != CompetenceAmount.Count)
             {
-                //skillNames.Capacity = CompetenceAmount.Count;
                 diff = CompetenceAmount.Count - skillNames.Count;
                 diff = Mathf.Abs(diff);
 
@@ -75,7 +75,7 @@ public class CharacterSheetManager : MonoBehaviour, ISerializationCallbackReceiv
             }
         }
 
-        previousNamesLength= skillNames.Count;
+        previousNamesLength = skillNames.Count;
         previousCompetenceLength = CompetenceAmount.Count;
     }
 
@@ -86,6 +86,9 @@ public class CharacterSheetManager : MonoBehaviour, ISerializationCallbackReceiv
 
     public void ToggleDisplaySheet ()
     {
+        //Basically, we just deactivate any Game UI to replace it with the character sheet.
+        //As the spider skill is not rendered by the Unity UI System, it is displayed through
+        //another Camera hidden in the game scene.
         if (gameCanvas != null)
         {
             if (gameCanvas.activeSelf)
@@ -117,6 +120,7 @@ public class CharacterSheetManager : MonoBehaviour, ISerializationCallbackReceiv
             ToggleMainBoardConstraints();
     }
 
+    //This method will prevent the pawn from moving if we're clicking anywhere inside the character sheet
     void ToggleMainBoardConstraints()
     {
         if (BoardManager.preventPlayerControl == true)

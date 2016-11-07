@@ -15,6 +15,8 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     int greatestSkillValue = 0;
     public float spiderThickness = .1f;
 
+    public GameObject tagPrefab;
+
     LineRenderer[] spawnedBranches;
     LineRenderer[] spawnedLines;
 
@@ -61,6 +63,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         spawnedBranches = new LineRenderer[characterSheet.CompetenceAmount.Count];
 
         InitializeSpider();
+        DisplayTags();
 	}
 
     void InitializeSpider ()
@@ -103,20 +106,32 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
             spawnedBranches[i] = CompetenceLine;
 
+            //If we did'nt change the first branch's position, then it must be the one we're looking at right now
             if (firstBranchPosition == Vector3.zero)
                 firstBranchPosition = currentSkillPosition;
 
+            //Incrementing the angle for the next branch, in order to rotate it properly
             addAngle -= BranchAngle;
 
             if (i != 0)
             {
+                //As long as we're not looking to the first branch, we can spawn one of the web's wire. 
                 spawnedLines[i - 1] = SpawnWebWire(previousSkillPosition, currentSkillPosition, i - 1);
             }
 
             previousSkillPosition = currentSkillPosition;
         }
 
+        //For the very last web wire, we spawn it using 
         spawnedLines[characterSheet.CompetenceAmount.Count - 1] = SpawnWebWire(currentSkillPosition, firstBranchPosition, characterSheet.CompetenceAmount.Count - 1);
+    }
+
+    void DisplayTags ()
+    {
+        foreach (LineRenderer branch in spawnedBranches)
+        {
+            //Instantiate(tagPrefab, branch.) TO DO : Need to find a way to get the position of the extremity of the branch... It should be saved when calculated in the InitializeSpider method.
+        }
     }
 
     LineRenderer SpawnWebWire (Vector3 previousLineTip, Vector3 newPositions, int spawnNumber)
@@ -139,7 +154,10 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
         line.GetComponent<CustomizeLineRenderer>().linePositions = webWirePos;
         line.GetComponent<LineRenderer>().SetWidth(spiderThickness, spiderThickness);
-        //spawnedWebWire.GetComponent<CustomizeLineRenderer>().RoughCurve(); //Use this instead of SmoothCurve() to get a clearer view of the stats shaping the web line, ONLY FOR DEBUG.
+
+        //Use this instead of SmoothCurve() to get a clearer view of the stats shaping the web line, ONLY FOR DEBUG.
+        //spawnedWebWire.GetComponent<CustomizeLineRenderer>().RoughCurve();
+
         line.GetComponent<CustomizeLineRenderer>().SmoothCurve();
     }
 
@@ -186,37 +204,12 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             if ( i != 0 )
                 UpdateWebWirePositions(spawnedLines[i - 1], previousSkillPosition, currentSkillPosition);
 
-            /*
-            if (i != 0)
-            {
-                spawnedLines[i - 1].SetVertexCount(3);
-                spawnedLines[i - 1].GetComponent<CustomizeLineRenderer>().linePositions = new Vector3[3];
-            }*/
-
             addAngle -= BranchAngle;
 
             previousSkillPosition = currentSkillPosition;
         }
 
          UpdateWebWirePositions(spawnedLines[characterSheet.CompetenceAmount.Count - 1], currentSkillPosition, firstBranchPosition);
-
-        //OK clean all of this up and don't forget to generate the last web line. Oh, and the first one is glitched out, take example in the start function to avoid this.
-
-        /*foreach (LineRenderer line in spawnedLines)
-        {
-            line.SetVertexCount(3);
-            //Debug.Log(line.transform.name + " should now only have 3 vertices");
-            Vector3[] newPos = new Vector3[3];
-            
-            for (int i = 0; i < 3; i ++)
-            {
-                newPos[i] = Vector3.zero;
-            }
-
-            line.SetPositions(newPos);
-            line.GetComponent<CustomizeLineRenderer>().linePositions = newPos;
-            line.GetComponent<CustomizeLineRenderer>().SmoothCurve();
-        }*/ //This was the first experimentation
     }
 
     void Update ()
