@@ -9,8 +9,7 @@ public class PersistenFromSceneToScene : MonoBehaviour
 
 
     public List<int> competenceAmount;
-
-
+    public List<QualityList> masterQualityList;
 
 	// Use this for initialization
 	void Awake ()

@@ -4,10 +4,8 @@ using System;
 
 public class Spider_Skill_Displayer : MonoBehaviour {
 
-    //TO DO: Factorize and clean this code before fixing the dynamic updating of the spider. It's a mess here, phew !
-
     CharacterSheetManager characterSheet;
-    public static int[] staticSkillAmount; // TO DO
+    public static int[] staticSkillAmount;
     Transform firstBranch;
     public GameObject CompetencePrefab;
     public GameObject SpiderWebWirePrefab;
@@ -19,6 +17,9 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     LineRenderer[] spawnedBranches;
     LineRenderer[] spawnedLines;
+
+    Vector3[] RegisteredBranchTopPositions;
+    GameObject[] spawnedTags;
 
     public void SavePlayerStats()
     {
@@ -36,8 +37,12 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     {
         characterSheet = transform.parent.GetComponent<CharacterSheetManager>();
 
+        //Initializing the lists based on the number of skills contained in the character sheet class
+        RegisteredBranchTopPositions = new Vector3[characterSheet.skillNames.Count];
+        spawnedTags = new GameObject[characterSheet.skillNames.Count];
 
         LoadPlayerStats();
+
 
         //Force the Competence amount to be of at least 4 different skills.
 	    if (characterSheet.CompetenceAmount.Count < 4)
@@ -63,7 +68,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         spawnedBranches = new LineRenderer[characterSheet.CompetenceAmount.Count];
 
         InitializeSpider();
-        DisplayTags();
+        SpawnTags();
 	}
 
     void InitializeSpider ()
@@ -89,6 +94,10 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             newRotatedVector = Quaternion.AngleAxis(-addAngle, Vector3.forward) * newRotatedVector;
             newPositions[0] = transform.position;
             newPositions[1] = newRotatedVector + transform.position;
+
+
+            Vector3 branchDirection = newPositions[1] - newPositions[0];
+            RegisteredBranchTopPositions[i] = newPositions[1] + branchDirection * .2f;
 
             //Then we apply the position to the branches' line renderers.
             LineRenderer CompetenceLine = spawnedCompetence.GetComponent<LineRenderer>();
@@ -126,11 +135,28 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         spawnedLines[characterSheet.CompetenceAmount.Count - 1] = SpawnWebWire(currentSkillPosition, firstBranchPosition, characterSheet.CompetenceAmount.Count - 1);
     }
 
-    void DisplayTags ()
+    void SpawnTags ()
     {
-        foreach (LineRenderer branch in spawnedBranches)
+        int iterator = 0;
+        foreach (Vector3 topPosition in RegisteredBranchTopPositions)
         {
-            //Instantiate(tagPrefab, branch.) TO DO : Need to find a way to get the position of the extremity of the branch... It should be saved when calculated in the InitializeSpider method.
+            spawnedTags[iterator] = Instantiate(tagPrefab, topPosition, Quaternion.identity) as GameObject;
+                iterator++;
+        }
+    }
+
+    void UpdateTags()
+    {
+        int iterator = 0;
+        foreach (Vector3 topPosition in RegisteredBranchTopPositions)
+        {
+            spawnedTags[iterator].transform.position = topPosition;
+
+            spawnedTags[iterator].GetComponent<TextMesh>().text = characterSheet.skillNames[iterator];
+            spawnedTags[iterator].transform.name = "Tag_" + characterSheet.skillNames[iterator];
+            spawnedTags[iterator].transform.SetParent(transform);
+
+            iterator++;
         }
     }
 
@@ -189,6 +215,9 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             newPositions[0] = transform.position;
             newPositions[1] = newRotatedVector + transform.position;
 
+            Vector3 branchDirection = newPositions[1] - newPositions[0];
+            RegisteredBranchTopPositions[i] = newPositions[1] + branchDirection * .2f;
+
             LineRenderer CompetenceLine = spawnedBranches[i].GetComponent<LineRenderer>();
             CompetenceLine.SetPositions(newPositions);
             CompetenceLine.SetWidth(spiderThickness, spiderThickness);
@@ -197,6 +226,8 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             float percentageValue = (float)characterSheet.CompetenceAmount[i] / (float)greatestSkillValue * branchesSize;
             currentSkillPosition = new Vector3(0, percentageValue, 0);
             currentSkillPosition = Quaternion.AngleAxis(-addAngle, Vector3.forward) * currentSkillPosition;
+
+
 
             if (firstBranchPosition == Vector3.zero)
                 firstBranchPosition = currentSkillPosition;
@@ -216,5 +247,6 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     {
         UpdateSpider();
         SavePlayerStats();
+        UpdateTags();
     }
 }

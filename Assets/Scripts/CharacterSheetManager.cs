@@ -11,19 +11,31 @@ public class CharacterSheetManager : MonoBehaviour, ISerializationCallbackReceiv
 
     public List<string> skillNames;
     public List<int> CompetenceAmount;
+    public List<QualityList> masterQualityList;
+
+    public int PallierQualité;
+
+
+    void Update ()
+    {
+        PersistenFromSceneToScene.DataPersistenceInstance.masterQualityList = masterQualityList; //Saving for this playsession
+    }
 
     void Start ()
     {
         SheetCamera = transform.Find("CharacterSheetCamera").GetComponent<Camera>();
         gameCanvas = GameObject.Find("GameUI");
         sheetCanvas = transform.Find("CharacterSheetCanvas").GetComponent<Canvas>();
+
+        if (PersistenFromSceneToScene.DataPersistenceInstance.masterQualityList.Count > 0) //Loading for this playsession
+            masterQualityList = PersistenFromSceneToScene.DataPersistenceInstance.masterQualityList;
     }
 
     int previousNamesLength = 0;
     int previousCompetenceLength = 0;
 
     //Is called right before Unity Serializes anything
-    //This permits to make sure the skill names & points lists always have the same length when editing them in the inspector
+    //This is to make sure the skill names & points lists always have the same length when editing them in the inspector
     public void OnBeforeSerialize()
     {
         if (skillNames.Count != CompetenceAmount.Count)
@@ -73,6 +85,27 @@ public class CharacterSheetManager : MonoBehaviour, ISerializationCallbackReceiv
                     skillNames.AddRange(rangeToAdd);
                 }
             }
+
+            diff = masterQualityList.Count - skillNames.Count;
+            diff = Mathf.Abs(diff);
+
+            #region Setting up the size of the master Quality List
+            if (masterQualityList.Count < skillNames.Count)
+            {
+                List<QualityList> rangeToAdd = new List<QualityList>();
+
+                for (int i = 0; i < Mathf.Abs(diff); i++)
+                {
+                    rangeToAdd.Add(new QualityList());
+                }
+
+                masterQualityList.AddRange(rangeToAdd);
+            }
+            else if (skillNames.Count < masterQualityList.Count)
+            {
+                skillNames.RemoveRange(masterQualityList.Count - diff, diff);
+            }
+            #endregion
         }
 
         previousNamesLength = skillNames.Count;
