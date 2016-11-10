@@ -10,7 +10,7 @@ public class CharacterSheetManager : MonoBehaviour, ISerializationCallbackReceiv
     Canvas sheetCanvas;
 
     public List<string> skillNames;
-    public List<int> CompetenceAmount;
+    public List<float> CompetenceAmount;
     public List<QualityList> masterQualityList;
 
     public int PallierQualité;
@@ -19,6 +19,23 @@ public class CharacterSheetManager : MonoBehaviour, ISerializationCallbackReceiv
     void Update ()
     {
         PersistenFromSceneToScene.DataPersistenceInstance.masterQualityList = masterQualityList; //Saving for this playsession
+    }
+
+    void WeighUpSkillFactor()
+    {
+        int iterator = 0;
+        foreach (int skillAmount in CompetenceAmount)
+        {
+            float qualityPercentValue = 100 / masterQualityList[iterator].Qualities.Count;
+
+            foreach (int qualityPoints in masterQualityList[iterator].Qualities)
+            {
+                float qualityWeight = qualityPercentValue / PallierQualité;
+                qualityWeight *= qualityPoints;
+                CompetenceAmount[iterator] += qualityWeight;
+            }
+            iterator++;
+        }
     }
 
     void Start ()
@@ -53,7 +70,7 @@ public class CharacterSheetManager : MonoBehaviour, ISerializationCallbackReceiv
                 else
                 {
                     Debug.Log("Skill names greater than Competence Amount, resizing..." + diff);
-                    List<int> rangeToAdd = new List<int>();
+                    List<float> rangeToAdd = new List<float>();
 
                     for (int i = 0; i < diff; i++)
                     {
@@ -108,6 +125,15 @@ public class CharacterSheetManager : MonoBehaviour, ISerializationCallbackReceiv
             #endregion
         }
 
+        int iterator = 0;
+
+        //Set the name for each list of qualities
+        foreach (QualityList qualityList in masterQualityList)
+        {
+            qualityList.Name = skillNames[iterator];
+            iterator++;
+        }
+
         previousNamesLength = skillNames.Count;
         previousCompetenceLength = CompetenceAmount.Count;
     }
@@ -115,6 +141,15 @@ public class CharacterSheetManager : MonoBehaviour, ISerializationCallbackReceiv
     public void OnAfterDeserialize()
     {
 
+    }
+
+    public void AddQualityStep (string skillName, int qualityNumber, int stepIncrementation)
+    {
+        int index = skillNames.IndexOf(skillName);
+
+        masterQualityList[index].Qualities[qualityNumber] += stepIncrementation;
+
+        WeighUpSkillFactor();
     }
 
     public void ToggleDisplaySheet ()

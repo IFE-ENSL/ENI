@@ -51,6 +51,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         }
 
         //Let's make sure the competence amount won't be spawned with a value inferior to 1.
+        // TO DO : Make sure this is actually a good idea, but if we spawn at 0 right now, it mess up with the curves display and generates error and perfs issues.
         for (int i = 0; i < characterSheet.CompetenceAmount.Count; i++)
         {
             if (characterSheet.CompetenceAmount[i] <= 0)

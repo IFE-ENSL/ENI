@@ -17,6 +17,11 @@ namespace Assets.Scripts.Management
         private WinScript _winScript;
         public GameManager gm;
 
+        [SerializeField]
+        string skillNameToAddPoints;
+        [SerializeField]
+        int qualityNumberToAddPoints;
+
         void Start()
         {
             _pieceRobot = GameObject.Find("PlayerData").GetComponent<PieceRobot>();
@@ -30,15 +35,18 @@ namespace Assets.Scripts.Management
                 if (sGlobale.satisfactionGlobale < 60)
                 {
                     _pieceRobot.Bras = (int)TypePieceRobot.Bronze;
+                    GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>().AddQualityStep(skillNameToAddPoints, qualityNumberToAddPoints, 1);
 
                 }
                 else if (sGlobale.satisfactionGlobale < 80)
                 {
                     _pieceRobot.Bras = (int)TypePieceRobot.Argent;
+                    GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>().AddQualityStep(skillNameToAddPoints, qualityNumberToAddPoints, 2);
                 }
                 else if (sGlobale.satisfactionGlobale > 80)
                 {
                     _pieceRobot.Bras = (int)TypePieceRobot.Or;
+                    GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>().AddQualityStep(skillNameToAddPoints, qualityNumberToAddPoints, 3);
                 }
                 StartCoroutine(_winScript.Win((int) _pieceRobot.Bras + 1));
                 imagesDirecteur[(int) _pieceRobot.Bras].SetActive(true);

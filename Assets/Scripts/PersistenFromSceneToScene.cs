@@ -8,7 +8,7 @@ public class PersistenFromSceneToScene : MonoBehaviour
     public static PersistenFromSceneToScene DataPersistenceInstance;
 
 
-    public List<int> competenceAmount;
+    public List<float> competenceAmount;
     public List<QualityList> masterQualityList;
 
 	// Use this for initialization
