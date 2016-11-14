@@ -52,11 +52,11 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
         //Let's make sure the competence amount won't be spawned with a value inferior to 1.
         // TO DO : Make sure this is actually a good idea, but if we spawn at 0 right now, it mess up with the curves display and generates error and perfs issues.
-        for (int i = 0; i < characterSheet.CompetenceAmount.Count; i++)
+       /* for (int i = 0; i < characterSheet.CompetenceAmount.Count; i++)
         {
             if (characterSheet.CompetenceAmount[i] <= 0)
                 characterSheet.CompetenceAmount[i] = 1;
-        }
+        }*/
 
         //Let's get the greatest skill value first
         foreach (int skillPoint in characterSheet.CompetenceAmount)
@@ -90,31 +90,10 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             spawnedCompetence.transform.SetParent(transform);
             spawnedCompetence.transform.name = "Competence" + i;
 
-            //Rotate the vector to make the branch face the good position, then store the position in the array for later use.
-            Vector3 newRotatedVector = new Vector3(0, branchesSize, 0);
-            newRotatedVector = Quaternion.AngleAxis(-addAngle, Vector3.forward) * newRotatedVector;
-            newPositions[0] = transform.position;
-            newPositions[1] = newRotatedVector + transform.position;
-
-
-            Vector3 branchDirection = newPositions[1] - newPositions[0];
-            RegisteredBranchTopPositions[i] = newPositions[1] + branchDirection * .2f;
-
-            //Then we apply the position to the branches' line renderers.
-            LineRenderer CompetenceLine = spawnedCompetence.GetComponent<LineRenderer>();
-            CompetenceLine.SetPositions(newPositions);
-            CompetenceLine.SetWidth(spiderThickness, spiderThickness);
-
-            // Debug.DrawLine(transform.position, transform.position + newRotatedVector, Color.red, Mathf.Infinity);
-
-            //Set the position of the skill point, it should be on the associated branch
-            float percentageValue = (float)characterSheet.CompetenceAmount[i] / (float)greatestSkillValue * branchesSize;
-            currentSkillPosition = new Vector3(0, percentageValue, 0);
-            currentSkillPosition = Quaternion.AngleAxis(-addAngle, Vector3.forward) * currentSkillPosition;
-
+           
             // Debug.DrawLine(transform.position, transform.position + currentSkillPosition, Color.red, Mathf.Infinity);
 
-            spawnedBranches[i] = CompetenceLine;
+            spawnedBranches[i] = UpdateBranchPositions(addAngle, newPositions, i, ref currentSkillPosition, spawnedCompetence); ;
 
             //If we did'nt change the first branch's position, then it must be the one we're looking at right now
             if (firstBranchPosition == Vector3.zero)
@@ -132,7 +111,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             previousSkillPosition = currentSkillPosition;
         }
 
-        //For the very last web wire, we spawn it using 
+        //For the very last web wire, we spawn it using the first branch position
         spawnedLines[characterSheet.CompetenceAmount.Count - 1] = SpawnWebWire(currentSkillPosition, firstBranchPosition, characterSheet.CompetenceAmount.Count - 1);
     }
 
@@ -174,18 +153,49 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     void UpdateWebWirePositions (LineRenderer line, Vector3 previousLineTip, Vector3 newPositions)
     {
-        Vector3[] webWirePos = new Vector3[3];
+        Vector3[] webWirePos = new Vector3[2];
         webWirePos[0] = previousLineTip + transform.position;
-        webWirePos[1] = transform.position;
-        webWirePos[2] = newPositions + transform.position;
+        //webWirePos[1] = transform.position;
+        webWirePos[1] = newPositions + transform.position;
 
         line.GetComponent<CustomizeLineRenderer>().linePositions = webWirePos;
         line.GetComponent<LineRenderer>().SetWidth(spiderThickness, spiderThickness);
 
-        //Use this instead of SmoothCurve() to get a clearer view of the stats shaping the web line, ONLY FOR DEBUG.
-        //spawnedWebWire.GetComponent<CustomizeLineRenderer>().RoughCurve();
+        //Use this instead of SmoothCurve() to get a clearer view of the stats shaping the web line
+        line.GetComponent<CustomizeLineRenderer>().RoughCurve();
 
-        line.GetComponent<CustomizeLineRenderer>().SmoothCurve();
+        //line.GetComponent<CustomizeLineRenderer>().SmoothCurve();
+    }
+
+    LineRenderer UpdateBranchPositions (float addAngle, Vector3[] newPositions, int i, ref Vector3 currentSkillPosition, GameObject spawnedCompetence)
+    {
+        Vector3 newRotatedVector = new Vector3(0, branchesSize, 0);
+        newRotatedVector = Quaternion.AngleAxis(-addAngle, Vector3.forward) * newRotatedVector;
+        newPositions[0] = transform.position;
+        newPositions[1] = newRotatedVector + transform.position;
+
+        Vector3 branchDirection = newPositions[1] - newPositions[0];
+        RegisteredBranchTopPositions[i] = newPositions[1] + branchDirection * .2f;
+
+        //Then we apply the position to the branches' line renderers.
+        LineRenderer CompetenceLine = spawnedCompetence.GetComponent<LineRenderer>();
+        CompetenceLine.SetPositions(newPositions);
+        CompetenceLine.SetWidth(spiderThickness, spiderThickness);
+
+        // Debug.DrawLine(transform.position, transform.position + newRotatedVector, Color.red, Mathf.Infinity);
+
+        //Set the position of the skill point, it should be on the associated branch
+        float percentageValue;
+
+        if (greatestSkillValue > 0)
+            percentageValue = (float)characterSheet.CompetenceAmount[i] / (float)greatestSkillValue * branchesSize;
+        else
+            percentageValue = 0;
+
+        currentSkillPosition = new Vector3(0, percentageValue, 0);
+        currentSkillPosition = Quaternion.AngleAxis(-addAngle, Vector3.forward) * currentSkillPosition;
+
+        return CompetenceLine;
     }
 
     void UpdateSpider ()
@@ -211,24 +221,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
         for (int i= 0; i < characterSheet.CompetenceAmount.Count; i++)
         {
-            Vector3 newRotatedVector = new Vector3(0, branchesSize, 0);
-            newRotatedVector = Quaternion.AngleAxis(-addAngle, Vector3.forward) * newRotatedVector;
-            newPositions[0] = transform.position;
-            newPositions[1] = newRotatedVector + transform.position;
-
-            Vector3 branchDirection = newPositions[1] - newPositions[0];
-            RegisteredBranchTopPositions[i] = newPositions[1] + branchDirection * .2f;
-
-            LineRenderer CompetenceLine = spawnedBranches[i].GetComponent<LineRenderer>();
-            CompetenceLine.SetPositions(newPositions);
-            CompetenceLine.SetWidth(spiderThickness, spiderThickness);
-
-            //Set the position of the skill point, it should be on the associated branch
-            float percentageValue = (float)characterSheet.CompetenceAmount[i] / (float)greatestSkillValue * branchesSize;
-            currentSkillPosition = new Vector3(0, percentageValue, 0);
-            currentSkillPosition = Quaternion.AngleAxis(-addAngle, Vector3.forward) * currentSkillPosition;
-
-
+            UpdateBranchPositions(addAngle, newPositions, i, ref currentSkillPosition, spawnedBranches[i].gameObject);
 
             if (firstBranchPosition == Vector3.zero)
                 firstBranchPosition = currentSkillPosition;
