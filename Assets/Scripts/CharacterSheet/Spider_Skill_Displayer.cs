@@ -5,12 +5,12 @@ using System;
 public class Spider_Skill_Displayer : MonoBehaviour {
 
     CharacterSheetManager characterSheet;
-    public static int[] staticSkillAmount;
+    public static float[] staticSkillAmount;
     Transform firstBranch;
     public GameObject CompetencePrefab;
     public GameObject SpiderWebWirePrefab;
     public float branchesSize = 20;
-    int greatestSkillValue = 0;
+    float greatestSkillValue = 0;
     public float spiderThickness = .1f;
 
     public GameObject tagPrefab;
@@ -59,7 +59,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         }*/
 
         //Let's get the greatest skill value first
-        foreach (int skillPoint in characterSheet.CompetenceAmount)
+        foreach (float skillPoint in characterSheet.CompetenceAmount)
         {
             if (skillPoint > greatestSkillValue)
                 greatestSkillValue = skillPoint;
@@ -154,9 +154,8 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     void UpdateWebWirePositions (LineRenderer line, Vector3 previousLineTip, Vector3 newPositions)
     {
         Vector3[] webWirePos = new Vector3[2];
-        webWirePos[0] = previousLineTip + transform.position;
-        //webWirePos[1] = transform.position;
-        webWirePos[1] = newPositions + transform.position;
+        webWirePos[0] = previousLineTip + transform.position /*+ previousLineTip * .1f*/;
+        webWirePos[1] = newPositions + transform.position /*+ newPositions * .1f*/;
 
         line.GetComponent<CustomizeLineRenderer>().linePositions = webWirePos;
         line.GetComponent<LineRenderer>().SetWidth(spiderThickness, spiderThickness);
@@ -182,13 +181,15 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         CompetenceLine.SetPositions(newPositions);
         CompetenceLine.SetWidth(spiderThickness, spiderThickness);
 
-        // Debug.DrawLine(transform.position, transform.position + newRotatedVector, Color.red, Mathf.Infinity);
+         Debug.DrawLine(transform.position, transform.position + newRotatedVector, Color.red, Time.deltaTime);
+        //Only a small part of the vector
+         Debug.DrawLine(transform.position, transform.position + newRotatedVector * .1f, Color.blue, Time.deltaTime);
 
         //Set the position of the skill point, it should be on the associated branch
         float percentageValue;
 
         if (greatestSkillValue > 0)
-            percentageValue = (float)characterSheet.CompetenceAmount[i] / (float)greatestSkillValue * branchesSize;
+            percentageValue = characterSheet.CompetenceAmount[i] / greatestSkillValue * branchesSize + branchesSize * .1f;
         else
             percentageValue = 0;
 
@@ -204,7 +205,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         greatestSkillValue = 0;
 
         //Let's get the greatest skill value first
-        foreach (int skillPoint in characterSheet.CompetenceAmount)
+        foreach (float skillPoint in characterSheet.CompetenceAmount)
         {
             if (skillPoint > greatestSkillValue)
                 greatestSkillValue = skillPoint;
@@ -227,7 +228,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
                 firstBranchPosition = currentSkillPosition;
 
             if ( i != 0 )
-                UpdateWebWirePositions(spawnedLines[i - 1], previousSkillPosition, currentSkillPosition);
+                UpdateWebWirePositions(spawnedLines[i - 1], previousSkillPosition, currentSkillPosition); //TO DO, EXPERIMENTING THIS
 
             addAngle -= BranchAngle;
 
