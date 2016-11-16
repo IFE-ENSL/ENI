@@ -43,20 +43,11 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
         LoadPlayerStats();
 
-
         //Force the Competence amount to be of at least 4 different skills.
 	    if (characterSheet.CompetenceAmount.Count < 4)
         {
             //Array.Resize(ref characterSheet.CompetenceAmount, 4);
         }
-
-        //Let's make sure the competence amount won't be spawned with a value inferior to 1.
-        // TO DO : Make sure this is actually a good idea, but if we spawn at 0 right now, it mess up with the curves display and generates error and perfs issues.
-       /* for (int i = 0; i < characterSheet.CompetenceAmount.Count; i++)
-        {
-            if (characterSheet.CompetenceAmount[i] <= 0)
-                characterSheet.CompetenceAmount[i] = 1;
-        }*/
 
         //Let's get the greatest skill value first
         foreach (float skillPoint in characterSheet.CompetenceAmount)
@@ -85,17 +76,16 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
         for (int i = 0; i < characterSheet.CompetenceAmount.Count; i++)
         {
-            //Spawn a branch, parent it to the spider object, then rename it for clarity's sake.
+            //Spawn a branch, parent it to the spider object, then rename it for better clarity.
             GameObject spawnedCompetence = GameObject.Instantiate(CompetencePrefab, transform.position, Quaternion.identity) as GameObject;
             spawnedCompetence.transform.SetParent(transform);
             spawnedCompetence.transform.name = "Competence" + i;
 
-           
             // Debug.DrawLine(transform.position, transform.position + currentSkillPosition, Color.red, Mathf.Infinity);
 
             spawnedBranches[i] = UpdateBranchPositions(addAngle, newPositions, i, ref currentSkillPosition, spawnedCompetence); ;
 
-            //If we did'nt change the first branch's position, then it must be the one we're looking at right now
+            //If we didn't change the first branch's position, then it must be the one we're looking at right now
             if (firstBranchPosition == Vector3.zero)
                 firstBranchPosition = currentSkillPosition;
 
@@ -154,8 +144,8 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     void UpdateWebWirePositions (LineRenderer line, Vector3 previousLineTip, Vector3 newPositions)
     {
         Vector3[] webWirePos = new Vector3[2];
-        webWirePos[0] = previousLineTip + transform.position /*+ previousLineTip * .1f*/;
-        webWirePos[1] = newPositions + transform.position /*+ newPositions * .1f*/;
+        webWirePos[0] = previousLineTip + transform.position;
+        webWirePos[1] = newPositions + transform.position ;
 
         line.GetComponent<CustomizeLineRenderer>().linePositions = webWirePos;
         line.GetComponent<LineRenderer>().SetWidth(spiderThickness, spiderThickness);
@@ -189,9 +179,16 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         float percentageValue;
 
         if (greatestSkillValue > 0)
-            percentageValue = characterSheet.CompetenceAmount[i] / greatestSkillValue * branchesSize + branchesSize * .1f;
+        {
+            if (greatestSkillValue < 1)
+                percentageValue = characterSheet.CompetenceAmount[i] * branchesSize + branchesSize * .1f;
+            else
+                percentageValue = characterSheet.CompetenceAmount[i] / greatestSkillValue * branchesSize + branchesSize * .1f;
+        }
         else
-            percentageValue = 0;
+        {
+            percentageValue = branchesSize * .1f;
+        }
 
         currentSkillPosition = new Vector3(0, percentageValue, 0);
         currentSkillPosition = Quaternion.AngleAxis(-addAngle, Vector3.forward) * currentSkillPosition;
@@ -228,7 +225,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
                 firstBranchPosition = currentSkillPosition;
 
             if ( i != 0 )
-                UpdateWebWirePositions(spawnedLines[i - 1], previousSkillPosition, currentSkillPosition); //TO DO, EXPERIMENTING THIS
+                UpdateWebWirePositions(spawnedLines[i - 1], previousSkillPosition, currentSkillPosition);
 
             addAngle -= BranchAngle;
 
