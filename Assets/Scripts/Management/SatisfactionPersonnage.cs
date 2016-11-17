@@ -32,7 +32,11 @@ namespace Assets.Scripts.Management
             {
                 yield return new WaitForSeconds(0.1f);
             }
-            surface = ((Personnage.surfaceSalarie*Personnage.nbrSalaries)/Personnage.piece.surface)*100;
+            // OLD surface = ((Personnage.surfaceSalarie*Personnage.nbrSalaries)/Personnage.piece.surface)*100;
+            surface = Personnage.piece.surface > Personnage.surfaceSalarie ? 1 : (Personnage.piece.surface / Personnage.surfaceSalarie) * (Personnage.piece.surface / Personnage.surfaceSalarie);
+            surface *= 100;
+            Debug.Log("Surface for " + Personnage.role + " is " + surface + " in room " + Personnage.piece.id);
+
             if (surface > 100)
                 surface = 100;
             luminosite =  ((float) Personnage.luminosite / Personnage.piece.ouvertureExterieur) * 100;
