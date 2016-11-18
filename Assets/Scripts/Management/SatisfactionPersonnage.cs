@@ -32,30 +32,61 @@ namespace Assets.Scripts.Management
             {
                 yield return new WaitForSeconds(0.1f);
             }
-            // OLD surface = ((Personnage.surfaceSalarie*Personnage.nbrSalaries)/Personnage.piece.surface)*100;
+
+
+            #region Satisfaction Surface
             surface = Personnage.piece.surface > Personnage.surfaceSalarie ? 1 : (Personnage.piece.surface / Personnage.surfaceSalarie) * (Personnage.piece.surface / Personnage.surfaceSalarie);
             surface *= 100;
             Debug.Log("Surface for " + Personnage.role + " is " + surface + " in room " + Personnage.piece.id);
+            #endregion
 
-            if (surface > 100)
-                surface = 100;
-            luminosite =  ((float) Personnage.luminosite / Personnage.piece.ouvertureExterieur) * 100;
-            if (luminosite > 100)
-                luminosite = 100;
-            if (Personnage.avatar.handicaped)
+            #region Satisfaction Luminosite
+            if (Personnage.luminosite == 0)
+                luminosite = 1;
+            else if (Personnage.luminosite == 1)
             {
-                handicap = Personnage.piece.accesHandicape ? 100 : 0;
+                if (Personnage.piece.ouvertureExterieur <= 4)
+                    luminosite = 1;
+                else
+                    luminosite = 0.5f;
             }
+            else if (Personnage.piece.ouvertureExterieur <= 2)
+            {
+                luminosite = 1;
+            }
+            else if (Personnage.piece.ouvertureExterieur <= 4)
+            {
+                luminosite = 0.6f;
+            }
+            else
+                luminosite = 0.2f;
+
+            luminosite *= 100;
+
+            Debug.Log("Luminosité for " + Personnage.role + " is " + luminosite + " in room " + Personnage.piece.id);
+            #endregion
+
+            #region Satisfaction Acces Exterieur
             if (Personnage.accesExterieur)
             {
                 accesExterieur = Personnage.piece.accesExterieur ? 100 : 0;
             }
+            Debug.Log("Accès for " + Personnage.role + " is " + accesExterieur + " in room " + Personnage.piece.id);
+            #endregion
+
+            if (Personnage.avatar.handicaped)
+            {
+                handicap = Personnage.piece.accesHandicape ? 100 : 0;
+            }
+            
             distanceSallePause = (Personnage.distanceSallePause / Personnage.piece.distanceSallePause) * 100;
             if (distanceSallePause > 100)
                 distanceSallePause = 100;
+
             distanceToilette = (Personnage.distanceToilette / Personnage.piece.distanceToilette) * 100;
             if (distanceToilette > 100)
                 distanceToilette = 100;
+
             //Calcule la satisfaction en fonction des personnages à coté de lui
             if (Personnage.copains.Count != 0)
             {
