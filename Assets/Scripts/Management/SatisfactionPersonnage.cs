@@ -40,6 +40,14 @@ namespace Assets.Scripts.Management
             Debug.Log("Surface for " + Personnage.role + " is " + surface + " in room " + Personnage.piece.id);
             #endregion
 
+            #region Satisfaction Acces Exterieur
+            if (Personnage.accesExterieur)
+            {
+                accesExterieur = Personnage.piece.accesExterieur ? 100 : 0;
+            }
+            Debug.Log("Accès exterieur for " + Personnage.role + " is " + accesExterieur + " in room " + Personnage.piece.id);
+            #endregion
+
             #region Satisfaction Luminosite
             if (Personnage.luminosite == 0)
                 luminosite = 1;
@@ -64,14 +72,6 @@ namespace Assets.Scripts.Management
             luminosite *= 100;
 
             Debug.Log("Luminosité for " + Personnage.role + " is " + luminosite + " in room " + Personnage.piece.id);
-            #endregion
-
-            #region Satisfaction Acces Exterieur
-            if (Personnage.accesExterieur)
-            {
-                accesExterieur = Personnage.piece.accesExterieur ? 100 : 0;
-            }
-            Debug.Log("Accès for " + Personnage.role + " is " + accesExterieur + " in room " + Personnage.piece.id);
             #endregion
 
             if (Personnage.avatar.handicaped)

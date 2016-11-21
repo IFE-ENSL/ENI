@@ -83,7 +83,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
             // Debug.DrawLine(transform.position, transform.position + currentSkillPosition, Color.red, Mathf.Infinity);
 
-            spawnedBranches[i] = UpdateBranchPositions(addAngle, newPositions, i, ref currentSkillPosition, spawnedCompetence); ;
+            spawnedBranches[i] = UpdateBranchPosAndSkillValues(addAngle, newPositions, i, ref currentSkillPosition, spawnedCompetence); ;
 
             //If we didn't change the first branch's position, then it must be the one we're looking at right now
             if (firstBranchPosition == Vector3.zero)
@@ -156,7 +156,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         //line.GetComponent<CustomizeLineRenderer>().SmoothCurve();
     }
 
-    LineRenderer UpdateBranchPositions (float addAngle, Vector3[] newPositions, int i, ref Vector3 currentSkillPosition, GameObject spawnedCompetence)
+    LineRenderer UpdateBranchPosAndSkillValues (float addAngle, Vector3[] newPositions, int i, ref Vector3 currentSkillPosition, GameObject spawnedCompetence)
     {
         Vector3 newRotatedVector = new Vector3(0, branchesSize, 0);
         newRotatedVector = Quaternion.AngleAxis(-addAngle, Vector3.forward) * newRotatedVector;
@@ -183,7 +183,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             if (greatestSkillValue < 1)
                 percentageValue = characterSheet.CompetenceAmount[i] * branchesSize + branchesSize * .1f;
             else
-                percentageValue = characterSheet.CompetenceAmount[i] / greatestSkillValue * branchesSize + branchesSize * .1f;
+                percentageValue = characterSheet.CompetenceAmount[i] / greatestSkillValue * (branchesSize - branchesSize * .1f) + branchesSize * .1f;
         }
         else
         {
@@ -219,7 +219,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
         for (int i= 0; i < characterSheet.CompetenceAmount.Count; i++)
         {
-            UpdateBranchPositions(addAngle, newPositions, i, ref currentSkillPosition, spawnedBranches[i].gameObject);
+            UpdateBranchPosAndSkillValues(addAngle, newPositions, i, ref currentSkillPosition, spawnedBranches[i].gameObject);
 
             if (firstBranchPosition == Vector3.zero)
                 firstBranchPosition = currentSkillPosition;
