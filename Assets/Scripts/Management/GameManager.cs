@@ -24,6 +24,10 @@ namespace Assets.Scripts.Management
         //La grille de personnages
         public GameObject grillePersonnages;
 
+        //The array of distances for each room from the resting room, ordered by distance
+        public static List<float> roomDistanceFromRestRoom = new List<float>();
+        public static List<float> roomDistanceFromBathRoom = new List<float>();
+
         //Le panel de description
         public GameObject descriptionPanel;
         //Permet de savoir si un personnage est en train de bouger dans le jeu
@@ -102,8 +106,17 @@ namespace Assets.Scripts.Management
             {
                 pieces[i].accesExterieur = piecesValues[i]["accesExterieur"].Value == "1" ? true : false;
                 pieces[i].accesHandicape = piecesValues[i]["accesHandicape"].Value == "1" ? true : false;
+
                 pieces[i].distanceSallePause = piecesValues[i]["distanceSallePause"].AsFloat;
+                roomDistanceFromRestRoom.Add(pieces[i].distanceSallePause);
+                roomDistanceFromRestRoom.Sort();
+                roomDistanceFromRestRoom.Reverse();
+
                 pieces[i].distanceToilette = piecesValues[i]["distanceToillette"].AsFloat;
+                roomDistanceFromBathRoom.Add(pieces[i].distanceToilette);
+                roomDistanceFromBathRoom.Sort();
+                roomDistanceFromBathRoom.Reverse();
+
                 pieces[i].surface = piecesValues[i]["surface"].AsFloat;
                 pieces[i].ouvertureExterieur = piecesValues[i]["ouvertureExterieur"].AsInt;
             }
@@ -160,7 +173,7 @@ namespace Assets.Scripts.Management
                     scriptP.surfaceSalarie = personnageValues[i]["surfaceSalarie"].AsInt;
                     scriptP.luminosite = personnageValues[i]["luminosite"].AsInt;
                     scriptP.accesExterieur = (personnageValues[i]["accesExterieur"].Value == "1") ? true : false;
-                    scriptP.distanceSallePause = personnageValues[i]["distanceSallePause"].AsFloat;
+                    scriptP.distanceSallePause = personnageValues[i]["distanceSallePause"].AsInt;
                     scriptP.distanceToilette = personnageValues[i]["distanceToilette"].AsFloat;
                     scriptP.id = personnageValues[i]["id"].AsInt;
                     //Envoie du log indiquant l'insertion du personnage

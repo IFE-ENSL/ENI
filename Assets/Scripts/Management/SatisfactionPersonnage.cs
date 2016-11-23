@@ -74,18 +74,52 @@ namespace Assets.Scripts.Management
             Debug.Log("Luminosité for " + Personnage.role + " is " + luminosite + " in room " + Personnage.piece.id);
             #endregion
 
-            if (Personnage.avatar.handicaped)
-            {
-                handicap = Personnage.piece.accesHandicape ? 100 : 0;
-            }
-            
-            distanceSallePause = (Personnage.distanceSallePause / Personnage.piece.distanceSallePause) * 100;
-            if (distanceSallePause > 100)
-                distanceSallePause = 100;
+            #region Satsifaction Distance Salle Pause
+            int breakRoomDistanceRank = GameManager.roomDistanceFromRestRoom.FindIndex(x => x == Personnage.piece.distanceSallePause) + 1;
 
-            distanceToilette = (Personnage.distanceToilette / Personnage.piece.distanceToilette) * 100;
-            if (distanceToilette > 100)
-                distanceToilette = 100;
+            if (Personnage.distanceSallePause == 0)
+                distanceSallePause = 1;
+            else
+            {
+                float formula1 = (breakRoomDistanceRank - 1);
+                float formula2 = (GameManager.roomDistanceFromRestRoom.Count - 1);
+                float baseFormula = (float)(1 - formula1 / formula2);
+                float floatFactor = (float)Personnage.distanceSallePause;
+
+                if (Personnage.distanceSallePause == 1)
+                    distanceSallePause = baseFormula;
+                else
+                    distanceSallePause = Mathf.Pow(baseFormula, floatFactor);
+            }
+
+            distanceSallePause *= 100;
+            Debug.Log("Distance Salle Pause for " + Personnage.role + " (Salle Pause Indice Satis. = " + Personnage.distanceSallePause + ") is " + distanceSallePause + " in room " + Personnage.piece.id + ", proximity rank is " + breakRoomDistanceRank);
+            #endregion
+
+            #region Satisfaction Distance Toilette
+            int bathRoomDistanceRank = GameManager.roomDistanceFromBathRoom.FindIndex(x => x == Personnage.piece.distanceToilette) + 1;
+
+            if (Personnage.distanceToilette == 0)
+                distanceToilette = 1;
+            else
+            {
+                float formula1 = (bathRoomDistanceRank - 1);
+                float formula2 = (GameManager.roomDistanceFromBathRoom.Count - 1);
+                float baseFormula = (float)(1 - formula1 / formula2);
+                float floatFactor = (float)Personnage.distanceToilette;
+
+                if (Personnage.distanceToilette == 1)
+                    distanceToilette = baseFormula;
+                else
+                    distanceToilette = Mathf.Pow(baseFormula, floatFactor);
+            }
+
+            distanceToilette *= 100;
+            Debug.Log("Distance Toilettes for " + Personnage.role + " (Toilettes Indice Satis. = " + Personnage.distanceToilette+ ") is " + distanceToilette + " in room " + Personnage.piece.id + ", proximity rank is " + bathRoomDistanceRank);
+            #endregion
+
+
+
 
             //Calcule la satisfaction en fonction des personnages à coté de lui
             if (Personnage.copains.Count != 0)

@@ -18,7 +18,7 @@ namespace Assets.Scripts.Management
         public float surfaceSalarie = 5;
         public int luminosite = 3;
         public bool accesExterieur = false;
-        public float distanceSallePause = 4.5f;
+        public int distanceSallePause = 4;
         public float distanceToilette = 2f;
 
 
@@ -91,7 +91,7 @@ namespace Assets.Scripts.Management
             surfaceSalarie = ES2.Load<float>(fileName + "?tag=" + name + "surfaceSalarie");
             luminosite = ES2.Load<int>(fileName + "?tag=" + name + "luminosite");
             accesExterieur = ES2.Load<bool>(fileName + "?tag=" + name + "accesExterieur");
-            distanceSallePause = ES2.Load<float>(fileName + "?tag=" + name + "distanceSallePause");
+            distanceSallePause = ES2.Load<int>(fileName + "?tag=" + name + "distanceSallePause");
             distanceToilette = ES2.Load<float>(fileName + "?tag=" + name + "distanceToilette");
             string avatarName = ES2.Load<string>(fileName + "?tag=" + name + "avatar");
             if (avatarName != "")

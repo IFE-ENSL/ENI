@@ -18,7 +18,6 @@ namespace Assets.Scripts.Management
         public Piece[] nextTo;
         public Personnage personnage;
 
-
         void Start()
         {
             gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
