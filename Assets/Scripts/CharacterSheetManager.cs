@@ -3,38 +3,36 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 
-public class CharacterSheetManager : MonoBehaviour, ISerializationCallbackReceiver {
+public class CharacterSheetManager : MonoBehaviour {
 
     Camera SheetCamera;
     GameObject gameCanvas;
     Canvas sheetCanvas;
 
-    public List<string> skillNames;
-    public List<float> CompetenceAmount;
-    public List<QualityList> masterQualityList;
-
-    public int PallierQualité;
-
+    public List<Competences> competencesList;
 
     void Update ()
     {
-        PersistenFromSceneToScene.DataPersistenceInstance.masterQualityList = masterQualityList; //Saving for this playsession
+        PersistenFromSceneToScene.DataPersistenceInstance.listeCompetences = competencesList; //Saving for this playsession
     }
 
-    void WeighUpSkillFactor()
+    void WeighUpSkillFactor() //Updates the total amount of points of each skill based on their associated criterias
     {
-        int iterator = 0;
-        foreach (int skillAmount in CompetenceAmount)
+        foreach (Competences competence in competencesList)
         {
-            float qualityPercentValue = 100 / masterQualityList[iterator].Qualities.Count;
-
-            foreach (int qualityPoints in masterQualityList[iterator].Qualities)
+            if (competence.listeCriteres.Count != 0)
             {
-                float qualityWeight = qualityPercentValue / PallierQualité;
-                qualityWeight *= qualityPoints;
-                CompetenceAmount[iterator] += qualityWeight;
+                float qualityPercentValue = 100 / competence.listeCriteres.Count;
+
+                foreach (Criteres critere in competence.listeCriteres)
+                {
+                    float qualityWeight = qualityPercentValue / critere.criterePalliers;
+                    qualityWeight *= critere.criterePoints;
+                    competence.nbPointsCompetence += qualityWeight;
+                }
             }
-            iterator++;
+            else
+                Debug.LogWarning("Updated total amount of skill " + competence.Name + ", but it does not contain any criterias");
         }
     }
 
@@ -44,112 +42,35 @@ public class CharacterSheetManager : MonoBehaviour, ISerializationCallbackReceiv
         gameCanvas = GameObject.Find("GameUI");
         sheetCanvas = transform.Find("CharacterSheetCanvas").GetComponent<Canvas>();
 
-        if (PersistenFromSceneToScene.DataPersistenceInstance.masterQualityList.Count > 0) //Loading for this playsession
-            masterQualityList = PersistenFromSceneToScene.DataPersistenceInstance.masterQualityList;
+        if (PersistenFromSceneToScene.DataPersistenceInstance.listeCompetences.Count > 0) //Loading for this playsession
+            competencesList = PersistenFromSceneToScene.DataPersistenceInstance.listeCompetences;
     }
 
     int previousNamesLength = 0;
     int previousCompetenceLength = 0;
 
-    //Is called right before Unity Serializes anything
-    //This is to make sure the skill names & points lists always have the same length when editing them in the inspector
-    public void OnBeforeSerialize()
-    {
-        if (skillNames.Count != CompetenceAmount.Count)
-        {
-
-            int diff;
-
-            if (previousNamesLength != skillNames.Count)
-            {
-                diff = CompetenceAmount.Count - skillNames.Count;
-                diff = Mathf.Abs(diff);
-
-                if (CompetenceAmount.Count > skillNames.Count)
-                    CompetenceAmount.RemoveRange(CompetenceAmount.Count - diff, diff);
-                else
-                {
-                    Debug.Log("Skill names greater than Competence Amount, resizing..." + diff);
-                    List<float> rangeToAdd = new List<float>();
-
-                    for (int i = 0; i < diff; i++)
-                    {
-                        rangeToAdd.Add(0);
-                        Debug.Log("Added one");
-                    }
-
-                    CompetenceAmount.AddRange(rangeToAdd);
-                }
-            }
-
-            else if (previousCompetenceLength != CompetenceAmount.Count)
-            {
-                diff = CompetenceAmount.Count - skillNames.Count;
-                diff = Mathf.Abs(diff);
-
-                if (skillNames.Count > CompetenceAmount.Count)
-                    skillNames.RemoveRange(skillNames.Count - diff, diff);
-                else
-                {
-                    List<string> rangeToAdd = new List<string>();
-
-                    for (int i = 0; i < Mathf.Abs(diff); i++)
-                    {
-                        rangeToAdd.Add("");
-                        Debug.Log("Added one");
-                    }
-
-                    skillNames.AddRange(rangeToAdd);
-                }
-            }
-
-            diff = masterQualityList.Count - skillNames.Count;
-            diff = Mathf.Abs(diff);
-
-            #region Setting up the size of the master Quality List
-            if (masterQualityList.Count < skillNames.Count)
-            {
-                List<QualityList> rangeToAdd = new List<QualityList>();
-
-                for (int i = 0; i < Mathf.Abs(diff); i++)
-                {
-                    rangeToAdd.Add(new QualityList());
-                }
-
-                masterQualityList.AddRange(rangeToAdd);
-            }
-            else if (skillNames.Count < masterQualityList.Count)
-            {
-                skillNames.RemoveRange(masterQualityList.Count - diff, diff);
-            }
-            #endregion
-        }
-
-        int iterator = 0;
-
-        //Set the name for each list of qualities
-        foreach (QualityList qualityList in masterQualityList)
-        {
-            qualityList.Name = skillNames[iterator];
-            iterator++;
-        }
-
-        previousNamesLength = skillNames.Count;
-        previousCompetenceLength = CompetenceAmount.Count;
-    }
-
-    public void OnAfterDeserialize()
-    {
-
-    }
-
     public void AddQualityStep (string skillName, int qualityNumber, int stepIncrementation)
     {
-        int index = skillNames.IndexOf(skillName);
+        for (int iterator = 0; iterator < competencesList.Count; iterator++)
+        {
+            if (competencesList[iterator].Name == skillName)
+            {
+                //Let's check if we improved our score, if not, we do not update the new points
+                if (competencesList[iterator].listeCriteres[qualityNumber].criterePoints < stepIncrementation)
+                {
+                    Debug.Log("Improved score in criteria " + competencesList[iterator].listeCriteres[qualityNumber].Name);
 
-        masterQualityList[index].Qualities[qualityNumber] += stepIncrementation;
+                    //Then we make sure the new criteria does not exceed the max step
+                    if (stepIncrementation > competencesList[iterator].listeCriteres[qualityNumber].criterePalliers)
+                        competencesList[iterator].listeCriteres[qualityNumber].criterePoints = competencesList[iterator].listeCriteres[qualityNumber].criterePalliers;
+                    else
+                        competencesList[iterator].listeCriteres[qualityNumber].criterePoints = stepIncrementation;
 
-        WeighUpSkillFactor();
+                    WeighUpSkillFactor();
+                }
+                break;
+            }
+        }
     }
 
     public void ToggleDisplaySheet ()

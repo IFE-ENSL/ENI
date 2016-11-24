@@ -23,13 +23,13 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     public void SavePlayerStats()
     {
-        PersistenFromSceneToScene.DataPersistenceInstance.competenceAmount = characterSheet.CompetenceAmount;
+        PersistenFromSceneToScene.DataPersistenceInstance.listeCompetences = characterSheet.competencesList;
     }
 
     public void LoadPlayerStats ()
     {
-        if (PersistenFromSceneToScene.DataPersistenceInstance.competenceAmount.Count > 0)
-            characterSheet.CompetenceAmount = PersistenFromSceneToScene.DataPersistenceInstance.competenceAmount;
+        if (PersistenFromSceneToScene.DataPersistenceInstance.listeCompetences.Count > 0)
+            characterSheet.competencesList = PersistenFromSceneToScene.DataPersistenceInstance.listeCompetences;
     }
 
     // Use this for initialization
@@ -38,26 +38,26 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         characterSheet = transform.parent.GetComponent<CharacterSheetManager>();
 
         //Initializing the lists based on the number of skills contained in the character sheet class
-        RegisteredBranchTopPositions = new Vector3[characterSheet.skillNames.Count];
-        spawnedTags = new GameObject[characterSheet.skillNames.Count];
+        RegisteredBranchTopPositions = new Vector3[characterSheet.competencesList.Count];
+        spawnedTags = new GameObject[characterSheet.competencesList.Count];
 
         LoadPlayerStats();
 
         //Force the Competence amount to be of at least 4 different skills.
-	    if (characterSheet.CompetenceAmount.Count < 4)
+	    if (characterSheet.competencesList.Count < 4)
         {
-            //Array.Resize(ref characterSheet.CompetenceAmount, 4);
+            //Array.Resize(ref characterSheet.nbPointsCompetence, 4);
         }
 
         //Let's get the greatest skill value first
-        foreach (float skillPoint in characterSheet.CompetenceAmount)
+        foreach (Competences competence in characterSheet.competencesList)
         {
-            if (skillPoint > greatestSkillValue)
-                greatestSkillValue = skillPoint;
+            if (competence.nbPointsCompetence > greatestSkillValue)
+                greatestSkillValue = competence.nbPointsCompetence;
         }
 
-        spawnedLines = new LineRenderer[characterSheet.CompetenceAmount.Count];
-        spawnedBranches = new LineRenderer[characterSheet.CompetenceAmount.Count];
+        spawnedLines = new LineRenderer[characterSheet.competencesList.Count];
+        spawnedBranches = new LineRenderer[characterSheet.competencesList.Count];
 
         InitializeSpider();
         SpawnTags();
@@ -65,7 +65,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     void InitializeSpider ()
     {
-        float BranchAngle = 360 / characterSheet.CompetenceAmount.Count;
+        float BranchAngle = 360 / characterSheet.competencesList.Count;
         float addAngle = BranchAngle;
 
         Vector3[] newPositions = new Vector3[2];
@@ -74,7 +74,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         Vector3 previousSkillPosition = Vector3.zero;
         Vector3 currentSkillPosition = Vector3.zero;
 
-        for (int i = 0; i < characterSheet.CompetenceAmount.Count; i++)
+        for (int i = 0; i < characterSheet.competencesList.Count; i++)
         {
             //Spawn a branch, parent it to the spider object, then rename it for better clarity.
             GameObject spawnedCompetence = GameObject.Instantiate(CompetencePrefab, transform.position, Quaternion.identity) as GameObject;
@@ -102,7 +102,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         }
 
         //For the very last web wire, we spawn it using the first branch position
-        spawnedLines[characterSheet.CompetenceAmount.Count - 1] = SpawnWebWire(currentSkillPosition, firstBranchPosition, characterSheet.CompetenceAmount.Count - 1);
+        spawnedLines[characterSheet.competencesList.Count - 1] = SpawnWebWire(currentSkillPosition, firstBranchPosition, characterSheet.competencesList.Count - 1);
     }
 
     void SpawnTags ()
@@ -122,8 +122,8 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         {
             spawnedTags[iterator].transform.position = topPosition;
 
-            spawnedTags[iterator].GetComponent<TextMesh>().text = characterSheet.skillNames[iterator];
-            spawnedTags[iterator].transform.name = "Tag_" + characterSheet.skillNames[iterator];
+            spawnedTags[iterator].GetComponent<TextMesh>().text = characterSheet.competencesList[iterator].Name;
+            spawnedTags[iterator].transform.name = "Tag_" + characterSheet.competencesList[iterator];
             spawnedTags[iterator].transform.SetParent(transform);
 
             iterator++;
@@ -181,9 +181,9 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         if (greatestSkillValue > 0)
         {
             if (greatestSkillValue < 1)
-                percentageValue = characterSheet.CompetenceAmount[i] * branchesSize + branchesSize * .1f;
+                percentageValue = characterSheet.competencesList[i].nbPointsCompetence * branchesSize + branchesSize * .1f;
             else
-                percentageValue = characterSheet.CompetenceAmount[i] / greatestSkillValue * (branchesSize - branchesSize * .1f) + branchesSize * .1f;
+                percentageValue = characterSheet.competencesList[i].nbPointsCompetence / greatestSkillValue * (branchesSize - branchesSize * .1f) + branchesSize * .1f;
         }
         else
         {
@@ -202,22 +202,22 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         greatestSkillValue = 0;
 
         //Let's get the greatest skill value first
-        foreach (float skillPoint in characterSheet.CompetenceAmount)
+        foreach (Competences competence in characterSheet.competencesList)
         {
-            if (skillPoint > greatestSkillValue)
-                greatestSkillValue = skillPoint;
+            if (competence.nbPointsCompetence > greatestSkillValue)
+                greatestSkillValue = competence.nbPointsCompetence;
         }
 
         Vector3[] newPositions = new Vector3[2];
 
-        float BranchAngle = 360 / characterSheet.CompetenceAmount.Count;
+        float BranchAngle = 360 / characterSheet.competencesList.Count;
         float addAngle = BranchAngle;
 
         Vector3 firstBranchPosition = Vector3.zero;
         Vector3 previousSkillPosition = Vector3.zero;
         Vector3 currentSkillPosition = Vector3.zero;
 
-        for (int i= 0; i < characterSheet.CompetenceAmount.Count; i++)
+        for (int i= 0; i < characterSheet.competencesList.Count; i++)
         {
             UpdateBranchPosAndSkillValues(addAngle, newPositions, i, ref currentSkillPosition, spawnedBranches[i].gameObject);
 
@@ -232,7 +232,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             previousSkillPosition = currentSkillPosition;
         }
 
-         UpdateWebWirePositions(spawnedLines[characterSheet.CompetenceAmount.Count - 1], currentSkillPosition, firstBranchPosition);
+         UpdateWebWirePositions(spawnedLines[characterSheet.competencesList.Count - 1], currentSkillPosition, firstBranchPosition);
     }
 
     void Update ()

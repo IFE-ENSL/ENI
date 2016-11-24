@@ -6,10 +6,7 @@ public class PersistenFromSceneToScene : MonoBehaviour
 {
 
     public static PersistenFromSceneToScene DataPersistenceInstance;
-
-
-    public List<float> competenceAmount;
-    public List<QualityList> masterQualityList;
+    public List<Competences> listeCompetences;
 
 	// Use this for initialization
 	void Awake ()

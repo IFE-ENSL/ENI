@@ -4,8 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 
 [System.Serializable]
-public class QualityList : PropertyAttribute
+public class Criteres : PropertyAttribute
 {
     public string Name;
-    public List<int> Qualities;
+    public int criterePoints;
+    public int criterePalliers = 3;
 }
