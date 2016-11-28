@@ -184,18 +184,43 @@ namespace Assets.Scripts.Management
                     ids.Add(scriptP.id);
                 }
             }
-            //Associe les copains d'un personnage ainsi que les personnage qui vont être bien aimées par ce personnage
+            //Associe les copain d'un personnage ainsi que les personnage qui vont être bien aimées par ce personnage
+            //TO DO - Hey dood, so it's here that starts your new journey =)
             for (int i = 0; i < personnageValues.Count; i++)
             {
-                if (personnageValues[i]["userfrom_id"].Value != "")
+                Debug.Log("User id is " + personnageValues[i]["id"]);
+
+                for (int iterator = 0; iterator < personnageValues[i]["links"].Count; iterator++)
                 {
-                    Personnage personnage = GameObject.Find("Personnage" + personnageValues[i]["id"]).GetComponent<Personnage>();
-                    GameObject copain = GameObject.Find("Personnage" + personnageValues[i]["userto_id"].Value);
-                    if (copain)
+                    if (personnageValues[i]["links"][iterator]["linktype"].Value == "Friend" && personnageValues[i]["links"][iterator]["userfrom_id"].Value != "")
                     {
-                        Personnage friend = copain.GetComponent<Personnage>();
-                        personnage.copains.Add(friend);
-                        friend.bienAimePar.Add(personnage);
+                        Personnage thisPersonnage = GameObject.Find("Personnage" + personnageValues[i]["id"]).GetComponent<Personnage>();
+                        GameObject copain = GameObject.Find("Personnage" + personnageValues[i]["links"][iterator]["userto_id"].Value);
+                        Debug.Log("Trying to add a copain...");
+                        if (copain)
+                        {
+                            Personnage friend = copain.GetComponent<Personnage>();
+                            thisPersonnage.copain = friend;
+                            friend.bienAimePar = thisPersonnage;
+                            Debug.Log("Added a copain, trop meugnon lol");
+                        }
+                        else
+                            Debug.Log("Sorry, your friend is imaginary, lol, you loser");
+                    }
+                    else if (personnageValues[i]["links"][iterator]["linktype"].Value == "Prod" && personnageValues[i]["links"][iterator]["userfrom_id"].Value != "")
+                    {
+                        Personnage thisPersonnage = GameObject.Find("Personnage" + personnageValues[i]["id"]).GetComponent<Personnage>();
+                        GameObject ProductiveLink = GameObject.Find("Personnage" + personnageValues[i]["links"][iterator]["userto_id"].Value);
+                        Debug.Log("Trying to add Professional Relationship");
+                        if (ProductiveLink)
+                        {
+                            Personnage myProdLink = ProductiveLink.GetComponent<Personnage>();
+                            thisPersonnage.myProductiveLink = myProdLink;
+                            myProdLink.charIMakeProductive = thisPersonnage;
+                            Debug.Log("Added productive Link");
+                        }
+                        else
+                            Debug.Log("Productive link is not available in this current game");
                     }
                 }
             }
@@ -228,18 +253,25 @@ namespace Assets.Scripts.Management
                     descriptionPersonnage[8].text = "Sexe : N/A";
                     descriptionPersonnage[9].text = "Handicap : N/A";
                 }
-                if (p.copains.Count != 0)
+                if (p.copain != null)
                 {
                     string description = "Copain : ";
-                    foreach (Personnage copain in p.copains)
-                    {
-                        description += " " + copain.role;
-                    }
+                    description += " " + p.copain.role;
                     descriptionPersonnage[10].text = description;
                 }
                 else
                 {
                     descriptionPersonnage[10].text = "Copain : N/A";
+                }
+                if(p.myProductiveLink != null)
+                {
+                    string description = "Relation Productive : ";
+                    description += " " + p.myProductiveLink.role;
+                    descriptionPersonnage[11].text = description;
+                }
+                else
+                {
+                    descriptionPersonnage[11].text = "Relation Productive : N/A";
                 }
                 imageAvatarBtn.sprite = _selectedGameObject.GetComponent<SpriteRenderer>().sprite;
             }

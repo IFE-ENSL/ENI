@@ -122,29 +122,24 @@ namespace Assets.Scripts.Management
 
 
             //Calcule la satisfaction en fonction des personnages à coté de lui
-            if (Personnage.copains.Count != 0)
+            if (Personnage.copain != null)
             {
                 foreach (Piece piece in Personnage.piece.nextTo)
                 {
-                    foreach (Personnage copain in Personnage.copains)
+                    if (Personnage.copain.piece && Personnage.copain.piece.name == piece.name)
                     {
-                        if (copain.piece && copain.piece.name == piece.name)
-                        {
-                            aCoteCopain = 100;
-                            break;
-                        }
-                        else
-                        {
-                            aCoteCopain = 0;
-                        }
+                        aCoteCopain = 100;
+                        break;
+                    }
+                    else
+                    {
+                        aCoteCopain = 0;
                     }
                 }
             }
             //Actualise la satisfaction des personnages qui peuvent être bien aimés par ce personnage
-            foreach (Personnage personnage in Personnage.bienAimePar)
-            {
-                personnage.CalculSatisfaction();
-            }
+            Personnage.copain.CalculSatisfaction();
+
             satisfactionTotale = surface + luminosite + distanceSallePause + distanceToilette;
             int nbrParam = 4;
             if (Personnage.avatar.handicaped)
@@ -157,7 +152,7 @@ namespace Assets.Scripts.Management
                 satisfactionTotale += accesExterieur;
                 nbrParam++;
             }
-            if (Personnage.copains.Count != 0)
+            if (Personnage.copain != null)
             {
                 satisfactionTotale += aCoteCopain;
                 nbrParam++;

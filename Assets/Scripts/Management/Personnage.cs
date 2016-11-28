@@ -26,8 +26,10 @@ namespace Assets.Scripts.Management
         private SpriteRenderer sr;
         public SatisfactionPersonnage Satisfaction { get; private set; }
         public Avatar avatar;
-        public List<Personnage> copains;
-        public List<Personnage> bienAimePar;
+        public Personnage copain;
+        public Personnage bienAimePar;
+        public Personnage myProductiveLink;
+        public Personnage charIMakeProductive;
         public Piece piece;
 
         void Start()
