@@ -95,6 +95,17 @@ namespace Assets.Scripts.Management
 
                     
                     personnage.CalculSatisfaction();
+
+                    if (personnage.bienAimePar != null)
+                    {
+                        personnage.bienAimePar.CalculSatisfaction();
+                    }
+
+                    if (personnage.charIMakeProductive != null)
+                    {
+                        personnage.charIMakeProductive.CalculSatisfaction();
+                    }
+
                     sGlobale.CalculSatisfactionGlobale();
                 }
                 //Si la pièce n'est pas vide

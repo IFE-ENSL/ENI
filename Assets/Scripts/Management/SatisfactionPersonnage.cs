@@ -123,10 +123,18 @@ namespace Assets.Scripts.Management
             //Calcule la satisfaction en fonction des personnages à coté de lui
             if (Personnage.copain != null && Personnage.copain.piece != null)
             {
-                //int distanceWithBuddy;
                 float rank = Personnage.piece.roomDistancesid.FindIndex(a => a == Personnage.copain.piece.id);
                 aCoteCopain = (rank / 4f) * 100f;
                 Personnage.copain.CalculSatisfaction();
+            }
+            #endregion
+
+            #region Satisfaction Prod
+            if (Personnage.myProductiveLink != null && Personnage.myProductiveLink.piece != null)
+            {
+                float rank = Personnage.piece.roomDistancesid.FindIndex(a => a == Personnage.myProductiveLink.piece.id);
+                productiveLinkSatisfaction = (rank / 4f) * 100f;
+                Personnage.myProductiveLink.CalculSatisfaction();
             }
             #endregion
 
