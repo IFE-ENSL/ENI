@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 namespace Assets.Scripts.Management
 {
@@ -15,6 +16,7 @@ namespace Assets.Scripts.Management
         public bool accesExterieur = true;
         public float distanceSallePause = 5f;
         public float distanceToilette = 4f;
+        public List<int> roomDistancesid = new List<int>();
         public Piece[] nextTo;
         public Personnage personnage;
 

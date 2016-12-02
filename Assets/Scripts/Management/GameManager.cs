@@ -6,6 +6,7 @@ using Assets.Scripts.Connexion;
 using Assets.Scripts.Utility;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Linq;
 
 namespace Assets.Scripts.Management
 {
@@ -92,6 +93,7 @@ namespace Assets.Scripts.Management
         private IEnumerator getPieces()
         {
             Waiter wait = new Waiter();
+            
             StartCoroutine(connexion.mConnexion.getPieces(wait,this.sceneId));
             while (wait.waiting)
             {
@@ -101,9 +103,20 @@ namespace Assets.Scripts.Management
             JSONNode piecesValues = null;
             piecesValues = JSON.Parse(wait.data);
             if (pieces == null) yield break;
+
+            StartCoroutine(connexion.mConnexion.getPiecesDistance(wait, this.sceneId));
+            while (wait.waiting)
+            {
+                yield return new WaitForSeconds(1);
+            }
+            Debug.Log("Récupération des distances entre les pièces : " + wait.data);
+            JSONNode piecesDistancesValues = null;
+            piecesDistancesValues = JSON.Parse(wait.data);
+
             //Itère a travers les pièces récupérées, et les insère dans l'ordre dans le tableau de pièces présent sur la scène
             for (int i = 0; i < pieces.Length; i++)
             {
+                pieces[i].id = piecesValues[i]["id"].AsInt;
                 pieces[i].accesExterieur = piecesValues[i]["accesExterieur"].Value == "1" ? true : false;
                 pieces[i].accesHandicape = piecesValues[i]["accesHandicape"].Value == "1" ? true : false;
 
@@ -119,6 +132,30 @@ namespace Assets.Scripts.Management
 
                 pieces[i].surface = piecesValues[i]["surface"].AsFloat;
                 pieces[i].ouvertureExterieur = piecesValues[i]["ouvertureExterieur"].AsInt;
+
+
+                //Adding the distances between this room and the others
+                Dictionary<int, int> roomDistances = new Dictionary<int, int>();
+                for (int iterator = 0; iterator < piecesDistancesValues.Count; iterator ++)
+                {
+                    if (piecesDistancesValues[iterator]["id_from"].AsInt == pieces[i].id)
+                    {
+                        roomDistances.Add(piecesDistancesValues[iterator]["id_to"].AsInt, piecesDistancesValues[iterator]["distance"].AsInt);
+                    }
+                    else if (piecesDistancesValues[iterator]["id_to"].AsInt == pieces[i].id)
+                    {
+                        roomDistances.Add(piecesDistancesValues[iterator]["id_from"].AsInt, piecesDistancesValues[iterator]["distance"].AsInt);
+                    }
+
+                }
+
+                var items = from pair in roomDistances
+                            orderby pair.Value descending
+                            select pair.Key;
+
+                pieces[i].roomDistancesid = items.ToList<int>();
+                Debug.Log("Is Okay I think...");
+
             }
         }
 
@@ -144,7 +181,7 @@ namespace Assets.Scripts.Management
                 SceneManager.LoadScene(0);
             }
             wait.Reset();
-            StartCoroutine(connexion.mConnexion.getPersonnages(wait));
+            StartCoroutine(connexion.mConnexion.getPersonnages(wait, sessionMiniJeu));
             while (wait.waiting)
             {
                 yield return new WaitForSeconds(0.5f);
@@ -188,7 +225,6 @@ namespace Assets.Scripts.Management
             //TO DO - Hey dood, so it's here that starts your new journey =)
             for (int i = 0; i < personnageValues.Count; i++)
             {
-                Debug.Log("User id is " + personnageValues[i]["id"]);
 
                 for (int iterator = 0; iterator < personnageValues[i]["links"].Count; iterator++)
                 {
@@ -196,31 +232,24 @@ namespace Assets.Scripts.Management
                     {
                         Personnage thisPersonnage = GameObject.Find("Personnage" + personnageValues[i]["id"]).GetComponent<Personnage>();
                         GameObject copain = GameObject.Find("Personnage" + personnageValues[i]["links"][iterator]["userto_id"].Value);
-                        Debug.Log("Trying to add a copain...");
                         if (copain)
                         {
                             Personnage friend = copain.GetComponent<Personnage>();
                             thisPersonnage.copain = friend;
                             friend.bienAimePar = thisPersonnage;
-                            Debug.Log("Added a copain, trop meugnon lol");
                         }
-                        else
-                            Debug.Log("Sorry, your friend is imaginary, lol, you loser");
                     }
+                    //TODO : Rewrite this to use the new service table instead of character
                     else if (personnageValues[i]["links"][iterator]["linktype"].Value == "Prod" && personnageValues[i]["links"][iterator]["userfrom_id"].Value != "")
                     {
                         Personnage thisPersonnage = GameObject.Find("Personnage" + personnageValues[i]["id"]).GetComponent<Personnage>();
                         GameObject ProductiveLink = GameObject.Find("Personnage" + personnageValues[i]["links"][iterator]["userto_id"].Value);
-                        Debug.Log("Trying to add Professional Relationship");
                         if (ProductiveLink)
                         {
                             Personnage myProdLink = ProductiveLink.GetComponent<Personnage>();
                             thisPersonnage.myProductiveLink = myProdLink;
                             myProdLink.charIMakeProductive = thisPersonnage;
-                            Debug.Log("Added productive Link");
                         }
-                        else
-                            Debug.Log("Productive link is not available in this current game");
                     }
                 }
             }

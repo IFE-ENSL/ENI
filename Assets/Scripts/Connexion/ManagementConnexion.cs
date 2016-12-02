@@ -11,6 +11,7 @@ namespace Assets.Scripts.Connexion
 
 
         private const string getPiecesURL = ConnexionController.baseURL + "/web/app_dev.php/unity/management/getPieces";
+        private const string getPiecesDistancesURL = ConnexionController.baseURL + "/web/app_dev.php/unity/management/getPiecesDistances";
         private const string getPersonnagesURL = ConnexionController.baseURL + "/web/app_dev.php/unity/management/getPersonnages";
         private const string insertSessionURL = ConnexionController.baseURL + "/web/app_dev.php/unity/management/insertSessionPersonnage";
         private const string insertSessionMiniJeuURL = ConnexionController.baseURL + "/web/app_dev.php/unity/management/insertNewSessionMiniJeu";
@@ -25,6 +26,26 @@ namespace Assets.Scripts.Connexion
         {
         }
 
+
+        public IEnumerator getPiecesDistance(Waiter waiter, int scene)
+        {
+            //Testing out pieces distance
+            waiter.waiting = true;
+            string sessionId = PlayerPrefs.GetString("sessionId");
+            Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
+            string post_url = getPiecesDistancesURL + "/" + scene;
+            print(post_url);
+            WWW hs_get = new WWW(post_url, null, headers);
+            yield return hs_get;
+            if (hs_get.error != null)
+            {
+                Debug.Log("Erreur lors de la récupération des pieces : " + hs_get.error);
+                Debug.Log(hs_get.text);
+                SceneManager.LoadScene(0);
+            }
+            waiter.data = hs_get.text;
+            waiter.waiting = false;
+        }
 
         //Récupère la liste des pièces en json
         public IEnumerator getPieces(Waiter waiter, int scene)
@@ -47,14 +68,17 @@ namespace Assets.Scripts.Connexion
         }
 
         //Récupère la liste des personnages en json
-        public IEnumerator getPersonnages(Waiter waiter)
+        public IEnumerator getPersonnages(Waiter waiter, int sessionMiniJeuId)
         {
+            //TODO : Add MiniGame Session Id each time we catch the characters
             waiter.waiting = true;
             string sessionId = PlayerPrefs.GetString("sessionId");
             Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
 
             string post_url = getPersonnagesURL;
-            WWW hs_get = new WWW(post_url, null, headers);
+            WWWForm post_data = new WWWForm();
+            post_data.AddField("sessionMiniJeuId", sessionMiniJeuId);
+            WWW hs_get = new WWW(post_url, post_data.data, headers);
             yield return hs_get;
             if (hs_get.error != null)
             {

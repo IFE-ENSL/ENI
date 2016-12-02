@@ -15,6 +15,7 @@ namespace Assets.Scripts.Management
         public float distanceSallePause;
         public float distanceToilette;
         public float aCoteCopain;
+        public float productiveLinkSatisfaction;
 
         public float satisfactionTotale;
 
@@ -118,27 +119,17 @@ namespace Assets.Scripts.Management
             Debug.Log("Distance Toilettes for " + Personnage.role + " (Toilettes Indice Satis. = " + Personnage.distanceToilette+ ") is " + distanceToilette + " in room " + Personnage.piece.id + ", proximity rank is " + bathRoomDistanceRank);
             #endregion
 
-
-
-
+            #region Satisfaction Copain
             //Calcule la satisfaction en fonction des personnages à coté de lui
-            if (Personnage.copain != null)
+            if (Personnage.copain != null && Personnage.copain.piece != null)
             {
-                foreach (Piece piece in Personnage.piece.nextTo)
-                {
-                    if (Personnage.copain.piece && Personnage.copain.piece.name == piece.name)
-                    {
-                        aCoteCopain = 100;
-                        break;
-                    }
-                    else
-                    {
-                        aCoteCopain = 0;
-                    }
-                }
+                //int distanceWithBuddy;
+                float rank = Personnage.piece.roomDistancesid.FindIndex(a => a == Personnage.copain.piece.id);
+                aCoteCopain = (rank / 4f) * 100f;
+                Personnage.copain.CalculSatisfaction();
             }
-            //Actualise la satisfaction des personnages qui peuvent être bien aimés par ce personnage
-            Personnage.copain.CalculSatisfaction();
+            #endregion
+
 
             satisfactionTotale = surface + luminosite + distanceSallePause + distanceToilette;
             int nbrParam = 4;
