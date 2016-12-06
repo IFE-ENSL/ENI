@@ -212,26 +212,30 @@ namespace Assets.Scripts.Management
                     scriptP.accesExterieur = (personnageValues[i]["accesExterieur"].Value == "1") ? true : false;
                     scriptP.distanceSallePause = personnageValues[i]["distanceSallePause"].AsInt;
                     scriptP.distanceToilette = personnageValues[i]["distanceToilette"].AsFloat;
-                    scriptP.id = personnageValues[i]["id"].AsInt;
+                    scriptP.persoId = personnageValues[i]["id"].AsInt;
+                    scriptP.serviceId = personnageValues[i]["service_id"].AsInt;
                     //Envoie du log indiquant l'insertion du personnage
                     StartCoroutine(connexion.mConnexion.insertSessionPersonnage(personnageValues[i]["id"].Value,
                         sessionMiniJeu));
                     //Ajoute l'identifiant du personnage à une liste afin de ne pas en crééer deux ayant le même identifiant
                     //(Si la requête SQL retourne deux personnages avec le même identifiant c'est parceque ils ne sont pas associés au même copain)
-                    ids.Add(scriptP.id);
+                    ids.Add(scriptP.persoId);
+
+                    Debug.Log("Setting avatar for " + scriptP.persoId);
+                    scriptP.setAvatar(scriptP.persoId);
+
                 }
             }
             //Associe les copain d'un personnage ainsi que les personnage qui vont être bien aimées par ce personnage
-            //TO DO - Hey dood, so it's here that starts your new journey =)
             for (int i = 0; i < personnageValues.Count; i++)
             {
 
-                for (int iterator = 0; iterator < personnageValues[i]["links"].Count; iterator++)
+                for (int iterator = 0; iterator < personnageValues[i]["plinks"].Count; iterator++)
                 {
-                    if (personnageValues[i]["links"][iterator]["linktype"].Value == "Friend" && personnageValues[i]["links"][iterator]["userfrom_id"].Value != "")
+                    if (personnageValues[i]["plinks"][iterator]["userfrom_id"].Value != "")
                     {
                         Personnage thisPersonnage = GameObject.Find("Personnage" + personnageValues[i]["id"]).GetComponent<Personnage>();
-                        GameObject copain = GameObject.Find("Personnage" + personnageValues[i]["links"][iterator]["userto_id"].Value);
+                        GameObject copain = GameObject.Find("Personnage" + personnageValues[i]["plinks"][iterator]["userto_id"].Value);
                         if (copain)
                         {
                             Personnage friend = copain.GetComponent<Personnage>();
@@ -239,11 +243,10 @@ namespace Assets.Scripts.Management
                             friend.bienAimePar = thisPersonnage;
                         }
                     }
-                    //TODO : Rewrite this to use the new service table instead of character
-                    else if (personnageValues[i]["links"][iterator]["linktype"].Value == "Prod" && personnageValues[i]["links"][iterator]["userfrom_id"].Value != "")
+                    else if (personnageValues[i]["slinks"][iterator]["servicefrom_id"].Value != "")
                     {
                         Personnage thisPersonnage = GameObject.Find("Personnage" + personnageValues[i]["id"]).GetComponent<Personnage>();
-                        GameObject ProductiveLink = GameObject.Find("Personnage" + personnageValues[i]["links"][iterator]["userto_id"].Value);
+                        GameObject ProductiveLink = GameObject.Find("Personnage" + personnageValues[i]["slinks"][iterator]["serviceto_id"].Value);
                         if (ProductiveLink)
                         {
                             Personnage myProdLink = ProductiveLink.GetComponent<Personnage>();
@@ -275,7 +278,6 @@ namespace Assets.Scripts.Management
                 if (p.avatar)
                 {
                     descriptionPersonnage[8].text = "Sexe : " + p.avatar.sexe;
-                    descriptionPersonnage[9].text = "Handicap : " + p.avatar.handicaped;
                 }
                 else
                 {

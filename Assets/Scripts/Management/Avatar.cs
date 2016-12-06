@@ -4,8 +4,7 @@ namespace Assets.Scripts.Management
 {
     public class Avatar : MonoBehaviour
     {
-        public int id;
+        public int persoId;
         public string sexe;
-        public bool handicaped;
     }
 }

@@ -90,7 +90,7 @@ namespace Assets.Scripts.Management
                     CurrentRoomId = piece.id;
 
                     //TO DO : This is where to put the log of where the character has been moved (Replaced p by personnage, check if bugs)
-                    LogManagement data = new LogManagement(personnage.id, PreviousRoomId, CurrentRoomId);
+                    LogManagement data = new LogManagement(personnage.persoId, PreviousRoomId, CurrentRoomId);
                     StartCoroutine(gameManager.connexion.PostLog("Déplacement d'un personnage", "Management", data));
 
                     

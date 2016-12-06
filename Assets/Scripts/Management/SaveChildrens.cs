@@ -10,15 +10,15 @@ namespace Assets.Scripts.Management
     {
 
         public GameObject prefabPersonnage;
-        public GameObject[] avatars;
+        public Sprite[] avatars;
 
-        void Save(string fileName)
+        /*void Save(string fileName)
         {
             List<int> idPersonnages = new List<int>();
             foreach (Personnage p in from Transform child in transform select child.GetComponent<Personnage>())
             {
                 p.Save(fileName);
-                idPersonnages.Add(p.id);
+                idPersonnages.Add(p.persoId);
             }
             ES2.Save(idPersonnages, fileName + "?tag=" + name + "idPersonnages");
         }
@@ -34,6 +34,6 @@ namespace Assets.Scripts.Management
                 personnage.transform.parent = transform;
                 personnage.GetComponent<Personnage>().Load(fileName);
             }
-        }
+        }*/
     }
 }

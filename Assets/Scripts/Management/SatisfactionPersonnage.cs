@@ -10,7 +10,6 @@ namespace Assets.Scripts.Management
 
         public float surface;
         public float luminosite;
-        public float handicap;
         public float accesExterieur;
         public float distanceSallePause;
         public float distanceToilette;
@@ -141,11 +140,6 @@ namespace Assets.Scripts.Management
 
             satisfactionTotale = surface + luminosite + distanceSallePause + distanceToilette;
             int nbrParam = 4;
-            if (Personnage.avatar.handicaped)
-            {
-                satisfactionTotale += handicap;
-                nbrParam++;
-            }
             if (Personnage.accesExterieur)
             {
                 satisfactionTotale += accesExterieur;
@@ -156,9 +150,13 @@ namespace Assets.Scripts.Management
                 satisfactionTotale += aCoteCopain;
                 nbrParam++;
             }
+            if (Personnage.myProductiveLink != null)
+            {
+                satisfactionTotale += productiveLinkSatisfaction;
+                nbrParam++;
+            }
 
             satisfactionTotale = satisfactionTotale/nbrParam;
-
         }
 
         public void Reset()
@@ -166,11 +164,11 @@ namespace Assets.Scripts.Management
             this.surface = 0;
             this.luminosite = 0;
             this.satisfactionTotale = 0;
+            this.productiveLinkSatisfaction = 0;
             this.aCoteCopain = 0;
             this.accesExterieur = 0;
             this.distanceSallePause = 0;
             this.distanceToilette = 0;
-            this.handicap = 0;
         }
     }
 }

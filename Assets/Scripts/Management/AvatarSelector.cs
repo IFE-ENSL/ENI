@@ -25,15 +25,15 @@ namespace Assets.Scripts.Management
         }
 
         //Définit un avatar pour un personnage séléctionné
-        public void setAvatar(string avatarName)
+        /*public void setAvatar(string avatarName)
         {
             Personnage personnage = gameManager.SelectedGameObject.GetComponent<Personnage>();
             personnage.setAvatar(avatarName);
             GameObject.Find(avatarName).SetActive(false);
             avatarPanel.SetActive(!avatarPanel.activeInHierarchy);
-            StartCoroutine(_connexion.mConnexion.updateAvatar(personnage.id, personnage.avatar.id,
+            StartCoroutine(_connexion.mConnexion.updateAvatar(personnage.persoId, personnage.avatar.persoId,
                 PlayerPrefs.GetInt("sessionMiniJeuManagement")));
             gameManager.UpdateDescription();
-        }
+        }*/
     }
 }

@@ -11,8 +11,10 @@ namespace Assets.Scripts.Management
     public class Personnage : MonoBehaviour
     {
         public GameManager gameManager;
+        public SaveChildrens saveChildren;
 
-        public int id;
+        public int persoId;
+        public int serviceId;
         public string role = "Machin";
         public int nbrSalaries = 4;
         public float surfaceSalarie = 5;
@@ -21,9 +23,7 @@ namespace Assets.Scripts.Management
         public int distanceSallePause = 4;
         public float distanceToilette = 2f;
 
-
-
-        private SpriteRenderer sr;
+        public SpriteRenderer sr;
         public SatisfactionPersonnage Satisfaction { get; private set; }
         public Avatar avatar;
         public Personnage copain;
@@ -47,13 +47,17 @@ namespace Assets.Scripts.Management
         }
 
         //Methode à appeller afin de définir un avatar
-        public void setAvatar(string name)
+        public void setAvatar(int persoId)
         {
-            sr.sprite = Resources.Load<Sprite>("Management/Avatars/" + name);
-            avatar = GameObject.Find(name).GetComponent<Avatar>();
+            /*string spriteName = "Management/Avatars/avatar-" + persoId;
+            sr.sprite = Resources.Load<Sprite>(spriteName);
+            avatar = GameObject.Find("avatar-" + persoId).GetComponent<Avatar>();
             this.transform.GetChild(0).transform.localScale = new Vector2(0.7f,1.6f);
-            LogManagement data = new LogManagement(avatar.id,this.id);
-            StartCoroutine(gameManager.connexion.PostLog("Mise à jour d'un avatar", "Management", data));
+            LogManagement data = new LogManagement(avatar.persoId,this.persoId);
+            StartCoroutine(gameManager.connexion.PostLog("Mise à jour d'un avatar", "Management", data));*/
+            sr = gameObject.GetComponent<SpriteRenderer>();
+            saveChildren = GameObject.Find("GrillePersonnages").GetComponent<SaveChildrens>();
+            sr.sprite = saveChildren.avatars[persoId];
         }
 
         //Calcule la satisfaction du personnage
@@ -69,9 +73,9 @@ namespace Assets.Scripts.Management
         }
 
         //Sauvegarde les spécificitées du personnage
-        public void Save(string fileName)
+        /*public void Save(string fileName)
         {
-            ES2.Save(this.id, fileName + "?tag=" + name + "id");
+            ES2.Save(this.persoId, fileName + "?tag=" + name + "id");
             ES2.Save(this.role, fileName + "?tag=" + name + "role");
             ES2.Save(this.nbrSalaries, fileName + "?tag=" + name + "nbrSalaries");
             ES2.Save(this.surfaceSalarie, fileName + "?tag=" + name + "surfaceSalarie");
@@ -81,13 +85,13 @@ namespace Assets.Scripts.Management
             ES2.Save(this.distanceToilette, fileName + "?tag=" + name + "distanceToilette");
             ES2.Save(this.avatar ? this.avatar.gameObject.name : "", fileName + "?tag=" + name + "avatar");
             ES2.Save(this.transform.position, fileName + "?tag=" + name + "position");
-            Debug.Log("Sauvegarde du personnage" + id);
+            Debug.Log("Sauvegarde du personnage" + persoId);
         }
 
         //Charge le personnage
         public void Load(string fileName)
         {
-            id = ES2.Load<int>(fileName + "?tag=" + name + "id");
+            persoId = ES2.Load<int>(fileName + "?tag=" + name + "id");
             role = ES2.Load<string>(fileName + "?tag=" + name + "role");
             nbrSalaries = ES2.Load<int>(fileName + "?tag=" + name + "nbrSalaries");
             surfaceSalarie = ES2.Load<float>(fileName + "?tag=" + name + "surfaceSalarie");
@@ -107,7 +111,7 @@ namespace Assets.Scripts.Management
                 }
             }
             this.transform.position = ES2.Load<Vector3>(fileName + "?tag=" + name + "position");
-            Debug.Log("Chargement des données personnage" + id);
-        }
+            Debug.Log("Chargement des données personnage" + persoId);
+        }*/
     }
 }
