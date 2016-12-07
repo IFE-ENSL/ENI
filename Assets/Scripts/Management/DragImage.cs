@@ -134,7 +134,6 @@ namespace Assets.Scripts.Management
 
         void OnMouseDrag()
         {
-            if (!personnage.avatar) return;
             transform.position = Camera.main.ScreenToWorldPoint(new Vector3(x, y, 10.0f));
             IsMoving = true;
         }

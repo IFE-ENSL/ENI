@@ -20,8 +20,6 @@ namespace Assets.Scripts.Management
         public int sceneId;
         //Le gameobject selectionné
         private GameObject _selectedGameObject;
-        //Le panneau d'avatars
-        public GameObject avatarPanel;
         //La grille de personnages
         public GameObject grillePersonnages;
 
@@ -33,6 +31,7 @@ namespace Assets.Scripts.Management
         public GameObject descriptionPanel;
         //Permet de savoir si un personnage est en train de bouger dans le jeu
         public bool isDragging;
+
         public GameObject SelectedGameObject
         {
             get { return _selectedGameObject; }
@@ -40,16 +39,18 @@ namespace Assets.Scripts.Management
             {
                 //Effectue des controles lors du changement de l'objet selectionné et met à jour le panneau de description 
                 //ainsi que les indications sur scene permettant de voir plus facilement l'objet selectionné
-                if (_selectedGameObject && _selectedGameObject.name == value.name) return;
-                if (avatarPanel.activeSelf) return;
+                if (_selectedGameObject && _selectedGameObject.name == value.name)
+                    return;
+
                 if (!descriptionPanel.activeInHierarchy)
                     descriptionPanel.SetActive(true);
+
                 if(_selectedGameObject)
                     _selectedGameObject.transform.GetChild(0).gameObject.SetActive(false);
+
                 _selectedGameObject = value;
                 value.transform.GetChild(0).gameObject.SetActive(true);
                 UpdateDescription();
-
             }
         }
         //Utilitaire de connexion à la base
@@ -162,6 +163,7 @@ namespace Assets.Scripts.Management
         //Récupère une liste aléatoire de personnages depuis la base de donnée
         private IEnumerator getPersonnages()
         {
+            #region Getting Character from SQL
             Waiter wait = new Waiter();
             //Crée une nouvelle session de mini jeu
             StartCoroutine(connexion.mConnexion.insertSessionMiniJeu(wait));
@@ -192,6 +194,10 @@ namespace Assets.Scripts.Management
             if (pieces == null) yield break;
             List<int> ids = new List<int>();
             int idPlacement = 0;
+            #endregion
+
+            List<GameObject> allCharacters = new List<GameObject>();
+
             for (int i = 0; i < personnageValues.Count; i++)
             {
                 //Crée un personnage, et associe les valeurs récupérées dans la base à ce personnage pour chaque itération
@@ -199,14 +205,15 @@ namespace Assets.Scripts.Management
                 {
                     //Création du personnage
                     GameObject personnage = Instantiate(personnagePrefab);
+                    allCharacters.Add(personnage);
                     personnage.transform.parent = grillePersonnages.transform;
                     personnage.name = "Personnage" + personnageValues[i]["id"].Value;
                     personnage.transform.localPosition = positionsPersonnage[idPlacement];
                     idPlacement++;
+
                     //Association des valeurs récupérées
                     Personnage scriptP = personnage.GetComponent<Personnage>();
                     scriptP.role = personnageValues[i]["role"].Value;
-                    scriptP.nbrSalaries = personnageValues[i]["nbrSalaries"].AsInt;
                     scriptP.surfaceSalarie = personnageValues[i]["surfaceSalarie"].AsInt;
                     scriptP.luminosite = personnageValues[i]["luminosite"].AsInt;
                     scriptP.accesExterieur = (personnageValues[i]["accesExterieur"].Value == "1") ? true : false;
@@ -214,47 +221,103 @@ namespace Assets.Scripts.Management
                     scriptP.distanceToilette = personnageValues[i]["distanceToilette"].AsFloat;
                     scriptP.persoId = personnageValues[i]["id"].AsInt;
                     scriptP.serviceId = personnageValues[i]["service_id"].AsInt;
+
                     //Envoie du log indiquant l'insertion du personnage
                     StartCoroutine(connexion.mConnexion.insertSessionPersonnage(personnageValues[i]["id"].Value,
                         sessionMiniJeu));
+
                     //Ajoute l'identifiant du personnage à une liste afin de ne pas en crééer deux ayant le même identifiant
                     //(Si la requête SQL retourne deux personnages avec le même identifiant c'est parceque ils ne sont pas associés au même copain)
                     ids.Add(scriptP.persoId);
 
-                    Debug.Log("Setting avatar for " + scriptP.persoId);
+
+                    //Setting up the character's avatar picture based on its character ID.
                     scriptP.setAvatar(scriptP.persoId);
 
                 }
             }
-            //Associe les copain d'un personnage ainsi que les personnage qui vont être bien aimées par ce personnage
-            for (int i = 0; i < personnageValues.Count; i++)
-            {
 
-                for (int iterator = 0; iterator < personnageValues[i]["plinks"].Count; iterator++)
+            //Now associating all the relationships of this character...
+            //For each character in this game session...
+            for (int characterIterator = 0; characterIterator < personnageValues.Count; characterIterator++)
+            {
+                int FriendIndexToUse = 0;
+                int ServiceIndexToUse = 0;
+
+                bool friendExist = false;
+                bool serviceLinkExist = false;
+
+                int lowestPlinksCoeff = 10;
+                int lowestSlinksCoeff = 10;
+
+                //For each character link for this character...
+                for (int iterator = 0; iterator < personnageValues[characterIterator]["plinks"].Count; iterator++)
                 {
-                    if (personnageValues[i]["plinks"][iterator]["userfrom_id"].Value != "")
+                    //Finding which friend link to use (Lower coeff first)
+                    if (personnageValues[characterIterator]["plinks"][iterator]["userfrom_id"].Value != "")
                     {
-                        Personnage thisPersonnage = GameObject.Find("Personnage" + personnageValues[i]["id"]).GetComponent<Personnage>();
-                        GameObject copain = GameObject.Find("Personnage" + personnageValues[i]["plinks"][iterator]["userto_id"].Value);
-                        if (copain)
+                        friendExist = true;
+
+                        if (personnageValues[characterIterator]["plinks"][iterator]["coeff"].AsInt < lowestPlinksCoeff)
                         {
-                            Personnage friend = copain.GetComponent<Personnage>();
-                            thisPersonnage.copain = friend;
-                            friend.bienAimePar = thisPersonnage;
-                        }
-                    }
-                    else if (personnageValues[i]["slinks"][iterator]["servicefrom_id"].Value != "")
-                    {
-                        Personnage thisPersonnage = GameObject.Find("Personnage" + personnageValues[i]["id"]).GetComponent<Personnage>();
-                        GameObject ProductiveLink = GameObject.Find("Personnage" + personnageValues[i]["slinks"][iterator]["serviceto_id"].Value);
-                        if (ProductiveLink)
-                        {
-                            Personnage myProdLink = ProductiveLink.GetComponent<Personnage>();
-                            thisPersonnage.myProductiveLink = myProdLink;
-                            myProdLink.charIMakeProductive = thisPersonnage;
+                            lowestPlinksCoeff = personnageValues[characterIterator]["plinks"][iterator]["coeff"].AsInt;
+                            FriendIndexToUse = iterator;
                         }
                     }
                 }
+                
+                //For each productive link for this character...
+                for (int iterator = 0; iterator < personnageValues[characterIterator]["slinks"].Count; iterator ++)
+                { 
+                    //Finding which productive (Service Links) link to use (Lower coeff first)
+                    if (personnageValues[characterIterator]["slinks"][iterator]["servicefrom_id"].Value != "")
+                    {
+                        serviceLinkExist = true;
+
+                        if (personnageValues[characterIterator]["slinks"][iterator]["coeff"].AsInt < lowestSlinksCoeff)
+                        {
+                            lowestSlinksCoeff = personnageValues[characterIterator]["slinks"][iterator]["coeff"].AsInt;
+                            ServiceIndexToUse = iterator;
+                        }
+                    }
+                }
+
+                //Associating friendly links if the character exists in the scene
+                if (friendExist)
+                {
+                    Personnage thisPersonnage = GameObject.Find("Personnage" + personnageValues[characterIterator]["id"]).GetComponent<Personnage>();
+                    GameObject copain = GameObject.Find("Personnage" + personnageValues[characterIterator]["plinks"][FriendIndexToUse]["userto_id"].Value);
+                    if (copain != null)
+                    {
+                        Personnage friend = copain.GetComponent<Personnage>();
+                        thisPersonnage.copain = friend;
+                        friend.bienAimePar = thisPersonnage;
+                    }
+                }
+
+                //Associating productive links (Service links) if the character exists in the scene
+                if (serviceLinkExist)
+                {
+                    Personnage thisPersonnage = GameObject.Find("Personnage" + personnageValues[characterIterator]["id"]).GetComponent<Personnage>();
+                    GameObject ProductiveLink = null;
+
+                    foreach (GameObject character in allCharacters)
+                    {
+                        if (character.GetComponent<Personnage>().serviceId == personnageValues[characterIterator]["slinks"][ServiceIndexToUse]["serviceto_id"].AsInt)
+                        {
+                            ProductiveLink = character;
+                            break;
+                        }
+                    }
+
+                    if (ProductiveLink != null)
+                    {
+                        Personnage myProdLink = ProductiveLink.GetComponent<Personnage>();
+                        thisPersonnage.myProductiveLink = myProdLink;
+                        myProdLink.charIMakeProductive = thisPersonnage;
+                    }
+                }
+
             }
         }
 
@@ -269,40 +332,30 @@ namespace Assets.Scripts.Management
                 Personnage p = _selectedGameObject.GetComponent<Personnage>();
                 descriptionPersonnage[0].text = "{Personnage } : " + p.role;
                 descriptionPersonnage[1].text = "Satisfaction : " + p.Satisfaction.satisfactionTotale;
-                descriptionPersonnage[2].text = "Nombre de salariés : " + p.nbrSalaries;
-                descriptionPersonnage[3].text = "Surface salarié : " + p.surfaceSalarie;
-                descriptionPersonnage[4].text = "Luminosité : " + p.luminosite;
-                descriptionPersonnage[5].text = "Accès Extérieur : " + p.accesExterieur;
-                descriptionPersonnage[6].text = "Distance salle de pause : " + p.distanceSallePause;
-                descriptionPersonnage[7].text = "Distance toilette : " + p.distanceToilette;
-                if (p.avatar)
-                {
-                    descriptionPersonnage[8].text = "Sexe : " + p.avatar.sexe;
-                }
-                else
-                {
-                    descriptionPersonnage[8].text = "Sexe : N/A";
-                    descriptionPersonnage[9].text = "Handicap : N/A";
-                }
+                descriptionPersonnage[2].text = "Surface salarié : " + p.surfaceSalarie;
+                descriptionPersonnage[3].text = "Luminosité : " + p.luminosite;
+                descriptionPersonnage[4].text = "Accès Extérieur : " + p.accesExterieur;
+                descriptionPersonnage[5].text = "Distance salle de pause : " + p.distanceSallePause;
+                descriptionPersonnage[6].text = "Distance toilette : " + p.distanceToilette;
                 if (p.copain != null)
                 {
                     string description = "Copain : ";
                     description += " " + p.copain.role;
-                    descriptionPersonnage[10].text = description;
+                    descriptionPersonnage[7].text = description;
                 }
                 else
                 {
-                    descriptionPersonnage[10].text = "Copain : N/A";
+                    descriptionPersonnage[7].text = "Copain : N/A";
                 }
                 if(p.myProductiveLink != null)
                 {
                     string description = "Relation Productive : ";
                     description += " " + p.myProductiveLink.role;
-                    descriptionPersonnage[11].text = description;
+                    descriptionPersonnage[8].text = description;
                 }
                 else
                 {
-                    descriptionPersonnage[11].text = "Relation Productive : N/A";
+                    descriptionPersonnage[8].text = "Relation Productive : N/A";
                 }
                 imageAvatarBtn.sprite = _selectedGameObject.GetComponent<SpriteRenderer>().sprite;
             }
@@ -314,10 +367,9 @@ namespace Assets.Scripts.Management
                 Piece p = _selectedGameObject.GetComponent<Piece>();
                 descriptionPiece[0].text = "{PIECE} - " + p.surface;
                 descriptionPiece[2].text = "Ouverture extèrieure : " + p.ouvertureExterieur;
-                descriptionPiece[3].text = "Accès Handicapé : " + p.accesHandicape;
-                descriptionPiece[4].text = "Accès Extèrieur : " + p.accesExterieur;
-                descriptionPiece[5].text = "Distance salle de pause : " + p.distanceSallePause;
-                descriptionPiece[6].text = "Distance toilette : " + p.distanceToilette;
+                descriptionPiece[3].text = "Accès Extèrieur : " + p.accesExterieur;
+                descriptionPiece[4].text = "Distance salle de pause : " + p.distanceSallePause;
+                descriptionPiece[5].text = "Distance toilette : " + p.distanceToilette;
             }
         }
 		public void Save(string fileName)

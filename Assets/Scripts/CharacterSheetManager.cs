@@ -46,9 +46,6 @@ public class CharacterSheetManager : MonoBehaviour {
             competencesList = PersistenFromSceneToScene.DataPersistenceInstance.listeCompetences;
     }
 
-    int previousNamesLength = 0;
-    int previousCompetenceLength = 0;
-
     public void AddQualityStep (string skillName, int qualityNumber, int stepIncrementation)
     {
         for (int iterator = 0; iterator < competencesList.Count; iterator++)
