@@ -16,21 +16,23 @@ namespace Assets.Scripts.Management
 
     public class GameManager : MonoBehaviour
     {
-        //Définit le numéro de la scène afin de charger les pièces correspondantes (Pieces de la scene 1, pieces de la scene 2...)
+        #region General Vars
+        //The management minigame id for this scene. Used to load the appropriate rooms stats.
         public int sceneId;
-        //Le gameobject selectionné
+        public bool draggingAnyCharacter;
+        #endregion
+
+        #region External Objects, Components & misc. variables
         private GameObject _selectedGameObject;
-        //La grille de personnages
-        public GameObject grillePersonnages;
-
-        //The array of distances for each room from the resting room, ordered by distance
-        public static List<float> roomDistanceFromRestRoom = new List<float>();
-        public static List<float> roomDistanceFromBathRoom = new List<float>();
-
-        //Le panel de description
+        public GameObject go_characterGrid;
         public GameObject descriptionPanel;
-        //Permet de savoir si un personnage est en train de bouger dans le jeu
-        public bool isDragging;
+        #endregion
+
+        #region distance lists
+        //The array of distances for each room from the break room and the bathroom, ordered by distance (Farthest first)
+        public static List<float> roomDistanceFromBreakRoom = new List<float>();
+        public static List<float> roomDistanceFromBathRoom = new List<float>();
+        #endregion
 
         public GameObject SelectedGameObject
         {
@@ -55,18 +57,18 @@ namespace Assets.Scripts.Management
         }
         //Utilitaire de connexion à la base
         public ConnexionController connexion;
-        //Tableau contenant la liste des champs utilisés lors de l'affichage du déscriptif d'un personnage
+        //Tableau contenant la liste des champs utilisés lors de l'affichage du déscriptif d'un managementCharacter
         public Text[] descriptionPersonnage;
         //Tableau contenant la liste des champs utilisés lors de l'affichage du déscriptif d'une pièce
         public Text[] descriptionPiece;
         public Image imageAvatarBtn;
         //Liste des pièces de la scene
-        public Piece[] pieces;
+        public Room[] pieces;
         //Tableau de positions pour les zones de départ des personnages
         private readonly Vector3[] positionsPersonnage = new[] {new Vector3(0.03999f,2.51f), new Vector3(-2.91f,2.51f),
             new Vector3(2.96f,2.51f),new Vector3(-2.94f,0.09f),new Vector3(0.07f,0.09f),new Vector3(0.07f,-2.646f),
         new Vector3(-2.9f,-2.57f)};
-        //Gameobject contenant les éléments permettant la déscription d'un personnage
+        //Gameobject contenant les éléments permettant la déscription d'un managementCharacter
         public GameObject dscPers;
         //Gameobject contenant les éléments permettant la déscription d'une pièce
         public GameObject dscPiece;
@@ -122,9 +124,9 @@ namespace Assets.Scripts.Management
                 pieces[i].accesHandicape = piecesValues[i]["accesHandicape"].Value == "1" ? true : false;
 
                 pieces[i].distanceSallePause = piecesValues[i]["distanceSallePause"].AsFloat;
-                roomDistanceFromRestRoom.Add(pieces[i].distanceSallePause);
-                roomDistanceFromRestRoom.Sort();
-                roomDistanceFromRestRoom.Reverse();
+                roomDistanceFromBreakRoom.Add(pieces[i].distanceSallePause);
+                roomDistanceFromBreakRoom.Sort();
+                roomDistanceFromBreakRoom.Reverse();
 
                 pieces[i].distanceToilette = piecesValues[i]["distanceToillette"].AsFloat;
                 roomDistanceFromBathRoom.Add(pieces[i].distanceToilette);
@@ -200,19 +202,19 @@ namespace Assets.Scripts.Management
 
             for (int i = 0; i < personnageValues.Count; i++)
             {
-                //Crée un personnage, et associe les valeurs récupérées dans la base à ce personnage pour chaque itération
+                //Crée un managementCharacter, et associe les valeurs récupérées dans la base à ce managementCharacter pour chaque itération
                 if (!ids.Contains(personnageValues[i]["id"].AsInt))
                 {
-                    //Création du personnage
-                    GameObject personnage = Instantiate(personnagePrefab);
-                    allCharacters.Add(personnage);
-                    personnage.transform.parent = grillePersonnages.transform;
-                    personnage.name = "Personnage" + personnageValues[i]["id"].Value;
-                    personnage.transform.localPosition = positionsPersonnage[idPlacement];
+                    //Création du managementCharacter
+                    GameObject managementCharacter = Instantiate(personnagePrefab);
+                    allCharacters.Add(managementCharacter);
+                    managementCharacter.transform.parent = go_characterGrid.transform;
+                    managementCharacter.name = "Personnage" + personnageValues[i]["id"].Value;
+                    managementCharacter.transform.localPosition = positionsPersonnage[idPlacement];
                     idPlacement++;
 
                     //Association des valeurs récupérées
-                    Personnage scriptP = personnage.GetComponent<Personnage>();
+                    Personnage scriptP = managementCharacter.GetComponent<Personnage>();
                     scriptP.role = personnageValues[i]["role"].Value;
                     scriptP.surfaceSalarie = personnageValues[i]["surfaceSalarie"].AsInt;
                     scriptP.luminosite = personnageValues[i]["luminosite"].AsInt;
@@ -222,11 +224,11 @@ namespace Assets.Scripts.Management
                     scriptP.persoId = personnageValues[i]["id"].AsInt;
                     scriptP.serviceId = personnageValues[i]["service_id"].AsInt;
 
-                    //Envoie du log indiquant l'insertion du personnage
+                    //Envoie du log indiquant l'insertion du managementCharacter
                     StartCoroutine(connexion.mConnexion.insertSessionPersonnage(personnageValues[i]["id"].Value,
                         sessionMiniJeu));
 
-                    //Ajoute l'identifiant du personnage à une liste afin de ne pas en crééer deux ayant le même identifiant
+                    //Ajoute l'identifiant du managementCharacter à une liste afin de ne pas en crééer deux ayant le même identifiant
                     //(Si la requête SQL retourne deux personnages avec le même identifiant c'est parceque ils ne sont pas associés au même copain)
                     ids.Add(scriptP.persoId);
 
@@ -291,7 +293,7 @@ namespace Assets.Scripts.Management
                     {
                         Personnage friend = copain.GetComponent<Personnage>();
                         thisPersonnage.copain = friend;
-                        friend.bienAimePar = thisPersonnage;
+                        friend.likedBy = thisPersonnage;
                     }
                 }
 
@@ -359,12 +361,12 @@ namespace Assets.Scripts.Management
                 }
                 imageAvatarBtn.sprite = _selectedGameObject.GetComponent<SpriteRenderer>().sprite;
             }
-            else if (_selectedGameObject.GetComponent<Piece>())
+            else if (_selectedGameObject.GetComponent<Room>())
             {
                 descriptionPanel.GetComponent<Image>().color = new Color(0.8f, 0.4f, 0.4f, 0.9f);
                 dscPiece.SetActive(true);
                 dscPers.SetActive(false);
-                Piece p = _selectedGameObject.GetComponent<Piece>();
+                Room p = _selectedGameObject.GetComponent<Room>();
                 descriptionPiece[0].text = "{PIECE} - " + p.surface;
                 descriptionPiece[2].text = "Ouverture extèrieure : " + p.ouvertureExterieur;
                 descriptionPiece[3].text = "Accès Extèrieur : " + p.accesExterieur;

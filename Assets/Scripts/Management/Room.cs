@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Assets.Scripts.Management
 {
     //Cette classe définit une pièce ainsi que ses propriétés
-    public class Piece : MonoBehaviour
+    public class Room : MonoBehaviour
     {
         private GameManager gameManager;
         private SpriteRenderer imagePiece;
@@ -17,8 +17,8 @@ namespace Assets.Scripts.Management
         public float distanceSallePause = 5f;
         public float distanceToilette = 4f;
         public List<int> roomDistancesid = new List<int>();
-        public Piece[] nextTo;
-        public Personnage personnage;
+        public Room[] nextTo;
+        public Personnage managementCharacter;
 
         void Start()
         {
@@ -31,13 +31,13 @@ namespace Assets.Scripts.Management
         }
         void OnMouseOver()
         {
-            if(!gameManager.isDragging)
+            if(!gameManager.draggingAnyCharacter)
                 imagePiece.color = new Color(0.5f, 0.5f, 0.5f, 0.2f);
         }
 
         void OnMouseExit()
         {
-            if(!gameManager.isDragging)
+            if(!gameManager.draggingAnyCharacter)
                 imagePiece.color = new Color(58, 52, 34, 0);
         }
     }

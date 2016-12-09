@@ -26,20 +26,20 @@ namespace Assets.Scripts.Management
             text.text = "Voici ci-dessus le terrain du mini jeu, le but du mini jeu va être de placer des personnages dans des pièces.";
             yield return new WaitForSeconds(4f);
             gameObjects[0].SetActive(false);
-            text.text = "Voici la grille de selection de personnage, il suffira de cliquer sur un personnage pour le séléctionner et voir ses caractéristiques";
+            text.text = "Voici la grille de selection de managementCharacter, il suffira de cliquer sur un managementCharacter pour le séléctionner et voir ses caractéristiques";
             gameObjects[1].GetComponent<SpriteRenderer>().enabled = true;
             yield return new WaitForSeconds(4f);
-            text.text = "Pour l'instant, chaque personnage va être représenté par un '?'";
+            text.text = "Pour l'instant, chaque managementCharacter va être représenté par un '?'";
             foreach (Transform child in gameObjects[1].transform)
             {
                 child.GetComponent<SpriteRenderer>().enabled = true;
             }
             yield return new WaitForSeconds(2f);
-            text.text = "Il faudra remplacer ce '?' par un avatar, en cliquant sur l'image personnage du menu de droite";
+            text.text = "Il faudra remplacer ce '?' par un avatar, en cliquant sur l'image managementCharacter du menu de droite";
             gameObjects[2].SetActive(true);
             gameObjects[3].SetActive(true);
             yield return new WaitForSeconds(4f);
-            text.text = "Une fois l'avatar séléctionné, il suffira de déplacer le personnage dans une des pièce";
+            text.text = "Une fois l'avatar séléctionné, il suffira de déplacer le managementCharacter dans une des pièce";
             gameObjects[1].SetActive(false);
             gameObjects[2].SetActive(false);
             gameObjects[3].SetActive(false);
@@ -49,7 +49,7 @@ namespace Assets.Scripts.Management
                 child.GetChild(1).GetComponent<SpriteRenderer>().color = new Color(1f, 0.3f, 0.8f, 0.2f);
                 yield return new WaitForSeconds(0.5f);
             }
-            text.text = "Attention : Chaque personnage devra être placé à un endroit stratégique afin que chaque personnage soit le plus satisfait possible";
+            text.text = "Attention : Chaque managementCharacter devra être placé à un endroit stratégique afin que chaque managementCharacter soit le plus satisfait possible";
             yield return new WaitForSeconds(2f);
             text.text =
                 "L'écran en haut à gauche affichera le pourcentage total de satisfaction de tout les personnages placés sur la carte";

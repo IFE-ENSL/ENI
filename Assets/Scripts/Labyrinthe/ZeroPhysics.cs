@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.Labyrinthe
 {
-    //Change la physique du jeu pour les mouvements du personnage, et initialise les propriétés du joueur
+    //Change la physique du jeu pour les mouvements du managementCharacter, et initialise les propriétés du joueur
     public class ZeroPhysics : MonoBehaviour
     {
         private ConnexionController _connexion;

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Assets.Scripts.Management
 {
 
-    //Cette classe liée à un personnage est utilisée pour mémoriser chaque critère de satisfaction
+    //Cette classe liée à un managementCharacter est utilisée pour mémoriser chaque critère de satisfaction
     public class SatisfactionPersonnage : MonoBehaviour
     {
 
@@ -26,26 +26,26 @@ namespace Assets.Scripts.Management
             Personnage = GetComponent<Personnage>();
         }
 
-        public IEnumerator CalculSatisfaction()
+        public IEnumerator UpdateSatisfaction()
         {
-            while (!Personnage.piece)
+            while (!Personnage.room)
             {
                 yield return new WaitForSeconds(0.1f);
             }
 
 
             #region Satisfaction Surface
-            surface = Personnage.piece.surface > Personnage.surfaceSalarie ? 1 : (Personnage.piece.surface / Personnage.surfaceSalarie) * (Personnage.piece.surface / Personnage.surfaceSalarie);
+            surface = Personnage.room.surface > Personnage.surfaceSalarie ? 1 : (Personnage.room.surface / Personnage.surfaceSalarie) * (Personnage.room.surface / Personnage.surfaceSalarie);
             surface *= 100;
-            Debug.Log("Surface for " + Personnage.role + " is " + surface + " in room " + Personnage.piece.id);
+            Debug.Log("Surface for " + Personnage.role + " is " + surface + " in room " + Personnage.room.id);
             #endregion
 
             #region Satisfaction Acces Exterieur
             if (Personnage.accesExterieur)
             {
-                accesExterieur = Personnage.piece.accesExterieur ? 100 : 0;
+                accesExterieur = Personnage.room.accesExterieur ? 100 : 0;
             }
-            Debug.Log("Accès exterieur for " + Personnage.role + " is " + accesExterieur + " in room " + Personnage.piece.id);
+            Debug.Log("Accès exterieur for " + Personnage.role + " is " + accesExterieur + " in room " + Personnage.room.id);
             #endregion
 
             #region Satisfaction Luminosite
@@ -53,16 +53,16 @@ namespace Assets.Scripts.Management
                 luminosite = 1;
             else if (Personnage.luminosite == 1)
             {
-                if (Personnage.piece.ouvertureExterieur <= 4)
+                if (Personnage.room.ouvertureExterieur <= 4)
                     luminosite = 1;
                 else
                     luminosite = 0.5f;
             }
-            else if (Personnage.piece.ouvertureExterieur <= 2)
+            else if (Personnage.room.ouvertureExterieur <= 2)
             {
                 luminosite = 1;
             }
-            else if (Personnage.piece.ouvertureExterieur <= 4)
+            else if (Personnage.room.ouvertureExterieur <= 4)
             {
                 luminosite = 0.6f;
             }
@@ -71,18 +71,18 @@ namespace Assets.Scripts.Management
 
             luminosite *= 100;
 
-            Debug.Log("Luminosité for " + Personnage.role + " is " + luminosite + " in room " + Personnage.piece.id);
+            Debug.Log("Luminosité for " + Personnage.role + " is " + luminosite + " in room " + Personnage.room.id);
             #endregion
 
             #region Satsifaction Distance Salle Pause
-            int breakRoomDistanceRank = GameManager.roomDistanceFromRestRoom.FindIndex(x => x == Personnage.piece.distanceSallePause) + 1;
+            int breakRoomDistanceRank = GameManager.roomDistanceFromBreakRoom.FindIndex(x => x == Personnage.room.distanceSallePause) + 1;
 
             if (Personnage.distanceSallePause == 0)
                 distanceSallePause = 1;
             else
             {
                 float formula1 = (breakRoomDistanceRank - 1);
-                float formula2 = (GameManager.roomDistanceFromRestRoom.Count - 1);
+                float formula2 = (GameManager.roomDistanceFromBreakRoom.Count - 1);
                 float baseFormula = (float)(1 - formula1 / formula2);
                 float floatFactor = (float)Personnage.distanceSallePause;
 
@@ -93,11 +93,11 @@ namespace Assets.Scripts.Management
             }
 
             distanceSallePause *= 100;
-            Debug.Log("Distance Salle Pause for " + Personnage.role + " (Salle Pause Indice Satis. = " + Personnage.distanceSallePause + ") is " + distanceSallePause + " in room " + Personnage.piece.id + ", proximity rank is " + breakRoomDistanceRank);
+            Debug.Log("Distance Salle Pause for " + Personnage.role + " (Salle Pause Indice Satis. = " + Personnage.distanceSallePause + ") is " + distanceSallePause + " in room " + Personnage.room.id + ", proximity rank is " + breakRoomDistanceRank);
             #endregion
 
             #region Satisfaction Distance Toilette
-            int bathRoomDistanceRank = GameManager.roomDistanceFromBathRoom.FindIndex(x => x == Personnage.piece.distanceToilette) + 1;
+            int bathRoomDistanceRank = GameManager.roomDistanceFromBathRoom.FindIndex(x => x == Personnage.room.distanceToilette) + 1;
 
             if (Personnage.distanceToilette == 0)
                 distanceToilette = 1;
@@ -115,25 +115,25 @@ namespace Assets.Scripts.Management
             }
 
             distanceToilette *= 100;
-            Debug.Log("Distance Toilettes for " + Personnage.role + " (Toilettes Indice Satis. = " + Personnage.distanceToilette+ ") is " + distanceToilette + " in room " + Personnage.piece.id + ", proximity rank is " + bathRoomDistanceRank);
+            Debug.Log("Distance Toilettes for " + Personnage.role + " (Toilettes Indice Satis. = " + Personnage.distanceToilette+ ") is " + distanceToilette + " in room " + Personnage.room.id + ", proximity rank is " + bathRoomDistanceRank);
             #endregion
 
             #region Satisfaction Copain
             //Calcule la satisfaction en fonction des personnages à coté de lui
-            if (Personnage.copain != null && Personnage.copain.piece != null)
+            if (Personnage.copain != null && Personnage.copain.room != null)
             {
-                float rank = Personnage.piece.roomDistancesid.FindIndex(a => a == Personnage.copain.piece.id);
+                float rank = Personnage.room.roomDistancesid.FindIndex(a => a == Personnage.copain.room.id);
                 aCoteCopain = (rank / 4f) * 100f;
-                Personnage.copain.CalculSatisfaction();
+                Personnage.copain.UpdateSatisfaction();
             }
             #endregion
 
             #region Satisfaction Prod
-            if (Personnage.myProductiveLink != null && Personnage.myProductiveLink.piece != null)
+            if (Personnage.myProductiveLink != null && Personnage.myProductiveLink.room != null)
             {
-                float rank = Personnage.piece.roomDistancesid.FindIndex(a => a == Personnage.myProductiveLink.piece.id);
+                float rank = Personnage.room.roomDistancesid.FindIndex(a => a == Personnage.myProductiveLink.room.id);
                 productiveLinkSatisfaction = (rank / 4f) * 100f;
-                Personnage.myProductiveLink.CalculSatisfaction();
+                Personnage.myProductiveLink.UpdateSatisfaction();
             }
             #endregion
 

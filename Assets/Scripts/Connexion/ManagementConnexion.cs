@@ -90,7 +90,7 @@ namespace Assets.Scripts.Connexion
             waiter.waiting = false;
         }
 
-        //Permet de lier dans la base de donnée un personnage séléctionné ainsi qu'une session de mini jeu
+        //Permet de lier dans la base de donnée un managementCharacter séléctionné ainsi qu'une session de mini jeu
         public IEnumerator insertSessionPersonnage(string personnageId, int sessionMiniJeu)
         {
             string sessionId = PlayerPrefs.GetString("sessionId");
@@ -130,7 +130,7 @@ namespace Assets.Scripts.Connexion
             wait.waiting = false;
         }
 
-        //Permet de mettre a jour un lien personnage / sessionMiniJeu en ajoutant un id d'avatar
+        //Permet de mettre a jour un lien managementCharacter / sessionMiniJeu en ajoutant un id d'avatar
         public IEnumerator updateAvatar(int persId, int avatarId, int sessionMiniJeuId)
         {
             string sessionId = PlayerPrefs.GetString("sessionId");

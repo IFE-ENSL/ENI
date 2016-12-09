@@ -11,7 +11,7 @@ namespace Assets.Scripts.Management
     public class Validation : MonoBehaviour
     {
 
-        public SatisfactionGlobale sGlobale;
+        public SatisfactionGlobale globalSatisfaction;
         public GameObject[] imagesDirecteur;
         private PieceRobot _pieceRobot;
         private WinScript _winScript;
@@ -29,21 +29,21 @@ namespace Assets.Scripts.Management
         }
         public void Validate()
         {
-            int nbrPers = gm.pieces.Count(piece => piece.personnage);
+            int nbrPers = gm.pieces.Count(room => room.managementCharacter);
             if (nbrPers == 5)
             {
-                if (sGlobale.satisfactionGlobale < 60)
+                if (globalSatisfaction.satisfactionGlobale < 60)
                 {
                     _pieceRobot.Bras = (int)TypePieceRobot.Bronze;
                     GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>().AddQualityStep(skillNameToAddPoints, qualityNumberToAddPoints, 1);
 
                 }
-                else if (sGlobale.satisfactionGlobale < 80)
+                else if (globalSatisfaction.satisfactionGlobale < 80)
                 {
                     _pieceRobot.Bras = (int)TypePieceRobot.Argent;
                     GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>().AddQualityStep(skillNameToAddPoints, qualityNumberToAddPoints, 2);
                 }
-                else if (sGlobale.satisfactionGlobale > 80)
+                else if (globalSatisfaction.satisfactionGlobale > 80)
                 {
                     _pieceRobot.Bras = (int)TypePieceRobot.Or;
                     GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>().AddQualityStep(skillNameToAddPoints, qualityNumberToAddPoints, 3);

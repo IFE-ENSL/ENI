@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 
 namespace Assets.Scripts.Management
 {
-    //Cette classe définit un personnage, et définit ses indices de satisfaction
+    //Cette classe définit un managementCharacter, et définit ses indices de satisfaction
     public class Personnage : MonoBehaviour
     {
         public GameManager gameManager;
@@ -25,10 +25,10 @@ namespace Assets.Scripts.Management
         public SpriteRenderer sr;
         public SatisfactionPersonnage Satisfaction { get; private set; }
         public Personnage copain;
-        public Personnage bienAimePar;
+        public Personnage likedBy;
         public Personnage myProductiveLink;
         public Personnage charIMakeProductive;
-        public Piece piece;
+        public Room room;
 
         void Start()
         {
@@ -39,7 +39,7 @@ namespace Assets.Scripts.Management
             Satisfaction = GetComponent<SatisfactionPersonnage>();
         }
 
-        //Permet de selectionner le personnage
+        //Permet de selectionner le managementCharacter
         void OnMouseDown()
         {
             gameManager.SelectedGameObject = this.gameObject;
@@ -53,13 +53,13 @@ namespace Assets.Scripts.Management
             sr.sprite = saveChildren.avatarsSprites[persoId - 1];
         }
 
-        //Calcule la satisfaction du personnage
-        public void CalculSatisfaction()
+        //Calcule la satisfaction du managementCharacter
+        public void UpdateSatisfaction()
         {
-            StartCoroutine(Satisfaction.CalculSatisfaction());
+            StartCoroutine(Satisfaction.UpdateSatisfaction());
         }
 
-        //Réinitialise la satisfaction du personnage
+        //Réinitialise la satisfaction du managementCharacter
         public void ResetSatisfaction()
         {
             this.Satisfaction.Reset();

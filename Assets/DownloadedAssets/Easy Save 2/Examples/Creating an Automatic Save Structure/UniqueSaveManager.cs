@@ -82,7 +82,7 @@ public class UniqueSaveManager : MonoBehaviour
 		
 
 		 //Note that we're appending the 'i' to the end of the path so that
-		 //we know which object each piece of data belongs to.
+		 //we know which object each room of data belongs to.
 		ES2.Save(uID.id, file+"?tag=uniqueID"+i);
 		ES2.Save(uID.prefabName, file+"?tag=prefabName"+i);
 		// Save whether the GameObject this UniqueID is attached to is active or not.

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.Management
 {
-    //Cette classe permet de sauvegarder / charger la liste des personnages
+    //This contains all the characters sprites for an easy reference to it
     public class CharacterGrid : MonoBehaviour
     {
         public GameObject prefabPersonnage;

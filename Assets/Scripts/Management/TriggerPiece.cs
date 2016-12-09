@@ -8,17 +8,17 @@ namespace Assets.Scripts.Management
 
 
         private SpriteRenderer imagePiece;
-        private Piece piece;
+        private Room room;
 
         void Start()
         {
             imagePiece = GetComponentInChildren<SpriteRenderer>();
-            piece = GetComponent<Piece>();
+            room = GetComponent<Room>();
         }
 
         void OnTriggerEnter2D(Collider2D other)
         {
-            if(piece.personnage)
+            if(room.managementCharacter)
                 imagePiece.color = new Color(1f, 0.5f, 0.5f, 0.2f);
             else
                 imagePiece.color = new Color(0.5f,1f,0.5f,0.2f);
