@@ -55,7 +55,7 @@ public class CharacterSheetManager : MonoBehaviour {
                 //Let's check if we improved our score, if not, we do not update the new points
                 if (competencesList[iterator].listeCriteres[qualityNumber].criterePoints < stepIncrementation)
                 {
-                    Debug.Log("Improved score in criteria " + competencesList[iterator].listeCriteres[qualityNumber].Name);
+                    Debug.Log("Improved score in criteria ''" + competencesList[iterator].listeCriteres[qualityNumber].Name + "'', linked to skill ''" + competencesList[iterator].Name + "''.");
 
                     //Then we make sure the new criteria does not exceed the max step
                     if (stepIncrementation > competencesList[iterator].listeCriteres[qualityNumber].criterePalliers)
