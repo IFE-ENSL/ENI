@@ -51,7 +51,7 @@ namespace Assets.Scripts.SaveSystem
 				gameobjects = new List<GameObject> { GameObject.Find("GrillePersonnages"), GameObject.Find("PlayerData"), GameObject.Find("GameManager") };
                 if (LoadData)
                 {
-                    GameObject.Find("GameManager").GetComponent<GameManager>().newGame = false;
+                    //TODO : Get rid of this? GameObject.Find("GameManager").GetComponent<GameManager>().newGame = false;
                     StartCoroutine(this.Load());
                     LoadData = false;
                 }

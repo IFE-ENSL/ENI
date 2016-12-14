@@ -13,12 +13,12 @@ namespace Assets.Scripts.Menu
         public InputField login;
         public InputField password;
         public Text msgErreur;
-        private ConnexionController connexion;
+        private ConnexionController connexionController;
         private Waiter _waiter = new Waiter();
 
         void Start()
         {
-            connexion = GameObject.Find("ConnexionController").GetComponent<ConnexionController>();
+            connexionController = GameObject.Find("ConnexionController").GetComponent<ConnexionController>();
         }
 		//Fonction appellée lors du clic sur le bouton login
         public void Login()
@@ -26,7 +26,7 @@ namespace Assets.Scripts.Menu
             msgErreur.text = "";
             if (login.text != "" && password.text != "")
             {
-                StartCoroutine(connexion.Login(login.text, password.text, _waiter));
+                StartCoroutine(connexionController.Login(login.text, password.text, _waiter));
                 msgErreur.color = Color.white;
                 msgErreur.text = "Connexion en cours... (0/3)";
                 StartCoroutine(this.Connect());
@@ -37,29 +37,29 @@ namespace Assets.Scripts.Menu
                 msgErreur.text = "Veuillez remplir tous les champs";
             }
         }
-		//Affiche le message de connexion en cours en fonction de la situation
+		//Affiche le message de connexionController en cours en fonction de la situation
         public IEnumerator Connect()
         {
             while (_waiter.waiting)
             {
                 yield return new WaitForSeconds(0.1f);
-                msgErreur.text = "Connexion en cours... (" + connexion.step + "/3)";
+                msgErreur.text = "Connexion en cours... (" + connexionController.step + "/3)";
             }
 
-            if (connexion.isLogged)
+            if (connexionController.isLogged)
             {
                 PlayerPrefs.SetString("username", login.text);
                 SceneManager.LoadScene("MainBoard");
             }
-            else if (connexion.error)
+            else if (connexionController.error)
             {
                 msgErreur.color = Color.red;
-                msgErreur.text = "Erreur de connexion";
+                msgErreur.text = "Erreur de connexionController";
             }
             else
             {
                 msgErreur.color = Color.red;
-                msgErreur.text = connexion.returnText;
+                msgErreur.text = connexionController.returnText;
             }
         }
     }

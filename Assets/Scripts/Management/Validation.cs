@@ -29,7 +29,7 @@ namespace Assets.Scripts.Management
         }
         public void Validate()
         {
-            int nbrPers = gm.pieces.Count(room => room.managementCharacter);
+            int nbrPers = gm.rooms.Count(room => room.managementCharacter);
             if (nbrPers == 5)
             {
                 if (globalSatisfaction.satisfactionGlobale < 60)
@@ -54,7 +54,7 @@ namespace Assets.Scripts.Management
             }
             else
             {
-                print("Il n'y a pas 5 personnes");
+                print("Il n'y a pas 5 personnes"); //TODO : Bug : Always printing this for some reasons....
             }
         }
 

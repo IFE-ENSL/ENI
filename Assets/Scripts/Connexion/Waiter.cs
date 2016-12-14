@@ -1,4 +1,4 @@
-﻿//Classe permettant de récupérer des informations lors de l'appel des méthodes de connexion
+﻿//Classe permettant de récupérer des informations lors de l'appel des méthodes de connexionController
 //Exemple : Savoir si l'envoie du log est terminé + récupérer des données de retour afin de savoir si le tout s'est bien passé
 namespace Assets.Scripts.Connexion
 {

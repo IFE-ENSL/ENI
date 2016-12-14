@@ -17,15 +17,33 @@ namespace Assets.Scripts.Management
     public class GameManager : MonoBehaviour
     {
         #region General Vars
-        //The management minigame id for this scene. Used to load the appropriate rooms stats.
-        public int sceneId;
+        public int sceneId; //The management minigame id for this scene. Used to load the appropriate rooms stats.
+        private int miniGameSession;
+
+        private readonly Vector3[] charactersGridPositions = new[] {new Vector3(0.03999f,2.51f), new Vector3(-2.91f,2.51f),
+        new Vector3(2.96f,2.51f),new Vector3(-2.94f,0.09f),new Vector3(0.07f,0.09f),new Vector3(0.07f,-2.646f),
+        new Vector3(-2.9f,-2.57f)};
+        #endregion
+
+        #region Game Status Vars
         public bool draggingAnyCharacter;
         #endregion
 
         #region External Objects, Components & misc. variables
+        public GameObject personnagePrefab;
         private GameObject _selectedGameObject;
         public GameObject go_characterGrid;
         public GameObject descriptionPanel;
+        public ConnexionController connexionController;
+        public GameObject go_characterDescription;
+        public GameObject go_roomDescription;
+        public Text[] textCharStats;
+        public Text[] textRoomStats;
+        public Image imageAvatarBtn;
+        public Room[] rooms;
+
+        [HideInInspector]
+        public List<Personnage> managementCharacters;
         #endregion
 
         #region distance lists
@@ -34,6 +52,7 @@ namespace Assets.Scripts.Management
         public static List<float> roomDistanceFromBathRoom = new List<float>();
         #endregion
 
+        //This variable is a bit special, when a gameObject gets selected, it will call some other methods, see below...
         public GameObject SelectedGameObject
         {
             get { return _selectedGameObject; }
@@ -41,13 +60,16 @@ namespace Assets.Scripts.Management
             {
                 //Effectue des controles lors du changement de l'objet selectionné et met à jour le panneau de description 
                 //ainsi que les indications sur scene permettant de voir plus facilement l'objet selectionné
+                //If it's the same object than before, we're done...
                 if (_selectedGameObject && _selectedGameObject.name == value.name)
                     return;
 
+                //If we selected this object and the description panel is hidden, let's enable it.
                 if (!descriptionPanel.activeInHierarchy)
                     descriptionPanel.SetActive(true);
 
-                if(_selectedGameObject)
+                //If an object was previously activated, we now deactivate it
+                if (_selectedGameObject)
                     _selectedGameObject.transform.GetChild(0).gameObject.SetActive(false);
 
                 _selectedGameObject = value;
@@ -55,41 +77,13 @@ namespace Assets.Scripts.Management
                 UpdateDescription();
             }
         }
-        //Utilitaire de connexion à la base
-        public ConnexionController connexion;
-        //Tableau contenant la liste des champs utilisés lors de l'affichage du déscriptif d'un managementCharacter
-        public Text[] descriptionPersonnage;
-        //Tableau contenant la liste des champs utilisés lors de l'affichage du déscriptif d'une pièce
-        public Text[] descriptionPiece;
-        public Image imageAvatarBtn;
-        //Liste des pièces de la scene
-        public Room[] pieces;
-        //Tableau de positions pour les zones de départ des personnages
-        private readonly Vector3[] positionsPersonnage = new[] {new Vector3(0.03999f,2.51f), new Vector3(-2.91f,2.51f),
-            new Vector3(2.96f,2.51f),new Vector3(-2.94f,0.09f),new Vector3(0.07f,0.09f),new Vector3(0.07f,-2.646f),
-        new Vector3(-2.9f,-2.57f)};
-        //Gameobject contenant les éléments permettant la déscription d'un managementCharacter
-        public GameObject dscPers;
-        //Gameobject contenant les éléments permettant la déscription d'une pièce
-        public GameObject dscPiece;
-
-        public GameObject personnagePrefab;
-
-        //Contient l'identifiant de la session de mini jeu actuelle obtenue a chaque nouvelle partie du mini jeu
-        private int sessionMiniJeu;
-        //Permet de savoir si il faut charger le mini jeu depuis une sauvegarde ou commencer une nouvelle partie
-        public bool newGame = true;
-
 
         void Start()
         {
-            connexion = GameObject.Find("ConnexionController").GetComponent<ConnexionController>();
+            connexionController = GameObject.Find("ConnexionController").GetComponent<ConnexionController>();
             StartCoroutine(this.getPieces());
-            if (newGame == false)
-                print("Pas de chargement");
-            else
-                StartCoroutine(this.getPersonnages());
-            StartCoroutine(connexion.PostLog("Début du jeu", "Management", new LogManagement()));
+            StartCoroutine(this.getPersonnages());
+            StartCoroutine(connexionController.PostLog("Début du jeu", "Management", new LogManagement()));
         }
 
         //Récupère la liste des pièces depuis la base de donnée
@@ -97,7 +91,7 @@ namespace Assets.Scripts.Management
         {
             Waiter wait = new Waiter();
             
-            StartCoroutine(connexion.mConnexion.getPieces(wait,this.sceneId));
+            StartCoroutine(connexionController.mConnexion.getPieces(wait,this.sceneId));
             while (wait.waiting)
             {
                 yield return new WaitForSeconds(1);
@@ -105,9 +99,11 @@ namespace Assets.Scripts.Management
             Debug.Log("Récupération des pièces : " + wait.data);
             JSONNode piecesValues = null;
             piecesValues = JSON.Parse(wait.data);
-            if (pieces == null) yield break;
+            Debug.Log("Now you see me");
+            if (rooms == null) yield break;
+            Debug.Log("Now you don't");
 
-            StartCoroutine(connexion.mConnexion.getPiecesDistance(wait, this.sceneId));
+            StartCoroutine(connexionController.mConnexion.getPiecesDistance(wait, this.sceneId));
             while (wait.waiting)
             {
                 yield return new WaitForSeconds(1);
@@ -116,36 +112,39 @@ namespace Assets.Scripts.Management
             JSONNode piecesDistancesValues = null;
             piecesDistancesValues = JSON.Parse(wait.data);
 
-            //Itère a travers les pièces récupérées, et les insère dans l'ordre dans le tableau de pièces présent sur la scène
-            for (int i = 0; i < pieces.Length; i++)
-            {
-                pieces[i].id = piecesValues[i]["id"].AsInt;
-                pieces[i].accesExterieur = piecesValues[i]["accesExterieur"].Value == "1" ? true : false;
-                pieces[i].accesHandicape = piecesValues[i]["accesHandicape"].Value == "1" ? true : false;
+            //rooms.le
 
-                pieces[i].distanceSallePause = piecesValues[i]["distanceSallePause"].AsFloat;
-                roomDistanceFromBreakRoom.Add(pieces[i].distanceSallePause);
+            //Itère a travers les pièces récupérées, et les insère dans l'ordre dans le tableau de pièces présent sur la scène
+            for (int i = 0; i < rooms.Length; i++) //TODO : Why the hell is this list empty, and was it always empty???
+            {
+                Debug.Log("Not sure if you see me actually");
+                rooms[i].id = piecesValues[i]["id"].AsInt;
+                rooms[i].accesExterieur = piecesValues[i]["accesExterieur"].Value == "1" ? true : false;
+                rooms[i].accesHandicape = piecesValues[i]["accesHandicape"].Value == "1" ? true : false;
+
+                rooms[i].distanceSallePause = piecesValues[i]["distanceSallePause"].AsFloat;
+                roomDistanceFromBreakRoom.Add(rooms[i].distanceSallePause);
                 roomDistanceFromBreakRoom.Sort();
                 roomDistanceFromBreakRoom.Reverse();
 
-                pieces[i].distanceToilette = piecesValues[i]["distanceToillette"].AsFloat;
-                roomDistanceFromBathRoom.Add(pieces[i].distanceToilette);
+                rooms[i].distanceToilette = piecesValues[i]["distanceToillette"].AsFloat;
+                roomDistanceFromBathRoom.Add(rooms[i].distanceToilette);
                 roomDistanceFromBathRoom.Sort();
                 roomDistanceFromBathRoom.Reverse();
 
-                pieces[i].surface = piecesValues[i]["surface"].AsFloat;
-                pieces[i].ouvertureExterieur = piecesValues[i]["ouvertureExterieur"].AsInt;
+                rooms[i].surface = piecesValues[i]["surface"].AsFloat;
+                rooms[i].ouvertureExterieur = piecesValues[i]["ouvertureExterieur"].AsInt;
 
 
                 //Adding the distances between this room and the others
                 Dictionary<int, int> roomDistances = new Dictionary<int, int>();
                 for (int iterator = 0; iterator < piecesDistancesValues.Count; iterator ++)
                 {
-                    if (piecesDistancesValues[iterator]["id_from"].AsInt == pieces[i].id)
+                    if (piecesDistancesValues[iterator]["id_from"].AsInt == rooms[i].id)
                     {
                         roomDistances.Add(piecesDistancesValues[iterator]["id_to"].AsInt, piecesDistancesValues[iterator]["distance"].AsInt);
                     }
-                    else if (piecesDistancesValues[iterator]["id_to"].AsInt == pieces[i].id)
+                    else if (piecesDistancesValues[iterator]["id_to"].AsInt == rooms[i].id)
                     {
                         roomDistances.Add(piecesDistancesValues[iterator]["id_from"].AsInt, piecesDistancesValues[iterator]["distance"].AsInt);
                     }
@@ -156,10 +155,12 @@ namespace Assets.Scripts.Management
                             orderby pair.Value descending
                             select pair.Key;
 
-                pieces[i].roomDistancesid = items.ToList<int>();
+                rooms[i].roomDistancesid = items.ToList<int>();
                 Debug.Log("Is Okay I think...");
 
             }
+
+            Debug.Log(rooms);
         }
 
         //Récupère une liste aléatoire de personnages depuis la base de donnée
@@ -168,15 +169,15 @@ namespace Assets.Scripts.Management
             #region Getting Character from SQL
             Waiter wait = new Waiter();
             //Crée une nouvelle session de mini jeu
-            StartCoroutine(connexion.mConnexion.insertSessionMiniJeu(wait));
+            StartCoroutine(connexionController.mConnexion.insertSessionMiniJeu(wait));
             while (wait.waiting)
             {
                 yield return new WaitForSeconds(0.5f);
             }
             try
             {
-                sessionMiniJeu = Convert.ToInt32(wait.data);
-                PlayerPrefs.SetInt("sessionMiniJeuManagement",sessionMiniJeu);
+                miniGameSession = Convert.ToInt32(wait.data);
+                PlayerPrefs.SetInt("sessionMiniJeuManagement",miniGameSession);
             }
             catch (Exception)
             {
@@ -185,7 +186,7 @@ namespace Assets.Scripts.Management
                 SceneManager.LoadScene(0);
             }
             wait.Reset();
-            StartCoroutine(connexion.mConnexion.getPersonnages(wait, sessionMiniJeu));
+            StartCoroutine(connexionController.mConnexion.getPersonnages(wait, miniGameSession));
             while (wait.waiting)
             {
                 yield return new WaitForSeconds(0.5f);
@@ -193,7 +194,7 @@ namespace Assets.Scripts.Management
             Debug.Log("Récupération des personnages : " + wait.data);
             JSONNode personnageValues = null;
             personnageValues = JSON.Parse(wait.data);
-            if (pieces == null) yield break;
+            if (rooms == null) yield break;
             List<int> ids = new List<int>();
             int idPlacement = 0;
             #endregion
@@ -210,11 +211,16 @@ namespace Assets.Scripts.Management
                     allCharacters.Add(managementCharacter);
                     managementCharacter.transform.parent = go_characterGrid.transform;
                     managementCharacter.name = "Personnage" + personnageValues[i]["id"].Value;
-                    managementCharacter.transform.localPosition = positionsPersonnage[idPlacement];
+                    managementCharacter.transform.localPosition = charactersGridPositions[idPlacement];
                     idPlacement++;
+
+                    
 
                     //Association des valeurs récupérées
                     Personnage scriptP = managementCharacter.GetComponent<Personnage>();
+
+                    managementCharacters.Add(scriptP);
+
                     scriptP.role = personnageValues[i]["role"].Value;
                     scriptP.surfaceSalarie = personnageValues[i]["surfaceSalarie"].AsInt;
                     scriptP.luminosite = personnageValues[i]["luminosite"].AsInt;
@@ -225,8 +231,8 @@ namespace Assets.Scripts.Management
                     scriptP.serviceId = personnageValues[i]["service_id"].AsInt;
 
                     //Envoie du log indiquant l'insertion du managementCharacter
-                    StartCoroutine(connexion.mConnexion.insertSessionPersonnage(personnageValues[i]["id"].Value,
-                        sessionMiniJeu));
+                    StartCoroutine(connexionController.mConnexion.insertSessionPersonnage(personnageValues[i]["id"].Value,
+                        miniGameSession));
 
                     //Ajoute l'identifiant du managementCharacter à une liste afin de ne pas en crééer deux ayant le même identifiant
                     //(Si la requête SQL retourne deux personnages avec le même identifiant c'est parceque ils ne sont pas associés au même copain)
@@ -238,6 +244,9 @@ namespace Assets.Scripts.Management
 
                 }
             }
+
+            //TODO: The freezes comes from here... FIX IT!
+            //All right, so... Eliminating one of the for loop relieves a bit the engine, but it will crash eventually anyway.
 
             //Now associating all the relationships of this character...
             //For each character in this game session...
@@ -329,58 +338,50 @@ namespace Assets.Scripts.Management
             if (_selectedGameObject.GetComponent<Personnage>())
             {
                 descriptionPanel.GetComponent<Image>().color = new Color(0.3f, 0.4f, 0.6f, 0.9f);
-                dscPiece.SetActive(false);
-                dscPers.SetActive(true);
+                go_roomDescription.SetActive(false);
+                go_characterDescription.SetActive(true);
                 Personnage p = _selectedGameObject.GetComponent<Personnage>();
-                descriptionPersonnage[0].text = "{Personnage } : " + p.role;
-                descriptionPersonnage[1].text = "Satisfaction : " + p.Satisfaction.satisfactionTotale;
-                descriptionPersonnage[2].text = "Surface salarié : " + p.surfaceSalarie;
-                descriptionPersonnage[3].text = "Luminosité : " + p.luminosite;
-                descriptionPersonnage[4].text = "Accès Extérieur : " + p.accesExterieur;
-                descriptionPersonnage[5].text = "Distance salle de pause : " + p.distanceSallePause;
-                descriptionPersonnage[6].text = "Distance toilette : " + p.distanceToilette;
+                textCharStats[0].text = "{Personnage } : " + p.role;
+                textCharStats[1].text = "Satisfaction : " + p.Satisfaction.satisfactionTotale;
+                textCharStats[2].text = "Surface salarié : " + p.surfaceSalarie;
+                textCharStats[3].text = "Luminosité : " + p.luminosite;
+                textCharStats[4].text = "Accès Extérieur : " + p.accesExterieur;
+                textCharStats[5].text = "Distance salle de pause : " + p.distanceSallePause;
+                textCharStats[6].text = "Distance toilette : " + p.distanceToilette;
                 if (p.copain != null)
                 {
                     string description = "Copain : ";
                     description += " " + p.copain.role;
-                    descriptionPersonnage[7].text = description;
+                    textCharStats[7].text = description;
                 }
                 else
                 {
-                    descriptionPersonnage[7].text = "Copain : N/A";
+                    textCharStats[7].text = "Copain : N/A";
                 }
                 if(p.myProductiveLink != null)
                 {
                     string description = "Relation Productive : ";
                     description += " " + p.myProductiveLink.role;
-                    descriptionPersonnage[8].text = description;
+                    textCharStats[8].text = description;
                 }
                 else
                 {
-                    descriptionPersonnage[8].text = "Relation Productive : N/A";
+                    textCharStats[8].text = "Relation Productive : N/A";
                 }
                 imageAvatarBtn.sprite = _selectedGameObject.GetComponent<SpriteRenderer>().sprite;
             }
             else if (_selectedGameObject.GetComponent<Room>())
             {
                 descriptionPanel.GetComponent<Image>().color = new Color(0.8f, 0.4f, 0.4f, 0.9f);
-                dscPiece.SetActive(true);
-                dscPers.SetActive(false);
+                go_roomDescription.SetActive(true);
+                go_characterDescription.SetActive(false);
                 Room p = _selectedGameObject.GetComponent<Room>();
-                descriptionPiece[0].text = "{PIECE} - " + p.surface;
-                descriptionPiece[2].text = "Ouverture extèrieure : " + p.ouvertureExterieur;
-                descriptionPiece[3].text = "Accès Extèrieur : " + p.accesExterieur;
-                descriptionPiece[4].text = "Distance salle de pause : " + p.distanceSallePause;
-                descriptionPiece[5].text = "Distance toilette : " + p.distanceToilette;
+                textRoomStats[0].text = "{PIECE} - " + p.surface;
+                textRoomStats[2].text = "Ouverture extèrieure : " + p.ouvertureExterieur;
+                textRoomStats[3].text = "Accès Extèrieur : " + p.accesExterieur;
+                textRoomStats[4].text = "Distance salle de pause : " + p.distanceSallePause;
+                textRoomStats[5].text = "Distance toilette : " + p.distanceToilette;
             }
         }
-		public void Save(string fileName)
-		{
-			ES2.Save(SceneManager.GetActiveScene().name, fileName + "?tag=managementSceneId");
-		}
-		public void Load(string fileName)
-		{
-		}
-
     }
 }

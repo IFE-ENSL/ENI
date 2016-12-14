@@ -29,7 +29,7 @@ namespace Assets.Scripts.Connexion
 
         public IEnumerator getPiecesDistance(Waiter waiter, int scene)
         {
-            //Testing out pieces distance
+            //Testing out rooms distance
             waiter.waiting = true;
             string sessionId = PlayerPrefs.GetString("sessionId");
             Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
@@ -39,7 +39,7 @@ namespace Assets.Scripts.Connexion
             yield return hs_get;
             if (hs_get.error != null)
             {
-                Debug.Log("Erreur lors de la récupération des pieces : " + hs_get.error);
+                Debug.Log("Erreur lors de la récupération des rooms : " + hs_get.error);
                 Debug.Log(hs_get.text);
                 SceneManager.LoadScene(0);
             }
@@ -59,7 +59,7 @@ namespace Assets.Scripts.Connexion
             yield return hs_get;
             if (hs_get.error != null)
             {
-                Debug.Log("Erreur lors de la récupération des pieces : " + hs_get.error);
+                Debug.Log("Erreur lors de la récupération des rooms : " + hs_get.error);
                 Debug.Log(hs_get.text);
                 SceneManager.LoadScene(0);
             }
@@ -91,7 +91,7 @@ namespace Assets.Scripts.Connexion
         }
 
         //Permet de lier dans la base de donnée un managementCharacter séléctionné ainsi qu'une session de mini jeu
-        public IEnumerator insertSessionPersonnage(string personnageId, int sessionMiniJeu)
+        public IEnumerator insertSessionPersonnage(string personnageId, int miniGameSession)
         {
             string sessionId = PlayerPrefs.GetString("sessionId");
             Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
@@ -99,7 +99,7 @@ namespace Assets.Scripts.Connexion
             string post_url = insertSessionURL;
             WWWForm post_data = new WWWForm();
             post_data.AddField("personnageId",personnageId);
-            post_data.AddField("sessionMiniJeu", sessionMiniJeu);
+            post_data.AddField("sessionMiniJeu", miniGameSession);
             WWW hs_get = new WWW(post_url, post_data.data, headers);
             yield return hs_get;
             if (hs_get.error != null || hs_get.text != "1")
@@ -130,7 +130,7 @@ namespace Assets.Scripts.Connexion
             wait.waiting = false;
         }
 
-        //Permet de mettre a jour un lien managementCharacter / sessionMiniJeu en ajoutant un id d'avatar
+        //Permet de mettre a jour un lien managementCharacter / miniGameSession en ajoutant un id d'avatar
         public IEnumerator updateAvatar(int persId, int avatarId, int sessionMiniJeuId)
         {
             string sessionId = PlayerPrefs.GetString("sessionId");

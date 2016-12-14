@@ -18,7 +18,7 @@ namespace Assets.Scripts.Management
 
         #region External Objects
         public GameManager gameManager;
-        private Personnage managementCharacter;
+        private Personnage thisManagementCharacter;
         #endregion
 
         #region Tracking room change variables
@@ -43,7 +43,7 @@ namespace Assets.Scripts.Management
         void Start()
         {
             startPoint = this.transform.position;
-            managementCharacter = GetComponent<Personnage>();
+            thisManagementCharacter = GetComponent<Personnage>();
             gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
             globalSatisfaction = GameObject.Find("PourcentageSatisfaction").GetComponent<SatisfactionGlobale>();
         }
@@ -53,6 +53,14 @@ namespace Assets.Scripts.Management
             x = Input.mousePosition.x;
             y = Input.mousePosition.y;
             draggingAnyCharacter();
+        }
+
+        //Unity API Method.
+        //Called when the user clicked the GO and is still holding down the mouse
+        void OnMouseDrag()
+        {
+            transform.position = Camera.main.ScreenToWorldPoint(new Vector3(x, y, 10.0f));
+            IsDragging = true;
         }
 
         //Main method, check if we're still dragging
@@ -76,38 +84,27 @@ namespace Assets.Scripts.Management
                     //Place the character on the exact position of the room
                     this.transform.position = new Vector2(Room.transform.position.x,Room.transform.position.y);
 
-                    /*if (managementCharacter.room)
-                        managementCharacter.room.managementCharacter = null;*/ //TODO : Useless or what?
+                    //If the character was previously attached to a room, let's clear its link
+                    if (thisManagementCharacter.room)
+                        thisManagementCharacter.room.managementCharacter = null;
                     
                     //Now that we released the character from dragging,
                     //We attach the room to its script, and we attach the character to the room's script.
-                    managementCharacter.room = room;
-                    room.managementCharacter = managementCharacter;
+                    thisManagementCharacter.room = room;
+                    room.managementCharacter = thisManagementCharacter;
                     IsDragging = false; //Of course, we're not dragging the picture anymore.
 
                     //For the db trace, we set the previous and now current room.
                     PreviousRoomId = CurrentRoomId;
                     CurrentRoomId = room.id;
+
                     //Then send these datas to te SQL DB.
-                    LogManagement data = new LogManagement(managementCharacter.persoId, PreviousRoomId, CurrentRoomId);
-                    StartCoroutine(gameManager.connexion.PostLog("Déplacement d'un managementCharacter", "Management", data));
+                    LogManagement data = new LogManagement(thisManagementCharacter.persoId, PreviousRoomId, CurrentRoomId);
+                    StartCoroutine(gameManager.connexionController.PostLog("Déplacement d'un thisManagementCharacter", "Management", data));
+
                     //Once this is done, we have to update the character's satisfaction.
-                    managementCharacter.UpdateSatisfaction();
-
-                    //And then the satisfaction for their relationships
-                    if (managementCharacter.likedBy != null)
-                    {
-                        managementCharacter.likedBy.UpdateSatisfaction();
-                    }
-
-                    if (managementCharacter.charIMakeProductive != null)
-                    {
-                        managementCharacter.charIMakeProductive.UpdateSatisfaction();
-                    }
-
-                    //Once every concerned character has their satisfaction updated,
-                    //we can safely update the global satsifaction percentage.
-                    globalSatisfaction.UpdateGlobalSatisfaction();
+                    //Let's update every satisfaction level
+                    UpdateAllSatisfactionLevels();
                 }
                 //In case the room is not empty...
                 else if (room.managementCharacter && room.managementCharacter.name != this.name)
@@ -116,15 +113,12 @@ namespace Assets.Scripts.Management
                     this.gameObject.transform.position = startPoint;
 
                     //If this character wasn't previously linked to a room, we're done.
-                    if (!managementCharacter.room) return;
+                    if (!thisManagementCharacter.room) return;
 
                     //Else, let's make sure the character isn't attached to a room anymore.
                     //Basically, we reset everything about the character as they're
                     //returning to their starting state.
-                    managementCharacter.room.managementCharacter = null;
-                    managementCharacter.room = null;
-                    managementCharacter.ResetSatisfaction();
-                    globalSatisfaction.UpdateGlobalSatisfaction();
+                    ResetCharacterStats();
                 }
             }
             //Else if we dropped the character on anything but a room...
@@ -135,22 +129,32 @@ namespace Assets.Scripts.Management
                     this.gameObject.transform.position = startPoint;
 
                 //If there was no previous room attached to this character, we're done.
-                if (!managementCharacter.room) return;
+                if (!thisManagementCharacter.room) return;
 
                 //Else, we reset the variables that linked this character to the room.
-                managementCharacter.room.managementCharacter = null;
-                managementCharacter.room = null;
-                managementCharacter.ResetSatisfaction();
-                globalSatisfaction.UpdateGlobalSatisfaction();
+                ResetCharacterStats();
             }
         }
 
-        //Unity API Method.
-        //Called when the user clicked the GO and is still holding down the mouse
-        void OnMouseDrag()
+        void ResetCharacterStats ()
         {
-            transform.position = Camera.main.ScreenToWorldPoint(new Vector3(x, y, 10.0f));
-            IsDragging = true;
+            thisManagementCharacter.room.managementCharacter = null;
+            thisManagementCharacter.room = null;
+            thisManagementCharacter.ResetSatisfaction();
+
+            UpdateAllSatisfactionLevels();
+        }
+
+        //Update the satisfaction of every character currently in a room, then the global satisfaction percentage
+        void UpdateAllSatisfactionLevels ()
+        {
+            foreach (Personnage character in gameManager.managementCharacters)
+            {
+                if (character.room != null)
+                    character.UpdateSatisfaction();
+            }
+
+            globalSatisfaction.UpdateGlobalSatisfaction();
         }
     }
 }

@@ -16,12 +16,12 @@ namespace Assets.Scripts.Chat
         public bool isChatShowing = false;
         public InputField inputField;
         public Text chatText;
-        private ConnexionController connexion;
+        private ConnexionController connexionController;
         private int lastIdMessage;
         void Start()
         {
             ToggleChat();
-            connexion = FindObjectOfType<ConnexionController>();
+            connexionController = FindObjectOfType<ConnexionController>();
             //InvokeRepeating("updateMessages", 0, 2.0f); //Check new messages every X seconds
             
         }
@@ -35,20 +35,20 @@ namespace Assets.Scripts.Chat
         //Va chercher dans la base de donnée si de nouveaux messages ont été postés
         void updateMessages()
         {
-            if (connexion.wait != false)
+            if (connexionController.wait != false)
             {
                 Debug.Log("Can't update messages now, have to wait...");
                 return;
             }
 
             float timeToAnswer = 0f;
-            StartCoroutine(connexion.getMessages());
+            StartCoroutine(connexionController.getMessages());
             timeToAnswer += Time.deltaTime;
 
             JSONNode messages = null;
             try
             {
-                messages = JSON.Parse(connexion.messages);
+                messages = JSON.Parse(connexionController.messages);
             }
             catch (Exception)
             {
@@ -89,7 +89,7 @@ namespace Assets.Scripts.Chat
             string text = inputField.text;
             inputField.text = "";
             //string message = "[" + PlayerPrefs.GetString("username") + "]" + " " + text;
-            StartCoroutine(connexion.PostMessage(text));
+            StartCoroutine(connexionController.PostMessage(text));
         }
     }
 }

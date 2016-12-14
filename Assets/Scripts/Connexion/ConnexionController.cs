@@ -74,7 +74,7 @@ namespace Assets.Scripts.Connexion
             if (!isLogged && SceneManager.GetActiveScene().name != "Login")
             {
                 Debug.Break();
-                Debug.LogWarning("Lost login connexion during the game!");
+                Debug.LogWarning("Lost login connexionController during the game!");
                 SceneManager.LoadScene("Login");
             }
         }
@@ -161,7 +161,7 @@ namespace Assets.Scripts.Connexion
                 hs_get = null;
                 hs_post = new WWWForm();
                 hs_post.AddField("sessionId", sessionId);
-                //Renvoie du cookie d'authentification afin de maintenir la connexion
+                //Renvoie du cookie d'authentification afin de maintenir la connexionController
                 Dictionary<String, String> headers = new Dictionary<string, string> {{"Cookie", sessionId}};
                 hs_get = new WWW(addTokenURL, hs_post.data,headers);
                 yield return hs_get;
