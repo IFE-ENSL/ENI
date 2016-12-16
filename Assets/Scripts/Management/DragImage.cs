@@ -18,7 +18,7 @@ namespace Assets.Scripts.Management
 
         #region External Objects
         public GameManager gameManager;
-        private Personnage thisManagementCharacter;
+        private ManagementCharacter thisManagementCharacter;
         #endregion
 
         #region Tracking room change variables
@@ -43,7 +43,7 @@ namespace Assets.Scripts.Management
         void Start()
         {
             startPoint = this.transform.position;
-            thisManagementCharacter = GetComponent<Personnage>();
+            thisManagementCharacter = GetComponent<ManagementCharacter>();
             gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
             globalSatisfaction = GameObject.Find("PourcentageSatisfaction").GetComponent<SatisfactionGlobale>();
         }
@@ -148,7 +148,7 @@ namespace Assets.Scripts.Management
         //Update the satisfaction of every character currently in a room, then the global satisfaction percentage
         void UpdateAllSatisfactionLevels ()
         {
-            foreach (Personnage character in gameManager.managementCharacters)
+            foreach (ManagementCharacter character in gameManager.managementCharacters)
             {
                 if (character.room != null)
                     character.UpdateSatisfaction();

@@ -7,7 +7,7 @@ namespace Assets.Scripts.Management
     //Tutoriel au lancement du mini jeu
     public class Introduction : MonoBehaviour
     {
-
+        //TODO: This script is unused! What do we do?
         public Text text;
         public GameObject[] gameObjects;
 

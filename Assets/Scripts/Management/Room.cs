@@ -6,8 +6,12 @@ namespace Assets.Scripts.Management
     //Cette classe définit une pièce ainsi que ses propriétés
     public class Room : MonoBehaviour
     {
+
+        #region External Components & objects
         private GameManager gameManager;
+        public ManagementCharacter managementCharacter; //The management character associated with this room, if any.
         private SpriteRenderer imagePiece;
+        #endregion
 
         public int id;
         public float surface = 55f;
@@ -17,8 +21,7 @@ namespace Assets.Scripts.Management
         public float distanceSallePause = 5f;
         public float distanceToilette = 4f;
         public List<int> roomDistancesid = new List<int>();
-        public Room[] nextTo;
-        public Personnage managementCharacter;
+        
 
         void Start()
         {

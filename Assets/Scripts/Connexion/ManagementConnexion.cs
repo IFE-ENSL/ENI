@@ -48,7 +48,7 @@ namespace Assets.Scripts.Connexion
         }
 
         //Récupère la liste des pièces en json
-        public IEnumerator getPieces(Waiter waiter, int scene)
+        public IEnumerator getRooms(Waiter waiter, int scene)
         {
             waiter.waiting = true;
             string sessionId = PlayerPrefs.GetString("sessionId");
@@ -68,9 +68,8 @@ namespace Assets.Scripts.Connexion
         }
 
         //Récupère la liste des personnages en json
-        public IEnumerator getPersonnages(Waiter waiter, int sessionMiniJeuId)
+        public IEnumerator getCharacters(Waiter waiter, int sessionMiniJeuId)
         {
-            //TODO : Add MiniGame Session Id each time we catch the characters
             waiter.waiting = true;
             string sessionId = PlayerPrefs.GetString("sessionId");
             Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };

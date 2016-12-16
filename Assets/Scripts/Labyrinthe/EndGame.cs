@@ -20,7 +20,6 @@ namespace Assets.Scripts.Labyrinthe
         private WinScript _winScript;
         private LabyPlayerData _playerData;
         private PieceRobot _pieceRobot;
-        private SaveManager _saveManager;
 
         void Start()
         {
@@ -37,7 +36,6 @@ namespace Assets.Scripts.Labyrinthe
             {
                 _playerData = playerData.GetComponent<LabyPlayerData>();
                 _pieceRobot = playerData.GetComponent<PieceRobot>();
-                _saveManager = GameObject.Find("SaveManager").GetComponent<SaveManager>();
             }
 
             //StartCoroutine(_winScript.Win(2));
@@ -106,12 +104,6 @@ namespace Assets.Scripts.Labyrinthe
                 case 3:
                     _pieceRobot.Jambes = (int) TypePieceRobot.Or;
                     break;
-            }
-            if (_saveManager)
-                _saveManager.Save();
-            else
-            {
-                Debug.LogError("Système de sauvegarde non activé !!");
             }
         }
         //Permet d'attendre la fin des requêtes avant d'arriver sur la scene PieceRobot du jeu

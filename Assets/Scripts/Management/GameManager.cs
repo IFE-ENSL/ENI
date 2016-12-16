@@ -43,7 +43,7 @@ namespace Assets.Scripts.Management
         public Room[] rooms;
 
         [HideInInspector]
-        public List<Personnage> managementCharacters;
+        public List<ManagementCharacter> managementCharacters;
         #endregion
 
         #region distance lists
@@ -58,8 +58,6 @@ namespace Assets.Scripts.Management
             get { return _selectedGameObject; }
             set
             {
-                //Effectue des controles lors du changement de l'objet selectionné et met à jour le panneau de description 
-                //ainsi que les indications sur scene permettant de voir plus facilement l'objet selectionné
                 //If it's the same object than before, we're done...
                 if (_selectedGameObject && _selectedGameObject.name == value.name)
                     return;
@@ -81,17 +79,17 @@ namespace Assets.Scripts.Management
         void Start()
         {
             connexionController = GameObject.Find("ConnexionController").GetComponent<ConnexionController>();
-            StartCoroutine(this.getPieces());
-            StartCoroutine(this.getPersonnages());
+            StartCoroutine(this.getRooms());
+            StartCoroutine(this.getCharacters());
             StartCoroutine(connexionController.PostLog("Début du jeu", "Management", new LogManagement()));
         }
 
         //Récupère la liste des pièces depuis la base de donnée
-        private IEnumerator getPieces()
+        private IEnumerator getRooms()
         {
             Waiter wait = new Waiter();
             
-            StartCoroutine(connexionController.mConnexion.getPieces(wait,this.sceneId));
+            StartCoroutine(connexionController.mConnexion.getRooms(wait,this.sceneId));
             while (wait.waiting)
             {
                 yield return new WaitForSeconds(1);
@@ -99,9 +97,7 @@ namespace Assets.Scripts.Management
             Debug.Log("Récupération des pièces : " + wait.data);
             JSONNode piecesValues = null;
             piecesValues = JSON.Parse(wait.data);
-            Debug.Log("Now you see me");
             if (rooms == null) yield break;
-            Debug.Log("Now you don't");
 
             StartCoroutine(connexionController.mConnexion.getPiecesDistance(wait, this.sceneId));
             while (wait.waiting)
@@ -112,12 +108,13 @@ namespace Assets.Scripts.Management
             JSONNode piecesDistancesValues = null;
             piecesDistancesValues = JSON.Parse(wait.data);
 
-            //rooms.le
+            if (rooms.Length <= 0)
+                Debug.LogError("No room into the Game Manager inspector! Are you sure you referenced them?");
 
-            //Itère a travers les pièces récupérées, et les insère dans l'ordre dans le tableau de pièces présent sur la scène
-            for (int i = 0; i < rooms.Length; i++) //TODO : Why the hell is this list empty, and was it always empty???
+
+            //For each room we got from the SQL db, we put the stats into each of their Go (Don't forget to put them in the inspector)
+            for (int i = 0; i < rooms.Length; i++)
             {
-                Debug.Log("Not sure if you see me actually");
                 rooms[i].id = piecesValues[i]["id"].AsInt;
                 rooms[i].accesExterieur = piecesValues[i]["accesExterieur"].Value == "1" ? true : false;
                 rooms[i].accesHandicape = piecesValues[i]["accesHandicape"].Value == "1" ? true : false;
@@ -148,27 +145,23 @@ namespace Assets.Scripts.Management
                     {
                         roomDistances.Add(piecesDistancesValues[iterator]["id_from"].AsInt, piecesDistancesValues[iterator]["distance"].AsInt);
                     }
-
                 }
 
+                //Ordering the roomDistances dictionary, the farthest first, and the nearest in last.
                 var items = from pair in roomDistances
                             orderby pair.Value descending
                             select pair.Key;
 
                 rooms[i].roomDistancesid = items.ToList<int>();
-                Debug.Log("Is Okay I think...");
-
             }
-
-            Debug.Log(rooms);
         }
 
         //Récupère une liste aléatoire de personnages depuis la base de donnée
-        private IEnumerator getPersonnages()
+        private IEnumerator getCharacters()
         {
             #region Getting Character from SQL
             Waiter wait = new Waiter();
-            //Crée une nouvelle session de mini jeu
+            //Creating a new session for this minigame
             StartCoroutine(connexionController.mConnexion.insertSessionMiniJeu(wait));
             while (wait.waiting)
             {
@@ -186,7 +179,7 @@ namespace Assets.Scripts.Management
                 SceneManager.LoadScene(0);
             }
             wait.Reset();
-            StartCoroutine(connexionController.mConnexion.getPersonnages(wait, miniGameSession));
+            StartCoroutine(connexionController.mConnexion.getCharacters(wait, miniGameSession));
             while (wait.waiting)
             {
                 yield return new WaitForSeconds(0.5f);
@@ -195,18 +188,15 @@ namespace Assets.Scripts.Management
             JSONNode personnageValues = null;
             personnageValues = JSON.Parse(wait.data);
             if (rooms == null) yield break;
-            List<int> ids = new List<int>();
             int idPlacement = 0;
             #endregion
 
             List<GameObject> allCharacters = new List<GameObject>();
 
+            //For each character we got from the SQL DB we instantiate a new character as a GO and sets all the attriute we got.
             for (int i = 0; i < personnageValues.Count; i++)
             {
-                //Crée un managementCharacter, et associe les valeurs récupérées dans la base à ce managementCharacter pour chaque itération
-                if (!ids.Contains(personnageValues[i]["id"].AsInt))
-                {
-                    //Création du managementCharacter
+                    //Instantiating character...
                     GameObject managementCharacter = Instantiate(personnagePrefab);
                     allCharacters.Add(managementCharacter);
                     managementCharacter.transform.parent = go_characterGrid.transform;
@@ -214,10 +204,8 @@ namespace Assets.Scripts.Management
                     managementCharacter.transform.localPosition = charactersGridPositions[idPlacement];
                     idPlacement++;
 
-                    
-
-                    //Association des valeurs récupérées
-                    Personnage scriptP = managementCharacter.GetComponent<Personnage>();
+                    //Association of values we got from SQL DB
+                    ManagementCharacter scriptP = managementCharacter.GetComponent<ManagementCharacter>();
 
                     managementCharacters.Add(scriptP);
 
@@ -230,23 +218,13 @@ namespace Assets.Scripts.Management
                     scriptP.persoId = personnageValues[i]["id"].AsInt;
                     scriptP.serviceId = personnageValues[i]["service_id"].AsInt;
 
-                    //Envoie du log indiquant l'insertion du managementCharacter
+                    //Sending log of the character we just instantiated
                     StartCoroutine(connexionController.mConnexion.insertSessionPersonnage(personnageValues[i]["id"].Value,
                         miniGameSession));
 
-                    //Ajoute l'identifiant du managementCharacter à une liste afin de ne pas en crééer deux ayant le même identifiant
-                    //(Si la requête SQL retourne deux personnages avec le même identifiant c'est parceque ils ne sont pas associés au même copain)
-                    ids.Add(scriptP.persoId);
-
-
                     //Setting up the character's avatar picture based on its character ID.
                     scriptP.setAvatar(scriptP.persoId);
-
-                }
             }
-
-            //TODO: The freezes comes from here... FIX IT!
-            //All right, so... Eliminating one of the for loop relieves a bit the engine, but it will crash eventually anyway.
 
             //Now associating all the relationships of this character...
             //For each character in this game session...
@@ -296,25 +274,25 @@ namespace Assets.Scripts.Management
                 //Associating friendly links if the character exists in the scene
                 if (friendExist)
                 {
-                    Personnage thisPersonnage = GameObject.Find("Personnage" + personnageValues[characterIterator]["id"]).GetComponent<Personnage>();
-                    GameObject copain = GameObject.Find("Personnage" + personnageValues[characterIterator]["plinks"][FriendIndexToUse]["userto_id"].Value);
-                    if (copain != null)
+                    ManagementCharacter thisCharacter = GameObject.Find("Personnage" + personnageValues[characterIterator]["id"]).GetComponent<ManagementCharacter>();
+                    GameObject friend = GameObject.Find("Personnage" + personnageValues[characterIterator]["plinks"][FriendIndexToUse]["userto_id"].Value);
+                    if (friend != null)
                     {
-                        Personnage friend = copain.GetComponent<Personnage>();
-                        thisPersonnage.copain = friend;
-                        friend.likedBy = thisPersonnage;
+                        ManagementCharacter characterScript_Friend = friend.GetComponent<ManagementCharacter>();
+                        thisCharacter.friend = characterScript_Friend;
+                        characterScript_Friend.likedBy = thisCharacter;
                     }
                 }
 
                 //Associating productive links (Service links) if the character exists in the scene
                 if (serviceLinkExist)
                 {
-                    Personnage thisPersonnage = GameObject.Find("Personnage" + personnageValues[characterIterator]["id"]).GetComponent<Personnage>();
+                    ManagementCharacter thisPersonnage = GameObject.Find("Personnage" + personnageValues[characterIterator]["id"]).GetComponent<ManagementCharacter>();
                     GameObject ProductiveLink = null;
 
                     foreach (GameObject character in allCharacters)
                     {
-                        if (character.GetComponent<Personnage>().serviceId == personnageValues[characterIterator]["slinks"][ServiceIndexToUse]["serviceto_id"].AsInt)
+                        if (character.GetComponent<ManagementCharacter>().serviceId == personnageValues[characterIterator]["slinks"][ServiceIndexToUse]["serviceto_id"].AsInt)
                         {
                             ProductiveLink = character;
                             break;
@@ -323,7 +301,7 @@ namespace Assets.Scripts.Management
 
                     if (ProductiveLink != null)
                     {
-                        Personnage myProdLink = ProductiveLink.GetComponent<Personnage>();
+                        ManagementCharacter myProdLink = ProductiveLink.GetComponent<ManagementCharacter>();
                         thisPersonnage.myProductiveLink = myProdLink;
                         myProdLink.charIMakeProductive = thisPersonnage;
                     }
@@ -332,15 +310,15 @@ namespace Assets.Scripts.Management
             }
         }
 
-        //Permet de mettre à jour la fenêtre de description en fonction du type d'élément selectionné
+        //Updating the description windows according to the selected object in game
         public void UpdateDescription()
         {
-            if (_selectedGameObject.GetComponent<Personnage>())
+            if (_selectedGameObject.GetComponent<ManagementCharacter>())
             {
                 descriptionPanel.GetComponent<Image>().color = new Color(0.3f, 0.4f, 0.6f, 0.9f);
                 go_roomDescription.SetActive(false);
                 go_characterDescription.SetActive(true);
-                Personnage p = _selectedGameObject.GetComponent<Personnage>();
+                ManagementCharacter p = _selectedGameObject.GetComponent<ManagementCharacter>();
                 textCharStats[0].text = "{Personnage } : " + p.role;
                 textCharStats[1].text = "Satisfaction : " + p.Satisfaction.satisfactionTotale;
                 textCharStats[2].text = "Surface salarié : " + p.surfaceSalarie;
@@ -348,10 +326,10 @@ namespace Assets.Scripts.Management
                 textCharStats[4].text = "Accès Extérieur : " + p.accesExterieur;
                 textCharStats[5].text = "Distance salle de pause : " + p.distanceSallePause;
                 textCharStats[6].text = "Distance toilette : " + p.distanceToilette;
-                if (p.copain != null)
+                if (p.friend != null)
                 {
                     string description = "Copain : ";
-                    description += " " + p.copain.role;
+                    description += " " + p.friend.role;
                     textCharStats[7].text = description;
                 }
                 else

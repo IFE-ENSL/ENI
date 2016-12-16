@@ -18,7 +18,7 @@ namespace Assets.Scripts.Management
             satisfactionGlobale = 0;
             foreach (SatisfactionPersonnage s in from Transform child in go_characterGrid.transform select child.GetComponent<SatisfactionPersonnage>())
             {
-                if (s.Personnage.room)
+                if (s.Character.room)
                 {
                     satisfactionGlobale += s.satisfactionTotale;
                     nbrPersonnage++;

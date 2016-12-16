@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Assets.Scripts.Management
 {
 
-    //Cette classe liée à un managementCharacter est utilisée pour mémoriser chaque critère de satisfaction
+    //Obviously this class is used to calculate the satisfaction of a character
     public class SatisfactionPersonnage : MonoBehaviour
     {
 
@@ -18,48 +18,48 @@ namespace Assets.Scripts.Management
 
         public float satisfactionTotale;
 
-        public Personnage Personnage { get; private set; }
+        public ManagementCharacter Character { get; private set; }
 
 
         void Start()
         {
-            Personnage = GetComponent<Personnage>();
+            Character = GetComponent<ManagementCharacter>();
         }
 
         public IEnumerator UpdateSatisfaction()
         {
-            while (!Personnage.room)
+            while (!Character.room)
             {
                 yield return new WaitForSeconds(0.1f);
             }
 
             #region Satisfaction Surface
-            surface = Personnage.room.surface > Personnage.surfaceSalarie ? 1 : (Personnage.room.surface / Personnage.surfaceSalarie) * (Personnage.room.surface / Personnage.surfaceSalarie);
+            surface = Character.room.surface > Character.surfaceSalarie ? 1 : (Character.room.surface / Character.surfaceSalarie) * (Character.room.surface / Character.surfaceSalarie);
             surface *= 100;
             #endregion
 
             #region Satisfaction Acces Exterieur
-            if (Personnage.accesExterieur)
+            if (Character.accesExterieur)
             {
-                accesExterieur = Personnage.room.accesExterieur ? 100 : 0;
+                accesExterieur = Character.room.accesExterieur ? 100 : 0;
             }
             #endregion
 
             #region Satisfaction Luminosite
-            if (Personnage.luminosite == 0)
+            if (Character.luminosite == 0)
                 luminosite = 1;
-            else if (Personnage.luminosite == 1)
+            else if (Character.luminosite == 1)
             {
-                if (Personnage.room.ouvertureExterieur <= 4)
+                if (Character.room.ouvertureExterieur <= 4)
                     luminosite = 1;
                 else
                     luminosite = 0.5f;
             }
-            else if (Personnage.room.ouvertureExterieur <= 2)
+            else if (Character.room.ouvertureExterieur <= 2)
             {
                 luminosite = 1;
             }
-            else if (Personnage.room.ouvertureExterieur <= 4)
+            else if (Character.room.ouvertureExterieur <= 4)
             {
                 luminosite = 0.6f;
             }
@@ -70,18 +70,18 @@ namespace Assets.Scripts.Management
             #endregion
 
             #region Satsifaction Distance Salle Pause
-            int breakRoomDistanceRank = GameManager.roomDistanceFromBreakRoom.FindIndex(x => x == Personnage.room.distanceSallePause) + 1;
+            int breakRoomDistanceRank = GameManager.roomDistanceFromBreakRoom.FindIndex(x => x == Character.room.distanceSallePause) + 1;
 
-            if (Personnage.distanceSallePause == 0)
+            if (Character.distanceSallePause == 0)
                 distanceSallePause = 1;
             else
             {
                 float formula1 = (breakRoomDistanceRank - 1);
                 float formula2 = (GameManager.roomDistanceFromBreakRoom.Count - 1);
                 float baseFormula = (float)(1 - formula1 / formula2);
-                float floatFactor = (float)Personnage.distanceSallePause;
+                float floatFactor = (float)Character.distanceSallePause;
 
-                if (Personnage.distanceSallePause == 1)
+                if (Character.distanceSallePause == 1)
                     distanceSallePause = baseFormula;
                 else
                     distanceSallePause = Mathf.Pow(baseFormula, floatFactor);
@@ -91,18 +91,18 @@ namespace Assets.Scripts.Management
             #endregion
 
             #region Satisfaction Distance Toilette
-            int bathRoomDistanceRank = GameManager.roomDistanceFromBathRoom.FindIndex(x => x == Personnage.room.distanceToilette) + 1;
+            int bathRoomDistanceRank = GameManager.roomDistanceFromBathRoom.FindIndex(x => x == Character.room.distanceToilette) + 1;
 
-            if (Personnage.distanceToilette == 0)
+            if (Character.distanceToilette == 0)
                 distanceToilette = 1;
             else
             {
                 float formula1 = (bathRoomDistanceRank - 1);
                 float formula2 = (GameManager.roomDistanceFromBathRoom.Count - 1);
                 float baseFormula = (float)(1 - formula1 / formula2);
-                float floatFactor = (float)Personnage.distanceToilette;
+                float floatFactor = (float)Character.distanceToilette;
 
-                if (Personnage.distanceToilette == 1)
+                if (Character.distanceToilette == 1)
                     distanceToilette = baseFormula;
                 else
                     distanceToilette = Mathf.Pow(baseFormula, floatFactor);
@@ -113,17 +113,17 @@ namespace Assets.Scripts.Management
 
             satisfactionTotale = surface + luminosite + distanceSallePause + distanceToilette;
             int nbrParam = 4;
-            if (Personnage.accesExterieur)
+            if (Character.accesExterieur)
             {
                 satisfactionTotale += accesExterieur;
                 nbrParam++;
             }
-            if (Personnage.copain != null)
+            if (Character.friend != null)
             {
                 satisfactionTotale += aCoteCopain;
                 nbrParam++;
             }
-            if (Personnage.myProductiveLink != null)
+            if (Character.myProductiveLink != null)
             {
                 satisfactionTotale += productiveLinkSatisfaction;
                 nbrParam++;

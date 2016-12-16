@@ -268,7 +268,6 @@ namespace Assets.Scripts.Connexion
                 Application.CancelQuit();
             if (sm.isSaving) return;
             StartCoroutine(this.EndSession());
-            sm.Save();
         }
 
     }

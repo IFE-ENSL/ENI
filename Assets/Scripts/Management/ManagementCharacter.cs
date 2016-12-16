@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 namespace Assets.Scripts.Management
 {
     //Cette classe définit un managementCharacter, et définit ses indices de satisfaction
-    public class Personnage : MonoBehaviour
+    public class ManagementCharacter : MonoBehaviour
     {
         public GameManager gameManager;
         public CharacterGrid saveChildren;
@@ -24,10 +24,10 @@ namespace Assets.Scripts.Management
 
         public SpriteRenderer sr;
         public SatisfactionPersonnage Satisfaction { get; private set; }
-        public Personnage copain;
-        public Personnage likedBy;
-        public Personnage myProductiveLink;
-        public Personnage charIMakeProductive;
+        public ManagementCharacter friend;
+        public ManagementCharacter likedBy;
+        public ManagementCharacter myProductiveLink;
+        public ManagementCharacter charIMakeProductive;
         public Room room;
 
         void Start()

@@ -27,7 +27,6 @@ namespace Assets.Scripts.Management
 
         void OnTriggerExit2D(Collider2D other)
         {
-            
             imagePiece.color = new Color(58, 52, 34, 0);
             if(other.GetComponent<DragImage>().Room == this.gameObject)
                 other.GetComponent<DragImage>().Room = null;

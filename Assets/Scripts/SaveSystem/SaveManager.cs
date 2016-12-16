@@ -7,8 +7,9 @@ using UnityEngine.SceneManagement;
 namespace Assets.Scripts.SaveSystem
 {
     //Base du système de sauvegarde
-    public class SaveManager : MonoBehaviour {
-        private string myURL;
+    public class SaveManager : MonoBehaviour
+    {
+        //private string myURL;
         public List<GameObject> gameobjects;
         public string PlayerSave { get; set; }
 
@@ -32,8 +33,11 @@ namespace Assets.Scripts.SaveSystem
             gameLoaded = true;
             DontDestroyOnLoad(this.gameObject);
             //myURL = "http://vm-web7.ens-lyon.fr/eni/web/ES2.php?webfilename=" + PlayerSave;
-            myURL = "http://localhost/eni/web/ES2.php?webfilename=" + PlayerSave;
+            //myURL = "http://localhost/eni/web/ES2.php?webfilename=" + PlayerSave;
         }
+
+        /* The save feature was abandoned. The following code is just for reference, just in case...
+
         //Permet de définir les objets à sauvegarder lors du changement d'un niveau
         void OnLevelWasLoaded(int level)
         {
@@ -51,7 +55,6 @@ namespace Assets.Scripts.SaveSystem
 				gameobjects = new List<GameObject> { GameObject.Find("GrillePersonnages"), GameObject.Find("PlayerData"), GameObject.Find("GameManager") };
                 if (LoadData)
                 {
-                    //TODO : Get rid of this? GameObject.Find("GameManager").GetComponent<GameManager>().newGame = false;
                     StartCoroutine(this.Load());
                     LoadData = false;
                 }
@@ -86,6 +89,7 @@ namespace Assets.Scripts.SaveSystem
             }
 
         }
+
         //Met la sauvegarde sur le serveur
         public IEnumerator UploadSave()
         {
@@ -123,6 +127,6 @@ namespace Assets.Scripts.SaveSystem
             }
             else
                 web.SaveToFile(fileName);
-        }
+        }*/
     }
 }
