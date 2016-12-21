@@ -13,7 +13,7 @@ public class CharacterSheetManager : MonoBehaviour {
 
     void Update ()
     {
-        PersistenFromSceneToScene.DataPersistenceInstance.listeCompetences = competencesList; //Saving for this playsession
+        PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences = competencesList; //Saving for this playsession
     }
 
     void WeighUpSkillFactor() //Updates the total amount of points of each skill based on their associated criterias
@@ -42,8 +42,8 @@ public class CharacterSheetManager : MonoBehaviour {
         gameCanvas = GameObject.Find("GameUI");
         sheetCanvas = transform.Find("CharacterSheetCanvas").GetComponent<Canvas>();
 
-        if (PersistenFromSceneToScene.DataPersistenceInstance.listeCompetences.Count > 0) //Loading for this playsession
-            competencesList = PersistenFromSceneToScene.DataPersistenceInstance.listeCompetences;
+        if (PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences.Count > 0) //Loading for this playsession
+            competencesList = PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences;
     }
 
     public void AddQualityStep (string skillName, int qualityNumber, int stepIncrementation)

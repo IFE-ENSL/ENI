@@ -23,13 +23,13 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     public void SavePlayerStats()
     {
-        PersistenFromSceneToScene.DataPersistenceInstance.listeCompetences = characterSheet.competencesList;
+        PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences = characterSheet.competencesList;
     }
 
     public void LoadPlayerStats ()
     {
-        if (PersistenFromSceneToScene.DataPersistenceInstance.listeCompetences.Count > 0)
-            characterSheet.competencesList = PersistenFromSceneToScene.DataPersistenceInstance.listeCompetences;
+        if (PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences.Count > 0)
+            characterSheet.competencesList = PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences;
     }
 
     // Use this for initialization

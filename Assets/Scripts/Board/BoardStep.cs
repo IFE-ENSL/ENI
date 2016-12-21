@@ -21,6 +21,9 @@ public class BoardStep : MonoBehaviour {
     [HideInInspector]
     public bool MouseOverThis = false;
 
+    [SerializeField]
+    bool DebugThis = false;
+
     TextMesh stepContentText;
 
 	// Use this for initialization
@@ -54,6 +57,9 @@ public class BoardStep : MonoBehaviour {
                 stepContentText.text = "Mini-Jeu";
                 break;
         }
+
+        if (DebugThis)
+            stepContentText.text += " " + SceneToLoad;
 
         stepContentText.GetComponent<MeshRenderer>().enabled = false;
     }

@@ -2,10 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class PersistenFromSceneToScene : MonoBehaviour
+public class PersistentFromSceneToScene : MonoBehaviour
 {
 
-    public static PersistenFromSceneToScene DataPersistenceInstance;
+    public static PersistentFromSceneToScene DataPersistenceInstance;
     public List<Competences> listeCompetences;
 
 	// Use this for initialization

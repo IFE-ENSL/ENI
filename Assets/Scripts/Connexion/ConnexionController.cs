@@ -32,6 +32,8 @@ namespace Assets.Scripts.Connexion
         public string returnText;
         public string messages = null;
 
+        bool enableCheckLog = false;
+
         private SaveManager sm;
         public ManagementConnexion mConnexion;
 
@@ -48,28 +50,29 @@ namespace Assets.Scripts.Connexion
                 }
                 else if (ConnexionControllerInstance != this)
                 {
+                    Debug.Log("Connexion controller exists twice, destroying one right now...");
                     Destroy(gameObject);
                 }
             }
-
-
+            enableCheckLog = true;
         }
 
         void Start ()
         {
             sm = FindObjectOfType<SaveManager>();
-
-            CheckLog();
         }
-        
-        void OnLevelWasLoaded () //Beware : This function does not exist in Unity 5.4+, check "SceneManager.sceneLoaded += YourMethod();" instead
+
+        void LateUpdate ()
         {
-            Debug.Log("Scene Loaded");
-            CheckLog();
+            if (enableCheckLog)
+            {
+                CheckLog();
+                enableCheckLog = false;
+            }
         }
 
-        //Let's make sure that if we're in game, we're properly logged, else, let us take back the player to the login screen
-        void CheckLog ()
+        //Let's make sure that if we're in game, we're properly logged, else, let us take the player back to the login screen
+        void CheckLog () //TODO: The thing is, if this object exists before getting deleted by the singleton principle, this method will put the player back to the login screen.
         {
             if (!isLogged && SceneManager.GetActiveScene().name != "Login")
             {
