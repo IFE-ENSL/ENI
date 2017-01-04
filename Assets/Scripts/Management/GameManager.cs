@@ -42,6 +42,9 @@ namespace Assets.Scripts.Management
         public Image imageAvatarBtn;
         public Room[] rooms;
 
+        [SerializeField]
+        GameObject[] backgroundPrefabs;
+
         [HideInInspector]
         public List<ManagementCharacter> managementCharacters;
         #endregion
@@ -78,10 +81,30 @@ namespace Assets.Scripts.Management
 
         void Start()
         {
+            sceneId = GameObject.Find("PersistentSceneDatas").GetComponent<PersistentFromSceneToScene>().alternativeSceneId;
+            SpawnBackgroundAndRooms();
+
             connexionController = GameObject.Find("ConnexionController").GetComponent<ConnexionController>();
             StartCoroutine(this.getRooms());
             StartCoroutine(this.getCharacters());
             StartCoroutine(connexionController.PostLog("Début du jeu", "Management", new LogManagement()));
+        }
+
+        void SpawnBackgroundAndRooms ()
+        {
+            GameObject.Instantiate(backgroundPrefabs[sceneId - 1], Vector3.zero, Quaternion.identity);
+
+            GameObject[] RoomObjects = GameObject.FindGameObjectsWithTag("ManagementRoom");
+
+            RoomObjects.OrderBy(X => X.GetComponent<Room>().id).ToArray();
+            rooms = new Room[RoomObjects.Length];
+
+            int iterator = 0;
+            foreach (GameObject roomObject in RoomObjects)
+            {
+                rooms[iterator] = roomObject.GetComponent<Room>();
+                iterator++;
+            }
         }
 
         //Récupère la liste des pièces depuis la base de donnée

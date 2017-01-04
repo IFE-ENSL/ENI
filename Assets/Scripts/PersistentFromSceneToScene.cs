@@ -8,8 +8,10 @@ public class PersistentFromSceneToScene : MonoBehaviour
     public static PersistentFromSceneToScene DataPersistenceInstance;
     public List<Competences> listeCompetences;
 
-	// Use this for initialization
-	void Awake ()
+    public int alternativeSceneId = 0; //Checked by some scenes to load a different layout when called (E.G. The Management MiniGame's scene)
+
+    // Use this for initialization
+    void Awake ()
     {
         if (DataPersistenceInstance == null)
         {

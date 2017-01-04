@@ -12,8 +12,10 @@ public class BoardStep : MonoBehaviour {
     public enum StepType { Empty, MiniGame, Mission, JobSheet };
     public StepType currentStepType = StepType.Empty;
     public Canvas GameUI;
+    PersistentFromSceneToScene persistentDatas;
 
     public string SceneToLoad;
+    public int OptionalAltSceneLayout = 0;
 
     SpriteRenderer spriteRenderer;
     [HideInInspector]
@@ -29,6 +31,7 @@ public class BoardStep : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
+        persistentDatas = GameObject.Find("PersistentSceneDatas").GetComponent<PersistentFromSceneToScene>();
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
         GameUI = GameObject.Find("Canvas").GetComponent<Canvas>();
 
@@ -74,6 +77,11 @@ public class BoardStep : MonoBehaviour {
 
             if (currentStepType != StepType.Empty)
             {
+                persistentDatas.alternativeSceneId = OptionalAltSceneLayout;
+
+                if (persistentDatas.alternativeSceneId <= 0)
+                    persistentDatas.alternativeSceneId = 1;
+
                 BoardManager.preventPlayerControl = true;
                 GameObject ConfirmationWindow = GameUI.transform.FindChild("ConfirmationWindow").gameObject;
                 Board_LaunchConfirmation confirmationWindowScript = ConfirmationWindow.GetComponent<Board_LaunchConfirmation>();
