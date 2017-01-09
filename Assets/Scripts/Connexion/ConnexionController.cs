@@ -31,6 +31,7 @@ namespace Assets.Scripts.Connexion
         public int step = 0;
         public string returnText;
         public string messages = null;
+        public bool justLoggedIn = false;
 
         bool enableCheckLog = false;
 
@@ -69,7 +70,19 @@ namespace Assets.Scripts.Connexion
                 CheckLog();
                 enableCheckLog = false;
             }
+
+            Scene currentScene = SceneManager.GetActiveScene();
+
+            Waiter _waiter = new Waiter();
+
+            if (currentScene.name == "MainBoard" && currentScene.isLoaded && justLoggedIn)
+            {
+                //TODO : Move all those verifications in BoardManager maybe.
+                justLoggedIn = false;
+            }
         }
+
+
 
         //Let's make sure that if we're in game, we're properly logged, else, let us take the player back to the login screen
         void CheckLog () //TODO: The thing is, if this object exists before getting deleted by the singleton principle, this method will put the player back to the login screen.
