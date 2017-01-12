@@ -22,6 +22,11 @@ namespace Assets.Scripts.Management
         [SerializeField]
         int qualityNumberToAddPoints;
 
+        [SerializeField]
+        int GeneralSkill;
+        [SerializeField]
+        int CriteriaNumber;
+
         void Start()
         {
             _pieceRobot = GameObject.Find("PlayerData").GetComponent<PieceRobot>();

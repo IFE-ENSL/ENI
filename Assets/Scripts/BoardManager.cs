@@ -28,6 +28,20 @@ public class BoardManager : MonoBehaviour {
         StartCoroutine(getUserStatsAtLogin(_waiter));
     }
 
+    void PopulateCharacterSkills ()
+    {
+        CharacterSheetManager charSheet = GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>();
+
+        charSheet.competencesList.Clear();
+        
+        foreach (JSONNode value in userStats["listeCriteres"].Children)
+        {
+            charSheet.competencesList.Add(new CompetenceENI("randomName", value["idCompGen"].AsInt, value["point"].AsInt, value["idCritere"].AsInt));
+        }
+
+        GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().InitSpider();
+    }
+
     void PopulateMainBoard ()
     {
         foreach (GameObject zone in Zones)
@@ -39,8 +53,14 @@ public class BoardManager : MonoBehaviour {
             {
                 if (zone.name == "Zone" + value["idZone"].Value)
                 {
-                    steps[gameListIterator].SceneToLoad = value["jeuNom"].Value;
-                    //TODO : Prevent the case where there's more MiniGames in this zone that there is of steps.
+
+                    if(gameListIterator < steps.Length - 1)
+                        steps[gameListIterator].SceneToLoad = value["jeuNom"].Value;
+                    else
+                    {
+                        Debug.LogError("There's more mini-games referenced in the SQL base than there is steps in " + zone.name + "!");
+                        break;
+                    }
                     Debug.Log(steps[gameListIterator].SceneToLoad);
                     gameListIterator++;
                 }
@@ -75,6 +95,10 @@ public class BoardManager : MonoBehaviour {
         Debug.Log("Player stats retrieved successfully =)");
 
         PopulateMainBoard();
+        PopulateCharacterSkills();
     }
+
+
+
 
 }

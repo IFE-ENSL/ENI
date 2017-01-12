@@ -9,7 +9,7 @@ public class CharacterSheetManager : MonoBehaviour {
     GameObject gameCanvas;
     Canvas sheetCanvas;
 
-    public List<Competences> competencesList;
+    public List<CompetenceENI> competencesList;
 
     void Update ()
     {
@@ -18,21 +18,21 @@ public class CharacterSheetManager : MonoBehaviour {
 
     void WeighUpSkillFactor() //Updates the total amount of points of each skill based on their associated criterias
     {
-        foreach (Competences competence in competencesList)
+        foreach (CompetenceENI competence in competencesList)
         {
-            if (competence.listeCriteres.Count != 0)
+            if (competence._listeCriteres.Count != 0)
             {
-                float qualityPercentValue = 100 / competence.listeCriteres.Count;
+                float qualityPercentValue = 100 / competence._listeCriteres.Count;
 
-                foreach (Criteres critere in competence.listeCriteres)
+                foreach (Criteres critere in competence._listeCriteres)
                 {
                     float qualityWeight = qualityPercentValue / critere.criterePalliers;
                     qualityWeight *= critere.criterePoints;
-                    competence.nbPointsCompetence += qualityWeight;
+                    competence._nbPointsCompetence += (int)qualityWeight;
                 }
             }
             else
-                Debug.LogWarning("Updated total amount of skill " + competence.Name + ", but it does not contain any criterias");
+                Debug.LogWarning("Updated total amount of skill " + competence._Name + ", but it does not contain any criterias");
         }
     }
 
@@ -50,18 +50,18 @@ public class CharacterSheetManager : MonoBehaviour {
     {
         for (int iterator = 0; iterator < competencesList.Count; iterator++)
         {
-            if (competencesList[iterator].Name == skillName)
+            if (competencesList[iterator]._Name == skillName)
             {
                 //Let's check if we improved our score, if not, we do not update the new points
-                if (competencesList[iterator].listeCriteres[qualityNumber].criterePoints < stepIncrementation)
+                if (competencesList[iterator]._listeCriteres[qualityNumber].criterePoints < stepIncrementation)
                 {
-                    Debug.Log("Improved score in criteria ''" + competencesList[iterator].listeCriteres[qualityNumber].Name + "'', linked to skill ''" + competencesList[iterator].Name + "''.");
+                    Debug.Log("Improved score in criteria ''" + competencesList[iterator]._listeCriteres[qualityNumber].Name + "'', linked to skill ''" + competencesList[iterator]._Name + "''.");
 
                     //Then we make sure the new criteria does not exceed the max step
-                    if (stepIncrementation > competencesList[iterator].listeCriteres[qualityNumber].criterePalliers)
-                        competencesList[iterator].listeCriteres[qualityNumber].criterePoints = competencesList[iterator].listeCriteres[qualityNumber].criterePalliers;
+                    if (stepIncrementation > competencesList[iterator]._listeCriteres[qualityNumber].criterePalliers)
+                        competencesList[iterator]._listeCriteres[qualityNumber].criterePoints = competencesList[iterator]._listeCriteres[qualityNumber].criterePalliers;
                     else
-                        competencesList[iterator].listeCriteres[qualityNumber].criterePoints = stepIncrementation;
+                        competencesList[iterator]._listeCriteres[qualityNumber].criterePoints = stepIncrementation;
 
                     WeighUpSkillFactor();
                 }

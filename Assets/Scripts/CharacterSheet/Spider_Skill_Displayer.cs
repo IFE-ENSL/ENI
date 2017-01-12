@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 
 public class Spider_Skill_Displayer : MonoBehaviour {
@@ -21,6 +22,10 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     Vector3[] RegisteredBranchTopPositions;
     GameObject[] spawnedTags;
 
+    Dictionary<int, int> GeneralSkillPoints = new Dictionary<int, int>();
+
+    bool initComplete = false;
+
     public void SavePlayerStats()
     {
         PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences = characterSheet.competencesList;
@@ -33,9 +38,16 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     }
 
     // Use this for initialization
-    void Start ()
+    public void InitSpider ()
     {
         characterSheet = transform.parent.GetComponent<CharacterSheetManager>();
+
+        foreach (CompetenceENI competenceENI in characterSheet.competencesList)
+        {
+            if (!GeneralSkillPoints.ContainsKey(competenceENI._MainSkillNumber)) //If the dictionary already contains the General Skill we're looking at, let's skip it.
+                //TODO : Even if the general comp already exist, we need to prevent it to appear twice in the dictionary, but the points must still be added, CAREFUL WITH THAT!!!!
+                GeneralSkillPoints.Add(competenceENI._MainSkillNumber, competenceENI._nbPointsCompetence); //TODO : This works, now you have to rewrite the generation of the spider based on this dictionary.
+        }
 
         //Initializing the lists based on the number of skills contained in the character sheet class
         RegisteredBranchTopPositions = new Vector3[characterSheet.competencesList.Count];
@@ -46,14 +58,14 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         //Force the Competence amount to be of at least 4 different skills.
 	    if (characterSheet.competencesList.Count < 4)
         {
-            //Array.Resize(ref characterSheet.nbPointsCompetence, 4);
+            //Array.Resize(ref characterSheet._nbPointsCompetence, 4);
         }
 
         //Let's get the greatest skill value first
-        foreach (Competences competence in characterSheet.competencesList)
+        foreach (CompetenceENI competence in characterSheet.competencesList)
         {
-            if (competence.nbPointsCompetence > greatestSkillValue)
-                greatestSkillValue = competence.nbPointsCompetence;
+            if (competence._nbPointsCompetence > greatestSkillValue)
+                greatestSkillValue = competence._nbPointsCompetence;
         }
 
         spawnedLines = new LineRenderer[characterSheet.competencesList.Count];
@@ -61,6 +73,8 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
         InitializeSpider();
         SpawnTags();
+
+        initComplete = true;
 	}
 
     void InitializeSpider ()
@@ -122,7 +136,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         {
             spawnedTags[iterator].transform.position = topPosition;
 
-            spawnedTags[iterator].GetComponent<TextMesh>().text = characterSheet.competencesList[iterator].Name;
+            spawnedTags[iterator].GetComponent<TextMesh>().text = characterSheet.competencesList[iterator]._Name;
             spawnedTags[iterator].transform.name = "Tag_" + characterSheet.competencesList[iterator];
             spawnedTags[iterator].transform.SetParent(transform);
 
@@ -181,9 +195,9 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         if (greatestSkillValue > 0)
         {
             if (greatestSkillValue < 1)
-                percentageValue = characterSheet.competencesList[i].nbPointsCompetence * branchesSize + branchesSize * .1f;
+                percentageValue = characterSheet.competencesList[i]._nbPointsCompetence * branchesSize + branchesSize * .1f;
             else
-                percentageValue = characterSheet.competencesList[i].nbPointsCompetence / greatestSkillValue * (branchesSize - branchesSize * .1f) + branchesSize * .1f;
+                percentageValue = characterSheet.competencesList[i]._nbPointsCompetence / greatestSkillValue * (branchesSize - branchesSize * .1f) + branchesSize * .1f;
         }
         else
         {
@@ -202,10 +216,10 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         greatestSkillValue = 0;
 
         //Let's get the greatest skill value first
-        foreach (Competences competence in characterSheet.competencesList)
+        foreach (CompetenceENI competence in characterSheet.competencesList)
         {
-            if (competence.nbPointsCompetence > greatestSkillValue)
-                greatestSkillValue = competence.nbPointsCompetence;
+            if (competence._nbPointsCompetence > greatestSkillValue)
+                greatestSkillValue = competence._nbPointsCompetence;
         }
 
         Vector3[] newPositions = new Vector3[2];
@@ -237,8 +251,11 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     void Update ()
     {
-        UpdateSpider();
-        SavePlayerStats();
-        UpdateTags();
+        if (initComplete)
+        {
+            UpdateSpider();
+            SavePlayerStats();
+            UpdateTags();
+        }
     }
 }
