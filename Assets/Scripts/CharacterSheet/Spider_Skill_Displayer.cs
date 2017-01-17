@@ -8,6 +8,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     CharacterSheetManager characterSheet;
     public static float[] staticSkillAmount;
     Transform firstBranch;
+    int firstBranchSkillNumber;
     public GameObject CompetencePrefab;
     public GameObject SpiderWebWirePrefab;
     public float branchesSize = 20;
@@ -16,11 +17,11 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     public GameObject tagPrefab;
 
-    LineRenderer[] spawnedBranches;
-    LineRenderer[] spawnedLines;
+    Dictionary<int, LineRenderer> spawnedBranches = new Dictionary <int,LineRenderer>();
+    Dictionary<int, LineRenderer> spawnedLines = new Dictionary<int, LineRenderer>();
 
-    Vector3[] RegisteredBranchTopPositions;
-    GameObject[] spawnedTags;
+    Dictionary<int, Vector3> RegisteredBranchTopPositions = new Dictionary<int, Vector3>();
+    Dictionary<int, GameObject> spawnedTags = new Dictionary<int, GameObject>();
 
     Dictionary<int, int> GeneralSkillPoints = new Dictionary<int, int>();
 
@@ -42,29 +43,41 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     {
         characterSheet = transform.parent.GetComponent<CharacterSheetManager>();
 
+        bool first = true;
         foreach (CompetenceENI competenceENI in characterSheet.competencesList)
         {
             if (!GeneralSkillPoints.ContainsKey(competenceENI._MainSkillNumber)) //If the dictionary already contains the General Skill we're looking at, let's skip it and just add the points if any.
                 GeneralSkillPoints.Add(competenceENI._MainSkillNumber, competenceENI._nbPointsCompetence); //TODO : This works, now you have to rewrite the generation of the spider based on this dictionary.
             else
                 GeneralSkillPoints[competenceENI._MainSkillNumber] += (int)competenceENI._nbPointsCompetence;
+
+            if (first)
+            {
+                firstBranchSkillNumber = competenceENI._MainSkillNumber;
+                first = false;
+            }
+
         }
 
-        //Initializing the lists based on the number of skills contained in the character sheet class
-        RegisteredBranchTopPositions = new Vector3[GeneralSkillPoints.Count];
-        spawnedTags = new GameObject[GeneralSkillPoints.Count];
+
 
         LoadPlayerStats(); //TODO: I was here ok
 
-        //Let's get the greatest skill value first
+        //Let's get the greatest skill value first && associate each branch & line with its skill number
         foreach (KeyValuePair<int, int> valuePair in GeneralSkillPoints)
         {
             if (valuePair.Value > greatestSkillValue)
                 greatestSkillValue = valuePair.Value;
+
+            spawnedLines.Add (valuePair.Key, new LineRenderer());
+            spawnedBranches.Add (valuePair.Key, new LineRenderer());
+
+            //Initializing the dictionaries based on the number of skills contained in the character sheet class
+            RegisteredBranchTopPositions.Add(valuePair.Key, Vector3.zero);
+            spawnedTags.Add (valuePair.Key, null);
         }
 
-        spawnedLines = new LineRenderer[GeneralSkillPoints.Count];
-        spawnedBranches = new LineRenderer[GeneralSkillPoints.Count];
+
 
         InitializeSpider();
         SpawnTags();
@@ -83,16 +96,17 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         Vector3 previousSkillPosition = Vector3.zero;
         Vector3 currentSkillPosition = Vector3.zero;
 
-        for (int i = 0; i < GeneralSkillPoints.Count; i++)
+        KeyValuePair<int, int> previousKeyValue = new KeyValuePair<int, int>(0, 0);
+        foreach (KeyValuePair<int,int> keyValue in GeneralSkillPoints)
         {
             //Spawn a branch, parent it to the spider object, then rename it for better clarity.
             GameObject spawnedCompetence = GameObject.Instantiate(CompetencePrefab, transform.position, Quaternion.identity) as GameObject;
             spawnedCompetence.transform.SetParent(transform);
-            spawnedCompetence.transform.name = "Competence" + i;
+            spawnedCompetence.transform.name = "Competence" + keyValue.Key;
 
             // Debug.DrawLine(transform.position, transform.position + currentSkillPosition, Color.red, Mathf.Infinity);
 
-            spawnedBranches[i] = UpdateBranchPosAndSkillValues(addAngle, newPositions, i, ref currentSkillPosition, spawnedCompetence); ;
+            spawnedBranches[keyValue.Key] = UpdateBranchPosAndSkillValues(addAngle, newPositions, keyValue.Key, ref currentSkillPosition, spawnedCompetence);
 
             //If we didn't change the first branch's position, then it must be the one we're looking at right now
             if (firstBranchPosition == Vector3.zero)
@@ -101,13 +115,14 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             //Incrementing the angle for the next branch, in order to rotate it properly
             addAngle -= BranchAngle;
 
-            if (i != 0)
+            if (keyValue.Key != firstBranchSkillNumber)
             {
                 //As long as we're not looking to the first branch, we can spawn one of the web's wire. 
-                spawnedLines[i - 1] = SpawnWebWire(previousSkillPosition, currentSkillPosition, i - 1);
+                spawnedLines[previousKeyValue.Key] = SpawnWebWire(previousSkillPosition, currentSkillPosition, previousKeyValue.Key);
             }
 
             previousSkillPosition = currentSkillPosition;
+            previousKeyValue = keyValue;
         }
 
         //For the very last web wire, we spawn it using the first branch position
@@ -116,26 +131,21 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     void SpawnTags ()
     {
-        int iterator = 0;
-        foreach (Vector3 topPosition in RegisteredBranchTopPositions)
+        foreach (KeyValuePair<int, Vector3> topPosition in RegisteredBranchTopPositions)
         {
-            spawnedTags[iterator] = Instantiate(tagPrefab, topPosition, Quaternion.identity) as GameObject;
-                iterator++;
+            spawnedTags[topPosition.Key] = Instantiate(tagPrefab, topPosition.Value, Quaternion.identity) as GameObject;
         }
     }
 
     void UpdateTags()
     {
-        int iterator = 0;
-        foreach (Vector3 topPosition in RegisteredBranchTopPositions)
+        foreach (KeyValuePair<int, Vector3> topPosition in RegisteredBranchTopPositions)
         {
-            spawnedTags[iterator].transform.position = topPosition;
+            spawnedTags[topPosition.Key].transform.position = topPosition.Value;
 
-            spawnedTags[iterator].GetComponent<TextMesh>().text = characterSheet.competencesList[iterator]._Name;
-            spawnedTags[iterator].transform.name = "Tag_" + characterSheet.competencesList[iterator];
-            spawnedTags[iterator].transform.SetParent(transform);
-
-            iterator++;
+            spawnedTags[topPosition.Key].GetComponent<TextMesh>().text = characterSheet.competencesList[topPosition.Key]._Name;
+            spawnedTags[topPosition.Key].transform.name = "Tag_" + characterSheet.competencesList[topPosition.Key];
+            spawnedTags[topPosition.Key].transform.SetParent(transform);
         }
     }
 
@@ -185,14 +195,15 @@ public class Spider_Skill_Displayer : MonoBehaviour {
          Debug.DrawLine(transform.position, transform.position + newRotatedVector * .1f, Color.blue, Time.deltaTime);
 
         //Set the position of the skill point, it should be on the associated branch
+        //TODO : A foreach would be a better idea, actually, adapt this plz...
         float percentageValue;
 
         if (greatestSkillValue > 0)
         {
             if (greatestSkillValue < 1)
-                percentageValue = characterSheet.competencesList[i]._nbPointsCompetence * branchesSize + branchesSize * .1f;
+                percentageValue = GeneralSkillPoints[i] * branchesSize + branchesSize * .1f;
             else
-                percentageValue = characterSheet.competencesList[i]._nbPointsCompetence / greatestSkillValue * (branchesSize - branchesSize * .1f) + branchesSize * .1f;
+                percentageValue = GeneralSkillPoints[i] / greatestSkillValue * (branchesSize - branchesSize * .1f) + branchesSize * .1f;
         }
         else
         {
@@ -211,10 +222,10 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         greatestSkillValue = 0;
 
         //Let's get the greatest skill value first
-        foreach (CompetenceENI competence in characterSheet.competencesList)
+        foreach (KeyValuePair<int,int> keyValuePair in GeneralSkillPoints)
         {
-            if (competence._nbPointsCompetence > greatestSkillValue)
-                greatestSkillValue = competence._nbPointsCompetence;
+            if (keyValuePair.Value > greatestSkillValue)
+                greatestSkillValue = keyValuePair.Value;
         }
 
         Vector3[] newPositions = new Vector3[2];
@@ -226,22 +237,28 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         Vector3 previousSkillPosition = Vector3.zero;
         Vector3 currentSkillPosition = Vector3.zero;
 
-        for (int i= 0; i < GeneralSkillPoints.Count; i++)
+
+        KeyValuePair<int, int> previousKeyValue = new KeyValuePair<int, int>(0, 0);
+        foreach (KeyValuePair<int, int> keyValue in GeneralSkillPoints)
         {
-            UpdateBranchPosAndSkillValues(addAngle, newPositions, i, ref currentSkillPosition, spawnedBranches[i].gameObject);
+            UpdateBranchPosAndSkillValues(addAngle, newPositions, keyValue.Key, ref currentSkillPosition, spawnedBranches[keyValue.Key].gameObject);
 
             if (firstBranchPosition == Vector3.zero)
                 firstBranchPosition = currentSkillPosition;
 
-            if ( i != 0 )
-                UpdateWebWirePositions(spawnedLines[i - 1], previousSkillPosition, currentSkillPosition);
+            if ( previousKeyValue.Key != 0) //TODO : Holy crap, how am I going to adapt this with a foreach ? =S
+                //ALl right, I know, just make sure to register the first, last and "avant dernier" skill number, so you can adapt this snippet of code, got it ?
+                UpdateWebWirePositions(spawnedLines[previousKeyValue.Key], previousSkillPosition, currentSkillPosition);
 
             addAngle -= BranchAngle;
 
             previousSkillPosition = currentSkillPosition;
+            previousKeyValue = keyValue;
         }
 
          UpdateWebWirePositions(spawnedLines[GeneralSkillPoints.Count - 1], currentSkillPosition, firstBranchPosition);
+
+        
     }
 
     void Update ()

@@ -54,8 +54,16 @@ public class BoardManager : MonoBehaviour {
                 if (zone.name == "Zone" + value["idZone"].Value)
                 {
 
-                    if(gameListIterator < steps.Length - 1)
+                    if (gameListIterator < steps.Length - 1)
+                    {
                         steps[gameListIterator].SceneToLoad = value["jeuNom"].Value;
+
+                        if (steps[gameListIterator].SceneToLoad == "mini-jeu 01")
+                            steps[gameListIterator].SceneToLoad = "IntroLabyrinthe";
+
+                        if (steps[gameListIterator].SceneToLoad == "mini-jeu 02")
+                            steps[gameListIterator].SceneToLoad = "Management";
+                    }
                     else
                     {
                         Debug.LogError("There's more mini-games referenced in the SQL base than there is steps in " + zone.name + "!");
