@@ -13,8 +13,8 @@ namespace Assets.Scripts.Connexion
 {
     public class ConnexionController : MonoBehaviour
     {
-        //public const string baseURL = "http://vm-web7.ens-lyon.fr/eni"; //Prod
-        public const string baseURL = "http://127.0.0.1/eni"; //Local
+        public const string baseURL = "http://vm-web7.ens-lyon.fr/eni"; //Prod
+        //public const string baseURL = "http://127.0.0.1/eni"; //Local
         //private const string baseURL = "http://vm-web-qualif.pun.ens-lyon.fr/eni/"; //Preprod
         private const string addLogURL = baseURL + "/web/app_dev.php/unity/addLog";
         private const string loginURL = baseURL + "/web/app_dev.php/unity/loginOne";

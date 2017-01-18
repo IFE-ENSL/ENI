@@ -12,8 +12,8 @@ public class BoardManager : MonoBehaviour {
     GameObject[] Zones;
     ConnexionController connexionController;
     private Waiter _waiter = new Waiter();
-    //public const string baseURL = "http://vm-web7.ens-lyon.fr/eni"; //Prod
-    public const string baseURL = "http://127.0.0.1/eni"; //Local
+    public const string baseURL = "http://vm-web7.ens-lyon.fr/eni"; //Prod
+    //public const string baseURL = "http://127.0.0.1/eni"; //Local
     private const string getUserStats = baseURL + "/web/app_dev.php/unity/management/initJeu";
 
     public List<string> ActivitiesNames = new List<string>();
@@ -36,7 +36,9 @@ public class BoardManager : MonoBehaviour {
         
         foreach (JSONNode value in userStats["listeCriteres"].Children)
         {
-            charSheet.competencesList.Add(new CompetenceENI("randomName", value["idCompGen"].AsInt, value["point"].AsInt, value["idCritere"].AsInt));
+            Debug.Log("Comp Number is : " + value["idCompGen"].Value);
+            Debug.Log("DOES IT FUCKING WORK???? " + userStats["listeCompetences"][value["idCompGen"].AsInt]["LibCompGen"].Value);
+            charSheet.competencesList.Add(new CompetenceENI(userStats["listeCompetences"][value["idCompGen"].AsInt]["LibCompGen"].Value, value["idCompGen"].AsInt, value["point"].AsInt, value["idCritere"].AsInt)); //TODO : Replace RandomName by the real skill name
         }
 
         GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().InitSpider();

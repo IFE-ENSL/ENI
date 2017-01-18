@@ -22,6 +22,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     Dictionary<int, Vector3> RegisteredBranchTopPositions = new Dictionary<int, Vector3>();
     Dictionary<int, GameObject> spawnedTags = new Dictionary<int, GameObject>();
+    Dictionary<int, String> tagsTexts = new Dictionary<int, string>();
 
     Dictionary<int, int> GeneralSkillPoints = new Dictionary<int, int>();
 
@@ -47,7 +48,10 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         foreach (CompetenceENI competenceENI in characterSheet.competencesList)
         {
             if (!GeneralSkillPoints.ContainsKey(competenceENI._MainSkillNumber)) //If the dictionary already contains the General Skill we're looking at, let's skip it and just add the points if any.
+            {
                 GeneralSkillPoints.Add(competenceENI._MainSkillNumber, competenceENI._nbPointsCompetence); //TODO : This works, now you have to rewrite the generation of the spider based on this dictionary.
+                //TODO DOOD tagsTexts.Add(competenceENI.)
+            }
             else
                 GeneralSkillPoints[competenceENI._MainSkillNumber] += (int)competenceENI._nbPointsCompetence;
 
@@ -143,7 +147,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         {
             spawnedTags[topPosition.Key].transform.position = topPosition.Value;
 
-            spawnedTags[topPosition.Key].GetComponent<TextMesh>().text = characterSheet.competencesList[topPosition.Key]._Name;
+            spawnedTags[topPosition.Key].GetComponent<TextMesh>().text = tagsTexts[topPosition.Key];
             spawnedTags[topPosition.Key].transform.name = "Tag_" + characterSheet.competencesList[topPosition.Key];
             spawnedTags[topPosition.Key].transform.SetParent(transform);
         }
@@ -265,10 +269,10 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     {
         if (initComplete)
         {
-            foreach (KeyValuePair<int, int> keyValuePair in GeneralSkillPoints)
+            /*foreach (KeyValuePair<int, int> keyValuePair in GeneralSkillPoints)
             {
                 Debug.Log("SkillNumber = " + keyValuePair.Key + " & points for this skill = " + keyValuePair.Value);
-            }
+            }*/
 
             UpdateSpider();
             SavePlayerStats();
