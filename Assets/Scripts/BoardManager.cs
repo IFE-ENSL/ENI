@@ -33,12 +33,18 @@ public class BoardManager : MonoBehaviour {
         CharacterSheetManager charSheet = GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>();
 
         charSheet.competencesList.Clear();
-        
+
+        Dictionary<int, string> SkillTags = new Dictionary<int, string>();
+
+        foreach (JSONNode value in userStats["listeCompetences"].Children)
+        {
+            if (!SkillTags.ContainsKey(value["idCompGen"].AsInt))
+                SkillTags.Add(value["idCompGen"].AsInt, value["LibCompGen"].Value);
+        }
+
         foreach (JSONNode value in userStats["listeCriteres"].Children)
         {
-            Debug.Log("Comp Number is : " + value["idCompGen"].Value);
-            Debug.Log("DOES IT FUCKING WORK???? " + userStats["listeCompetences"][value["idCompGen"].AsInt]["LibCompGen"].Value);
-            charSheet.competencesList.Add(new CompetenceENI(userStats["listeCompetences"][value["idCompGen"].AsInt]["LibCompGen"].Value, value["idCompGen"].AsInt, value["point"].AsInt, value["idCritere"].AsInt)); //TODO : Replace RandomName by the real skill name
+                charSheet.competencesList.Add(new CompetenceENI(SkillTags[value["idCompGen"].AsInt], value["idCompGen"].AsInt, value["point"].AsInt, value["idCritere"].AsInt)); //TODO : Replace RandomName by the real skill name
         }
 
         GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().InitSpider();

@@ -147,7 +147,15 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         {
             spawnedTags[topPosition.Key].transform.position = topPosition.Value;
 
-            spawnedTags[topPosition.Key].GetComponent<TextMesh>().text = tagsTexts[topPosition.Key];
+            foreach (CompetenceENI competence in characterSheet.competencesList)
+            {
+                if (competence._MainSkillNumber == topPosition.Key)
+                {
+                    spawnedTags[topPosition.Key].GetComponent<TextMesh>().text = competence._Name;
+                    break;
+                }
+            }
+
             spawnedTags[topPosition.Key].transform.name = "Tag_" + characterSheet.competencesList[topPosition.Key];
             spawnedTags[topPosition.Key].transform.SetParent(transform);
         }
