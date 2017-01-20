@@ -33,6 +33,7 @@ public class BoardManager : MonoBehaviour {
         CharacterSheetManager charSheet = GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>();
 
         charSheet.competencesList.Clear();
+        //charSheet.correspondenceUserCompENIAndMiniGame.Clear();
 
         Dictionary<int, string> SkillTags = new Dictionary<int, string>();
 
@@ -44,8 +45,19 @@ public class BoardManager : MonoBehaviour {
 
         foreach (JSONNode value in userStats["listeCriteres"].Children)
         {
-                charSheet.competencesList.Add(new CompetenceENI(SkillTags[value["idCompGen"].AsInt], value["idCompGen"].AsInt, value["point"].AsInt, value["idCritere"].AsInt)); //TODO : Replace RandomName by the real skill name
+                charSheet.competencesList.Add(value["idCompEni"].AsInt, new CompetenceENI(SkillTags[value["idCompGen"].AsInt], value["idCompGen"].AsInt, value["point"].AsInt, value["idCritere"].AsInt, value["idJM"].AsInt)); //TODO : Replace RandomName by the real skill name
+            //charSheet.correspondenceUserCompENIAndMiniGame.Add(value["idCompENI"].AsInt, value["idJM"].AsInt);
         }
+
+        foreach (JSONNode value in userStats["listeJeux"].Children)
+        {
+            if (value["jeuNom"].Value == "mini-jeu 01")
+                CharacterSheetManager.game1ID = value["idJeu"].AsInt;
+            else if (value["jeuNom"].Value == "mini-jeu 02")
+                CharacterSheetManager.game2ID = value["idJeu"].AsInt;
+        }
+
+        
 
         GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().InitSpider();
     }

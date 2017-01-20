@@ -45,19 +45,19 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         characterSheet = transform.parent.GetComponent<CharacterSheetManager>();
 
         bool first = true;
-        foreach (CompetenceENI competenceENI in characterSheet.competencesList)
+        foreach (KeyValuePair<int, CompetenceENI> competenceENI in characterSheet.competencesList)
         {
-            if (!GeneralSkillPoints.ContainsKey(competenceENI._MainSkillNumber)) //If the dictionary already contains the General Skill we're looking at, let's skip it and just add the points if any.
+            if (!GeneralSkillPoints.ContainsKey(competenceENI.Value._MainSkillNumber)) //If the dictionary already contains the General Skill we're looking at, let's skip it and just add the points if any.
             {
-                GeneralSkillPoints.Add(competenceENI._MainSkillNumber, competenceENI._nbPointsCompetence); //TODO : This works, now you have to rewrite the generation of the spider based on this dictionary.
+                GeneralSkillPoints.Add(competenceENI.Value._MainSkillNumber, competenceENI.Value._nbPointsCompetence); //TODO : This works, now you have to rewrite the generation of the spider based on this dictionary.
                 //TODO DOOD tagsTexts.Add(competenceENI.)
             }
             else
-                GeneralSkillPoints[competenceENI._MainSkillNumber] += (int)competenceENI._nbPointsCompetence;
+                GeneralSkillPoints[competenceENI.Value._MainSkillNumber] += (int)competenceENI.Value._nbPointsCompetence;
 
             if (first)
             {
-                firstBranchSkillNumber = competenceENI._MainSkillNumber;
+                firstBranchSkillNumber = competenceENI.Value._MainSkillNumber;
                 first = false;
             }
 
@@ -147,16 +147,16 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         {
             spawnedTags[topPosition.Key].transform.position = topPosition.Value;
 
-            foreach (CompetenceENI competence in characterSheet.competencesList)
+            foreach (KeyValuePair<int, CompetenceENI> competence in characterSheet.competencesList)
             {
-                if (competence._MainSkillNumber == topPosition.Key)
+                if (competence.Value._MainSkillNumber == topPosition.Key)
                 {
-                    spawnedTags[topPosition.Key].GetComponent<TextMesh>().text = competence._Name;
+                    spawnedTags[topPosition.Key].GetComponent<TextMesh>().text = competence.Value._Name;
                     break;
                 }
             }
 
-            spawnedTags[topPosition.Key].transform.name = "Tag_" + characterSheet.competencesList[topPosition.Key];
+            //spawnedTags[topPosition.Key].transform.name = "Tag_" + characterSheet.competencesList[topPosition.Key];
             spawnedTags[topPosition.Key].transform.SetParent(transform);
         }
     }

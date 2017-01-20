@@ -124,32 +124,7 @@ namespace Assets.Scripts.Connexion
             }
         }
 
-        //Sending the skill points to the SQL DB
-        public IEnumerator PostPLayerStats(int idCompEni, int pointCompEni)
-        {
-            string sessionId = PlayerPrefs.GetString("sessionId");
-            Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
-            WWWForm hs_post = new WWWForm();
-            hs_post.AddField("idCompEni", idCompEni);
-            hs_post.AddField("point", pointCompEni);
 
-            Debug.Log("Envoi d'un log au serveur");
-
-            WWW hs_get = new WWW(baseURL + "/web/app_dev.php/unity/compEniPoint", hs_post.data, headers);
-            yield return hs_get;
-
-            if (hs_get.error != null)
-            {
-                print("Erreur lors de l'envoie des logs au serveur : " + hs_get.error);
-                print(hs_get.text);
-                SceneManager.LoadScene(0);
-            }
-            else if (hs_get.text != "1")
-            {
-                print("Une erreur est survenue : " + hs_get.text);
-                SceneManager.LoadScene(0);
-            }
-        }
 
         //Méthode permettant d'envoyer un log avec un retour d'information
         public IEnumerator PostLog(string nomLog, string miniJeu, ILog donnees, Waiter waiter)

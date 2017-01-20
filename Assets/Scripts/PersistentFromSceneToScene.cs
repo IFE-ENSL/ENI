@@ -6,7 +6,7 @@ public class PersistentFromSceneToScene : MonoBehaviour
 {
 
     public static PersistentFromSceneToScene DataPersistenceInstance;
-    public List<CompetenceENI> listeCompetences;
+    public Dictionary<int, CompetenceENI> listeCompetences = new Dictionary<int, CompetenceENI>();
 
     public int alternativeSceneId = 0; //Checked by some scenes to load a different layout when called (E.G. The Management MiniGame's scene)
 
