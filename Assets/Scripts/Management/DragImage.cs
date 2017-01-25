@@ -73,6 +73,11 @@ namespace Assets.Scripts.Management
             else if (Input.GetMouseButtonUp(0))
                 IsDragging = false;
 
+            if (!IsDragging)
+            {
+                thisManagementCharacter.UpdateSatisfaction();
+            }
+
             //Character is released from dragging and is touching a room
             if (!IsDragging && Room)
             {

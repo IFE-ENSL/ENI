@@ -94,9 +94,7 @@ namespace Assets.Scripts.Management
         {
             GameObject.Instantiate(backgroundPrefabs[sceneId - 1], Vector3.zero, Quaternion.identity);
 
-            GameObject[] RoomObjects = GameObject.FindGameObjectsWithTag("ManagementRoom");
-
-            RoomObjects.OrderBy(X => X.GetComponent<Room>().id).ToArray();
+            GameObject[] RoomObjects = GameObject.FindGameObjectsWithTag("ManagementRoom").OrderBy( go => go.name ).ToArray();
             rooms = new Room[RoomObjects.Length];
 
             int iterator = 0;
@@ -333,6 +331,87 @@ namespace Assets.Scripts.Management
             }
         }
 
+        void GenerateDialogueDescription (ManagementCharacter character, ref string dialogueDescription)
+        {
+            if (character.Satisfaction.surface < 80)
+            {
+                dialogueDescription = "Pour pouvoir bien travailler, j'aurais besoin d'une surface de travail <b><i>aux alentours de " + character.surfaceSalarie;
+                dialogueDescription += "M².</i></b> ";
+
+                if (character.Satisfaction.luminosite <= 60f)
+                {
+                    if (character.luminosite == 1)
+                        dialogueDescription += "J'aurais également besoin d'une <b><i>pièce pas trop sombre.</i></b> ";
+                    else if (character.luminosite == 2)
+                        dialogueDescription += "J'aurais également besoin d'une <b><i>pièce bien lumineuse.</i></b> ";
+                }
+            }
+            else
+            {
+                dialogueDescription = "Pour pouvoir bien travailler, j'ai besoin de plusieurs choses. ";
+
+
+                if (character.Satisfaction.luminosite <= 60f)
+                {
+                    if (character.luminosite == 1)
+                        dialogueDescription += "Nottament, j'aurais besoin d'une <b><i>pièce pas trop sombre.</i></b> ";
+                    else if (character.luminosite == 2)
+                        dialogueDescription += "Nottament, j'aurais besoin d'une <b><i>pièce bien lumineuse.</i></b> ";
+                }
+            }
+
+            if (character.accesExterieur && character.Satisfaction.accesExterieur < 100)
+                dialogueDescription += "Il est indispensable que j'ai <b><i>un accès direct à l'extérieur.</i></b> ";
+
+            /*if (character.myProductiveLink )
+                dialogueDescription += "J'ai besoin d'être <b><i>proche de mon collègue du service " + character.myProductiveLink.role + "</i></b> pour être plus efficace. ";*/
+
+            bool displayBreakRoomNeed = false;
+            bool displayBathroomNeed = false;
+
+            if (character.distanceSallePause > 0 && character.distanceSallePause <= 15 && character.Satisfaction.distanceSallePause <= 70)
+                displayBreakRoomNeed = true;
+            if (character.distanceToilette > 0 && character.distanceToilette <= 15 && character.Satisfaction.distanceToilette <= 70)
+                displayBathroomNeed = true;
+
+            if (displayBathroomNeed || displayBreakRoomNeed)
+            {
+                dialogueDescription += "Ce serait appréciable si ";
+
+                if (displayBreakRoomNeed)
+                {
+                    if (character.distanceSallePause <= 5)
+                        dialogueDescription += "je pouvais être le <b><i>plus proche possible de la salle de pause</i></b>";
+                    else if (character.distanceSallePause <= 10)
+                        dialogueDescription += "je pouvais être <b><i>proche de la salle de pause</i></b>";
+                    else if (character.distanceSallePause <= 15)
+                        dialogueDescription += "je pouvais être <b><i>assez proche de la salle de pause</i></b>";
+                }
+
+                if (displayBathroomNeed && displayBreakRoomNeed)
+                {
+                    dialogueDescription += " et que ";
+                }
+                else if (displayBreakRoomNeed)
+                {
+                    dialogueDescription += ". ";
+                }
+
+                if (displayBathroomNeed)
+                {
+                    if (character.distanceToilette <= 5)
+                        dialogueDescription += "je pouvais être le <b><i>plus proche possible des toilettes.</i></b> ";
+                    else if (character.distanceToilette <= 10)
+                        dialogueDescription += "je pouvais être <b><i>proche de la salle des toilettes.</i></b> ";
+                    else if (character.distanceToilette <= 15)
+                        dialogueDescription += "je pouvais être <b><i>assez proche des toilettes.</i></b> ";
+                }
+            }
+            /*if (character.friend)
+                dialogueDescription += "Pour finir, je m'entends bien avec mon <b><i>collègue du service " + character.friend.role + "</i></b>, pourrais-je être placé pas loin de son bureau ? Merci !";*/
+            
+        }
+
         //Updating the description windows according to the selected object in game
         public void UpdateDescription()
         {
@@ -342,8 +421,12 @@ namespace Assets.Scripts.Management
                 go_roomDescription.SetActive(false);
                 go_characterDescription.SetActive(true);
                 ManagementCharacter p = _selectedGameObject.GetComponent<ManagementCharacter>();
+
+                string dialogueDescription = "";
+                GenerateDialogueDescription(p, ref dialogueDescription);
+
                 textCharStats[0].text = "{Personnage } : " + p.role;
-                textCharStats[1].text = "Satisfaction : " + p.Satisfaction.satisfactionTotale;
+                textCharStats[1].text = dialogueDescription; //Description part
                 textCharStats[2].text = "Surface salarié : " + p.surfaceSalarie;
                 textCharStats[3].text = "Luminosité : " + p.luminosite;
                 textCharStats[4].text = "Accès Extérieur : " + p.accesExterieur;

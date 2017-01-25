@@ -36,17 +36,19 @@ namespace Assets.Scripts.Management
             #region Satisfaction Surface
             surface = Character.room.surface > Character.surfaceSalarie ? 1 : (Character.room.surface / Character.surfaceSalarie) * (Character.room.surface / Character.surfaceSalarie);
             surface *= 100;
+            Debug.Log("Satisfaction surface = " + surface);
             #endregion
 
             #region Satisfaction Acces Exterieur
             if (Character.accesExterieur)
             {
                 accesExterieur = Character.room.accesExterieur ? 100 : 0;
+                Debug.Log("Acces Exterieur = " + accesExterieur);
             }
             #endregion
 
             #region Satisfaction Luminosite
-            if (Character.luminosite == 0)
+            if (Character.luminosite == 0) //TODO : Je comprends rien à la logique de ce truc, en tout cas, une fois que j'aurais pigé il va falloir adapter ça... T.T
                 luminosite = 1;
             else if (Character.luminosite == 1)
             {
@@ -67,6 +69,7 @@ namespace Assets.Scripts.Management
                 luminosite = 0.2f;
 
             luminosite *= 100;
+            Debug.Log("Luminosite = " + luminosite);
             #endregion
 
             #region Satsifaction Distance Salle Pause
@@ -85,9 +88,13 @@ namespace Assets.Scripts.Management
                     distanceSallePause = baseFormula;
                 else
                     distanceSallePause = Mathf.Pow(baseFormula, floatFactor);
+
+                distanceSallePause = 1 - distanceSallePause;
             }
 
             distanceSallePause *= 100;
+            
+            Debug.Log("Salle pause = " + distanceSallePause);
             #endregion
 
             #region Satisfaction Distance Toilette
@@ -106,9 +113,12 @@ namespace Assets.Scripts.Management
                     distanceToilette = baseFormula;
                 else
                     distanceToilette = Mathf.Pow(baseFormula, floatFactor);
+
+                distanceToilette = 1 - distanceToilette;
             }
 
             distanceToilette *= 100;
+            Debug.Log("Toilette = " + distanceToilette);
             #endregion
 
             satisfactionTotale = surface + luminosite + distanceSallePause + distanceToilette;
@@ -118,7 +128,7 @@ namespace Assets.Scripts.Management
                 satisfactionTotale += accesExterieur;
                 nbrParam++;
             }
-            if (Character.friend != null)
+            /*if (Character.friend != null)
             {
                 satisfactionTotale += aCoteCopain;
                 nbrParam++;
@@ -127,9 +137,10 @@ namespace Assets.Scripts.Management
             {
                 satisfactionTotale += productiveLinkSatisfaction;
                 nbrParam++;
-            }
+            }*/
 
             satisfactionTotale = satisfactionTotale/nbrParam;
+            GameObject.FindObjectOfType<GameManager>().UpdateDescription(); //TODO: Optimize : Cache the Find;
         }
 
         public void Reset()
@@ -137,8 +148,8 @@ namespace Assets.Scripts.Management
             this.surface = 0;
             this.luminosite = 0;
             this.satisfactionTotale = 0;
-            this.productiveLinkSatisfaction = 0;
-            this.aCoteCopain = 0;
+            //this.productiveLinkSatisfaction = 0;
+            //this.aCoteCopain = 0;
             this.accesExterieur = 0;
             this.distanceSallePause = 0;
             this.distanceToilette = 0;
