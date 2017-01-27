@@ -27,6 +27,7 @@ namespace Assets.Scripts.Management
         {
             gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
             imagePiece = GetComponentInChildren<SpriteRenderer>();
+            gameManager.roomDescriptionPanel.SetActive(false);
         }
         void OnMouseDown()
         {
@@ -34,14 +35,22 @@ namespace Assets.Scripts.Management
         }
         void OnMouseOver()
         {
-            if(!gameManager.draggingAnyCharacter)
+            if (!gameManager.draggingAnyCharacter)
+            {
                 imagePiece.color = new Color(0.5f, 0.5f, 0.5f, 0.2f);
+                gameManager.roomDescriptionPanel.SetActive(true);
+                gameManager.highlightedRoom = this.gameObject;
+                gameManager.UpdateRoomDescription();
+            }
         }
 
         void OnMouseExit()
         {
-            if(!gameManager.draggingAnyCharacter)
+            if (!gameManager.draggingAnyCharacter)
+            {
                 imagePiece.color = new Color(58, 52, 34, 0);
+                gameManager.roomDescriptionPanel.SetActive(false);
+            }
         }
     }
 }

@@ -32,8 +32,10 @@ namespace Assets.Scripts.Management
         #region External Objects, Components & misc. variables
         public GameObject personnagePrefab;
         private GameObject _selectedGameObject;
+        public GameObject highlightedRoom;
         public GameObject go_characterGrid;
         public GameObject descriptionPanel;
+        public GameObject roomDescriptionPanel;
         public ConnexionController connexionController;
         public GameObject go_characterDescription;
         public GameObject go_roomDescription;
@@ -88,6 +90,7 @@ namespace Assets.Scripts.Management
             StartCoroutine(this.getRooms());
             StartCoroutine(this.getCharacters());
             StartCoroutine(connexionController.PostLog("Début du jeu", "Management", new LogManagement()));
+            descriptionPanel.SetActive(false);
         }
 
         void SpawnBackgroundAndRooms ()
@@ -412,11 +415,25 @@ namespace Assets.Scripts.Management
             
         }
 
+        public void UpdateRoomDescription()
+        {
+                //descriptionPanel.GetComponent<Image>().color = new Color(0.8f, 0.4f, 0.4f, 0.9f);
+                go_roomDescription.SetActive(true);
+                //go_characterDescription.SetActive(false);
+                Room p = highlightedRoom.GetComponent<Room>();
+                textRoomStats[0].text = "{PIECE} - " + p.surface;
+                textRoomStats[2].text = "Luminosité : " + p.ouvertureExterieur;
+                textRoomStats[3].text = "Accès Extèrieur : " + p.accesExterieur;
+                textRoomStats[4].text = "Distance salle de pause : " + p.distanceSallePause;
+                textRoomStats[5].text = "Distance toilette : " + p.distanceToilette;
+        }
+
         //Updating the description windows according to the selected object in game
         public void UpdateDescription()
         {
             if (_selectedGameObject.GetComponent<ManagementCharacter>())
             {
+                descriptionPanel.SetActive(true);
                 descriptionPanel.GetComponent<Image>().color = new Color(0.3f, 0.4f, 0.6f, 0.9f);
                 go_roomDescription.SetActive(false);
                 go_characterDescription.SetActive(true);
@@ -454,18 +471,7 @@ namespace Assets.Scripts.Management
                 }
                 imageAvatarBtn.sprite = _selectedGameObject.GetComponent<SpriteRenderer>().sprite;
             }
-            else if (_selectedGameObject.GetComponent<Room>())
-            {
-                descriptionPanel.GetComponent<Image>().color = new Color(0.8f, 0.4f, 0.4f, 0.9f);
-                go_roomDescription.SetActive(true);
-                go_characterDescription.SetActive(false);
-                Room p = _selectedGameObject.GetComponent<Room>();
-                textRoomStats[0].text = "{PIECE} - " + p.surface;
-                textRoomStats[2].text = "Ouverture extèrieure : " + p.ouvertureExterieur;
-                textRoomStats[3].text = "Accès Extèrieur : " + p.accesExterieur;
-                textRoomStats[4].text = "Distance salle de pause : " + p.distanceSallePause;
-                textRoomStats[5].text = "Distance toilette : " + p.distanceToilette;
-            }
+           
         }
     }
 }

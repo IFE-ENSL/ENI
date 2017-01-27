@@ -10,6 +10,11 @@ namespace Assets.Scripts.Management
         public Text textPourcentage;
 
         public float satisfactionGlobale { get; private set; }
+        
+        void Start ()
+        {
+            textPourcentage = gameObject.GetComponent<Text>();
+        }
 
         //Calcule la satisfaction globale en itérant dans tous les personnages présent dans une pièce
         public void UpdateGlobalSatisfaction()

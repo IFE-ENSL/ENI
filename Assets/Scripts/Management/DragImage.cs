@@ -45,7 +45,7 @@ namespace Assets.Scripts.Management
             startPoint = this.transform.position;
             thisManagementCharacter = GetComponent<ManagementCharacter>();
             gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-            globalSatisfaction = GameObject.Find("PourcentageSatisfaction").GetComponent<SatisfactionGlobale>();
+            globalSatisfaction = GameObject.Find("TextPourcentage").GetComponent<SatisfactionGlobale>();
         }
 
         void Update()
