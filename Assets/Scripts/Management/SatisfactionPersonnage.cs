@@ -128,16 +128,32 @@ namespace Assets.Scripts.Management
                 satisfactionTotale += accesExterieur;
                 nbrParam++;
             }
-            /*if (Character.friend != null)
+
+            if (Character.friend != null)
             {
-                satisfactionTotale += aCoteCopain;
+                float satisfactionFriend = 0f;
+                if (Character.friend.room != null)
+                {
+                    satisfactionFriend = Character.friend.room.roomDistancesid.FindIndex(x => x == Character.room.id); //Reminder : in this list, the farthest room is the first of the list.
+                    
+                }
+                satisfactionFriend = satisfactionFriend / 4;
+                satisfactionTotale += satisfactionFriend * 100;
+                Debug.Log("Satisfaction  de " + Character.role + " en tant qu'ami = " + satisfactionFriend * 100);
                 nbrParam++;
             }
             if (Character.myProductiveLink != null)
             {
-                satisfactionTotale += productiveLinkSatisfaction;
+                float satisfactionProdLink = 0f;
+                if(Character.myProductiveLink.room != null)
+                {
+                    satisfactionProdLink = Character.myProductiveLink.room.roomDistancesid.FindIndex(x => x == Character.room.id);
+                }
+                satisfactionProdLink = satisfactionProdLink / 4;
+                satisfactionTotale += satisfactionProdLink * 100;
+                Debug.Log("Satisfaction  de " + Character.role + " en tant que prod = " + satisfactionProdLink * 100);
                 nbrParam++;
-            }*/
+            }
 
             satisfactionTotale = satisfactionTotale/nbrParam;
             GameObject.FindObjectOfType<GameManager>().UpdateDescription(); //TODO: Optimize : Cache the Find;

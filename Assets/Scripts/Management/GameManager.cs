@@ -341,9 +341,9 @@ namespace Assets.Scripts.Management
                 if (character.Satisfaction.luminosite <= 60f)
                 {
                     if (character.luminosite == 1)
-                        dialogueDescription += "J'aurais également besoin d'une <b><i>pièce pas trop sombre.</i></b> ";
+                        dialogueDescription += "J'aurais également besoin d'une <b><i>pièce un minimum lumineuse.</i></b> ";
                     else if (character.luminosite == 2)
-                        dialogueDescription += "J'aurais également besoin d'une <b><i>pièce bien lumineuse.</i></b> ";
+                        dialogueDescription += "J'aurais également besoin d'une <b><i>pièce la plus lumineuse possible.</i></b> ";
                 }
             }
             else
@@ -354,17 +354,17 @@ namespace Assets.Scripts.Management
                 if (character.Satisfaction.luminosite <= 60f)
                 {
                     if (character.luminosite == 1)
-                        dialogueDescription += "Nottament, j'aurais besoin d'une <b><i>pièce pas trop sombre.</i></b> ";
+                        dialogueDescription += "Nottament, j'aurais besoin d'une <b><i>pièce pièce un minimum lumineuse.</i></b> ";
                     else if (character.luminosite == 2)
-                        dialogueDescription += "Nottament, j'aurais besoin d'une <b><i>pièce bien lumineuse.</i></b> ";
+                        dialogueDescription += "Nottament, j'aurais besoin d'une <b><i>pièce la plus lumineuse possible.</i></b> ";
                 }
             }
 
             if (character.accesExterieur && character.Satisfaction.accesExterieur < 100)
                 dialogueDescription += "Il est indispensable que j'ai <b><i>un accès direct à l'extérieur.</i></b> ";
 
-            /*if (character.myProductiveLink )
-                dialogueDescription += "J'ai besoin d'être <b><i>proche de mon collègue du service " + character.myProductiveLink.role + "</i></b> pour être plus efficace. ";*/
+            if (character.myProductiveLink )
+                dialogueDescription += "J'ai besoin d'être <b><i>proche de mon collègue du service " + character.myProductiveLink.role + "</i></b> pour être plus efficace. ";
 
             bool displayBreakRoomNeed = false;
             bool displayBathroomNeed = false;
@@ -407,8 +407,8 @@ namespace Assets.Scripts.Management
                         dialogueDescription += "je pouvais être <b><i>assez proche des toilettes.</i></b> ";
                 }
             }
-            /*if (character.friend)
-                dialogueDescription += "Pour finir, je m'entends bien avec mon <b><i>collègue du service " + character.friend.role + "</i></b>, pourrais-je être placé pas loin de son bureau ? Merci !";*/
+            if (character.friend)
+                dialogueDescription += "Pour finir, je m'entends bien avec mon <b><i>collègue du service " + character.friend.role + "</i></b>, pourrais-je être placé pas loin de son bureau ? Merci !";
             
         }
 
