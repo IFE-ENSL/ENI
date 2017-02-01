@@ -51,6 +51,7 @@ namespace Assets.Scripts.Menu
                 connexionController.justLoggedIn = true;
                 //StartCoroutine(connexionController.getUserStatsAtLogin(_waiter)); //retrieving every stats about skills, games played,... TODO: Bad idea to call it here, I think... Try calling it AFTER the scene was loaded.
                 PlayerPrefs.SetString("username", login.text);
+                //SceneManager.LoadScene("Menu");
                 SceneManager.LoadScene("MainBoard");
             }
             else if (connexionController.error)

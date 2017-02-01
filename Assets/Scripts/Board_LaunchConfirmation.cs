@@ -30,12 +30,24 @@ public class Board_LaunchConfirmation : MonoBehaviour {
         }
     }
 
-    public void UpdateContentName (string contentName)
+    public void UpdateContentName (bool replaceAll, string contentName)
     {
-        string previousText = ContentTextDisplay.text;
-        previousText = previousText.Replace("<Content>", contentName);
-        ContentTextDisplay.text = previousText;
-        Debug.Log(transform.Find("ConfirmationText").GetComponent<Text>().text);
+        if (!replaceAll)
+        {
+            UpdateContentName(contentName);
+        }
+        else
+        {
+            ContentTextDisplay.text = contentName;
+        }
+    }
+
+    public void UpdateContentName(string contentName)
+    {
+            string previousText = ContentTextDisplay.text;
+            previousText = previousText.Replace("<Content>", contentName);
+            ContentTextDisplay.text = previousText;
+            Debug.Log(transform.Find("ConfirmationText").GetComponent<Text>().text);
     }
 
     public void CloseWindow ()
@@ -44,5 +56,10 @@ public class Board_LaunchConfirmation : MonoBehaviour {
         Text ContentTextDisplay = transform.FindChild("ConfirmationText").GetComponent<Text>();
         ContentTextDisplay.text = defaultText;
         gameObject.SetActive(false);
+    }
+
+    public void QuitMiniGame ()
+    {
+            SceneManager.LoadSceneAsync("MainBoard");
     }
 }

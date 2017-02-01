@@ -43,18 +43,19 @@ namespace Assets.Scripts.Management
                 if (globalSatisfaction.satisfactionGlobale < 60)
                 {
                     _pieceRobot.Bras = (int)TypePieceRobot.Bronze;
-                    GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>().AddQualityStep(compGenToAddPoint, 1, "mini-jeu 02");
+                    //GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>().AddQualityStep(compGenToAddPoint, 1, "mini-jeu 02");
+                    //TODO : Urgent : Add the persistent GO that retain all the skill datas
 
                 }
                 else if (globalSatisfaction.satisfactionGlobale < 80)
                 {
                     _pieceRobot.Bras = (int)TypePieceRobot.Argent;
-                    GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>().AddQualityStep(compGenToAddPoint, 2, "mini-jeu 02");
+                    //GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>().AddQualityStep(compGenToAddPoint, 2, "mini-jeu 02");
                 }
                 else if (globalSatisfaction.satisfactionGlobale > 80)
                 {
                     _pieceRobot.Bras = (int)TypePieceRobot.Or;
-                    GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>().AddQualityStep(compGenToAddPoint, 3, "mini-jeu 02");
+                    //GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>().AddQualityStep(compGenToAddPoint, 3, "mini-jeu 02");
                 }
                 StartCoroutine(_winScript.Win((int) _pieceRobot.Bras + 1));
                 imagesDirecteur[(int) _pieceRobot.Bras].SetActive(true);

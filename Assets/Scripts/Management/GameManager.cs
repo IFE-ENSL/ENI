@@ -417,14 +417,25 @@ namespace Assets.Scripts.Management
 
         public void UpdateRoomDescription()
         {
-                //descriptionPanel.GetComponent<Image>().color = new Color(0.8f, 0.4f, 0.4f, 0.9f);
-                go_roomDescription.SetActive(true);
-                //go_characterDescription.SetActive(false);
-                Room p = highlightedRoom.GetComponent<Room>();
-                textRoomStats[0].text = "{PIECE} - " + p.surface;
-                textRoomStats[2].text = "Luminosité : " + p.ouvertureExterieur;
-                textRoomStats[3].text = "Accès Extèrieur : " + p.accesExterieur;
-                textRoomStats[4].text = "Distance salle de pause : " + p.distanceSallePause;
+            //descriptionPanel.GetComponent<Image>().color = new Color(0.8f, 0.4f, 0.4f, 0.9f);
+            go_roomDescription.SetActive(true);
+            //go_characterDescription.SetActive(false);
+            Room p = highlightedRoom.GetComponent<Room>();
+            textRoomStats[0].text = "Taille de la pièce : " + p.surface;
+
+            if (p.ouvertureExterieur < 2f)
+                textRoomStats[2].text = "Très lumineuse. ";
+            else if (p.ouvertureExterieur < 4f)
+                textRoomStats[2].text = "Lumineuse. ";
+            else if (p.ouvertureExterieur <= 5f)
+                textRoomStats[2].text = "Sombre. ";
+
+            if (p.accesExterieur)
+                textRoomStats[3].text = "Accès Extèrieur.";
+            else
+                textRoomStats[3].text = "Pas d'Accès Extèrieur.";
+
+            textRoomStats[4].text = "Distance salle de pause : " + p.distanceSallePause;
                 textRoomStats[5].text = "Distance toilette : " + p.distanceToilette;
         }
 

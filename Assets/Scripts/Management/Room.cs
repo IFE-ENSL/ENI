@@ -29,10 +29,7 @@ namespace Assets.Scripts.Management
             imagePiece = GetComponentInChildren<SpriteRenderer>();
             gameManager.roomDescriptionPanel.SetActive(false);
         }
-        void OnMouseDown()
-        {
-            gameManager.SelectedGameObject = this.gameObject;
-        }
+
         void OnMouseOver()
         {
             if (!gameManager.draggingAnyCharacter)

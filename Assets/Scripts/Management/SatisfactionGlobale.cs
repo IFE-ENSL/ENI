@@ -7,6 +7,7 @@ namespace Assets.Scripts.Management
     public class SatisfactionGlobale : MonoBehaviour
     {
         public GameObject go_characterGrid;
+        [HideInInspector]
         public Text textPourcentage;
 
         public float satisfactionGlobale { get; private set; }

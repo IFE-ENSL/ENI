@@ -95,8 +95,6 @@ namespace Assets.Scripts.Utility
 
         IEnumerator DragObject(float distance)
         {
-            if(fenetreChat.isChatShowing)
-                fenetreChat.ToggleChat();
             float oldDrag = springJoint.connectedBody.drag;
             float oldAngularDrag = springJoint.connectedBody.angularDrag;
 

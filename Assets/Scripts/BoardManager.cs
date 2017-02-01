@@ -77,6 +77,7 @@ public class BoardManager : MonoBehaviour {
                     if (gameListIterator < steps.Length - 1)
                     {
                         steps[gameListIterator].SceneToLoad = value["jeuNom"].Value;
+                        steps[gameListIterator].stepContentText.text = value["slogan"].Value;
 
                         if (steps[gameListIterator].SceneToLoad == "mini-jeu 01")
                             steps[gameListIterator].SceneToLoad = "IntroLabyrinthe";

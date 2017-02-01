@@ -7,8 +7,6 @@ public class BoardStep : MonoBehaviour {
 
     static bool oneStepAlreadyHighlighted = false;
 
-    GameObject playerPawn;
-    Board_PlayerPawn playerPawnComponent;
     public enum StepType { Empty, MiniGame, Mission, JobSheet };
     public StepType currentStepType = StepType.Empty;
     public Canvas GameUI;
@@ -26,7 +24,7 @@ public class BoardStep : MonoBehaviour {
     [SerializeField]
     bool DebugThis = false;
 
-    TextMesh stepContentText;
+    public TextMesh stepContentText;
 
 	// Use this for initialization
 	void Start ()
@@ -37,9 +35,6 @@ public class BoardStep : MonoBehaviour {
 
         stepContentText = transform.FindChild("ContentName").GetComponent<TextMesh>();
 
-        playerPawn = GameObject.Find("Pawn");
-        playerPawnComponent = playerPawn.GetComponent<Board_PlayerPawn>();
-
         if (currentStepType != StepType.Empty)
             DescriptiveTextSetUp();
         else
@@ -48,7 +43,7 @@ public class BoardStep : MonoBehaviour {
 
     void DescriptiveTextSetUp ()
     {
-        switch (currentStepType)
+        /*switch (currentStepType)
         {
             case StepType.JobSheet:
                 stepContentText.text = "Fiche Métier";
@@ -59,7 +54,7 @@ public class BoardStep : MonoBehaviour {
             case StepType.MiniGame:
                 stepContentText.text = "Mini-Jeu";
                 break;
-        }
+        }*/
 
         if (DebugThis)
             stepContentText.text += " " + SceneToLoad;
@@ -70,10 +65,10 @@ public class BoardStep : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
     {
-	    if (MouseOverThis && PawnOverThis && Input.GetMouseButtonDown(0))
+	    if (MouseOverThis && Input.GetMouseButtonDown(0))
         {
             //Display launch confirmation according to type
-            playerPawnComponent.abortMove = true;
+
 
             if (currentStepType != StepType.Empty)
             {
@@ -94,16 +89,18 @@ public class BoardStep : MonoBehaviour {
 
     void OnMouseOver ()
     {
-        if(!PawnOverThis)
-            spriteRenderer.color = Color.yellow;
+        spriteRenderer.color = Color.red;
+        stepContentText.GetComponent<MeshRenderer>().enabled = true;
+        oneStepAlreadyHighlighted = true;
 
         MouseOverThis = true;
     }
 
     void OnMouseExit ()
     {
-        if(!PawnOverThis)
-            spriteRenderer.color = Color.white;
+        spriteRenderer.color = Color.white;
+        stepContentText.GetComponent<MeshRenderer>().enabled = false;
+        oneStepAlreadyHighlighted = false;
 
         MouseOverThis = false;
     }
@@ -112,10 +109,7 @@ public class BoardStep : MonoBehaviour {
     { 
         if (hit.name == "Pawn" && !oneStepAlreadyHighlighted)
         {
-            spriteRenderer.color = Color.red;
-            stepContentText.GetComponent<MeshRenderer>().enabled = true;
-            PawnOverThis = true;
-            oneStepAlreadyHighlighted = true;
+
         }
     }
 
@@ -123,10 +117,7 @@ public class BoardStep : MonoBehaviour {
     {
         if (hit.name == "Pawn")
         {
-            spriteRenderer.color = Color.white;
-            stepContentText.GetComponent<MeshRenderer>().enabled = false;
-            PawnOverThis = false;
-            oneStepAlreadyHighlighted = false;
+
         }
     }
 }
