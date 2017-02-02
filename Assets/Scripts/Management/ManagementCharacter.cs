@@ -29,6 +29,8 @@ namespace Assets.Scripts.Management
         public ManagementCharacter myProductiveLink;
         public ManagementCharacter charIMakeProductive;
         public Room room;
+        public SpriteRenderer satisfactionIcon;
+        public Sprite[] satisfactionSprites;
 
         void Start()
         {
@@ -37,6 +39,8 @@ namespace Assets.Scripts.Management
 
             sr = GetComponent<SpriteRenderer>();
             Satisfaction = GetComponent<SatisfactionPersonnage>();
+            satisfactionIcon = transform.GetChild(1).GetComponent<SpriteRenderer>();
+            satisfactionIcon.gameObject.SetActive(false);
         }
 
         //Permet de selectionner le managementCharacter
@@ -51,6 +55,38 @@ namespace Assets.Scripts.Management
             sr = gameObject.GetComponent<SpriteRenderer>();
             saveChildren = GameObject.Find("GrillePersonnages").GetComponent<CharacterGrid>();
             sr.sprite = saveChildren.avatarsSprites[persoId - 1];
+        }
+
+        void Update ()
+        {
+            //Let's display an icon to represent the satisfaction level of this character
+            if (room != null)
+            {
+                if (!satisfactionIcon.gameObject.activeInHierarchy)
+                    satisfactionIcon.gameObject.SetActive(true);
+
+                if (Satisfaction.satisfactionTotale <= 25)
+                {
+                    satisfactionIcon.sprite = satisfactionSprites[0];
+                }
+                else if (Satisfaction.satisfactionTotale <= 50)
+                {
+                    satisfactionIcon.sprite = satisfactionSprites[1];
+                }
+                else if (Satisfaction.satisfactionTotale <= 75)
+                {
+                    satisfactionIcon.sprite = satisfactionSprites[2];
+                }
+                else if (Satisfaction.satisfactionTotale <= 100)
+                {
+                    satisfactionIcon.sprite = satisfactionSprites[3];
+                }
+            }
+            else
+            {
+                if (satisfactionIcon.gameObject.activeInHierarchy)
+                    satisfactionIcon.gameObject.SetActive(false);
+            }
         }
 
         //Calcule la satisfaction du managementCharacter

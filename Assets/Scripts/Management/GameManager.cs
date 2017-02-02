@@ -445,7 +445,7 @@ namespace Assets.Scripts.Management
             if (_selectedGameObject.GetComponent<ManagementCharacter>())
             {
                 descriptionPanel.SetActive(true);
-                descriptionPanel.GetComponent<Image>().color = new Color(0.3f, 0.4f, 0.6f, 0.9f);
+                descriptionPanel.GetComponent<Image>().color = new Color32(120, 194, 249, 255);
                 go_roomDescription.SetActive(false);
                 go_characterDescription.SetActive(true);
                 ManagementCharacter p = _selectedGameObject.GetComponent<ManagementCharacter>();
