@@ -9,6 +9,8 @@ public class CharacterSheetManager : MonoBehaviour {
     //public const string baseURL = "http://127.0.0.1/eni"; //Local
     //private const string baseURL = "http://vm-web-qualif.pun.ens-lyon.fr/eni/"; //Preprod
 
+    public bool GenerateCharacterSheetDisplay = true;
+
     Camera SheetCamera;
     GameObject gameCanvas;
     Canvas sheetCanvas;
@@ -24,31 +26,22 @@ public class CharacterSheetManager : MonoBehaviour {
         PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences = competencesList; //Saving for this playsession
     }
 
-    /*void WeighUpSkillFactor() //Updates the total amount of points of each skill based on their associated criterias
-    {
-        foreach (CompetenceENI competence in competencesList)
-        {
-            if (competence._listeCriteres.Count != 0)
-            {
-                float qualityPercentValue = 100 / competence._listeCriteres.Count;
-
-                foreach (Criteres critere in competence._listeCriteres)
-                {
-                    float qualityWeight = qualityPercentValue / critere.criterePalliers;
-                    qualityWeight *= critere.criterePoints;
-                    competence._nbPointsCompetence += (int)qualityWeight;
-                }
-            }
-            else
-                Debug.LogWarning("Updated total amount of skill " + competence._Name + ", but it does not contain any criterias");
-        }
-    }*/
-
     void Start ()
     {
-        SheetCamera = transform.Find("CharacterSheetCamera").GetComponent<Camera>();
-        gameCanvas = GameObject.Find("GameUI");
-        sheetCanvas = transform.Find("CharacterSheetCanvas").GetComponent<Canvas>();
+        if (GenerateCharacterSheetDisplay)
+        {
+            try
+            {
+                SheetCamera = transform.Find("CharacterSheetCamera").GetComponent<Camera>();
+                gameCanvas = GameObject.Find("GameUI");
+                sheetCanvas = transform.Find("CharacterSheetCanvas").GetComponent<Canvas>();
+            }
+            catch (System.Exception)
+            {
+                Debug.LogError("Character sheet Manager is set to display the sheet, but one or more display component are missing from the scene! Please check that the CharacterSheet Object contains the CharacterSheetCamera, Canvas, and that a general Game UI Exists!");
+                GenerateCharacterSheetDisplay = false;
+            }
+        }
 
         if (PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences.Count > 0) //Loading for this playsession
             competencesList = PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences;
@@ -63,25 +56,10 @@ public class CharacterSheetManager : MonoBehaviour {
 
         if (gameLabel == "mini-jeu 02")
             gameID = game2ID;
-        //for (int iterator = 0; iterator < competencesList.Count; iterator++)
-        //{
+
         foreach (int id in compGenId)
-            {
-                //Let's check if we improved our score, if not, we do not update the new points
-                //if (competencesList[iterator]._nbPointsCompetence < stepIncrementation)
-                //{
-                    //Debug.Log("Improved score in criteria ''" + competencesList[iterator]._listeCriteres[qualityNumber].Name + "'', linked to skill ''" + competencesList[iterator]._Name + "''.");
-
-                    //Then we make sure the new criteria does not exceed the max step
-                    /*if (stepIncrementation > competencesList[iterator]._listeCriteres[qualityNumber].criterePalliers)
-                    {
-                        competencesList[iterator]._listeCriteres[qualityNumber].criterePoints = competencesList[iterator]._listeCriteres[qualityNumber].criterePalliers;
-                    }
-                    else
-                        competencesList[iterator]._listeCriteres[qualityNumber].criterePoints = stepIncrementation;*/ // TODO : Let's Decide, we drop this or keep it ?
-
-                    //WeighUpSkillFactor();
-                    foreach (KeyValuePair<int, CompetenceENI> keyValue in competencesList)
+        {
+            foreach (KeyValuePair<int, CompetenceENI> keyValue in competencesList)
             {
                 if (keyValue.Value._MainSkillNumber == id )
                 {
@@ -97,11 +75,7 @@ public class CharacterSheetManager : MonoBehaviour {
                         Debug.Log("But not idJM ='(");
                 }
             }
-                    
- //Sending points to the SQL DB.
-                //}
-            }
-        //}
+        }
     }
 
     public void ToggleDisplaySheet ()

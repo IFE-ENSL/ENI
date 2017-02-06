@@ -14,6 +14,9 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     public float branchesSize = 20;
     float greatestSkillValue = 0;
     public float spiderThickness = .1f;
+    public int tagsFontSize = 3;
+    bool MouseOverThis = false;
+    bool fullScreen = false;
 
     public GameObject tagPrefab;
 
@@ -49,8 +52,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         {
             if (!GeneralSkillPoints.ContainsKey(competenceENI.Value._MainSkillNumber)) //If the dictionary already contains the General Skill we're looking at, let's skip it and just add the points if any.
             {
-                GeneralSkillPoints.Add(competenceENI.Value._MainSkillNumber, competenceENI.Value._nbPointsCompetence); //TODO : This works, now you have to rewrite the generation of the spider based on this dictionary.
-                //TODO DOOD tagsTexts.Add(competenceENI.)
+                GeneralSkillPoints.Add(competenceENI.Value._MainSkillNumber, competenceENI.Value._nbPointsCompetence);
             }
             else
                 GeneralSkillPoints[competenceENI.Value._MainSkillNumber] += (int)competenceENI.Value._nbPointsCompetence;
@@ -141,16 +143,51 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         }
     }
 
+    void minimize ()
+    {
+        transform.position = new Vector3(7.13f, 3.35f, transform.position.z);
+        branchesSize = .85f;
+        spiderThickness = .01f;
+        tagsFontSize = 10;
+        gameObject.GetComponent<CircleCollider2D>().radius = branchesSize;
+        fullScreen = false;
+    }
+
+    void GoFullScreen ()
+    {
+        transform.position = new Vector3(0,0,transform.position.z);
+        branchesSize = 3.7f;
+        spiderThickness = .1f;
+        tagsFontSize = 20;
+        gameObject.GetComponent<CircleCollider2D>().radius = branchesSize;
+        fullScreen = true;
+    }
+
     void UpdateTags()
     {
         foreach (KeyValuePair<int, Vector3> topPosition in RegisteredBranchTopPositions)
         {
             spawnedTags[topPosition.Key].transform.position = topPosition.Value;
+            spawnedTags[topPosition.Key].GetComponent<TextMesh>().fontSize = tagsFontSize;
 
             foreach (KeyValuePair<int, CompetenceENI> competence in characterSheet.competencesList)
             {
                 if (competence.Value._MainSkillNumber == topPosition.Key)
                 {
+                    /*if (competence.Value._Name.Length > 13)
+                    {
+                        string[] wordArray;
+                        wordArray = competence.Value._Name.Split(' ');
+                        wordArray[0] = wordArray[0] + "<br>";
+                        competence.Value._Name.Remove(0);
+
+                        foreach (string word in wordArray)
+                        {
+                            competence.Value._Name += word;
+                        }
+
+                    }*/
+
                     spawnedTags[topPosition.Key].GetComponent<TextMesh>().text = competence.Value._Name;
                     break;
                 }
@@ -273,7 +310,17 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         
     }
 
-    void Update ()
+    void OnMouseOver()
+    {
+        MouseOverThis = true;
+    }
+
+    void OnMouseExit()
+    {
+        MouseOverThis = false;
+    }
+
+    void Update()
     {
         if (initComplete)
         {
@@ -285,6 +332,28 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             UpdateSpider();
             SavePlayerStats();
             UpdateTags();
+        }
+
+        float animSpeed = .5f;
+
+        if (MouseOverThis)
+        {
+            Debug.Log("Mouse over spider skill");
+
+            if(!fullScreen)
+            branchesSize = Mathf.MoveTowards(branchesSize, .90f, animSpeed * Time.deltaTime);
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (fullScreen)
+                    minimize();
+                else
+                    GoFullScreen();
+            }
+        }
+        else if (!fullScreen)
+        {
+           branchesSize = Mathf.MoveTowards(branchesSize, .85f, animSpeed * Time.deltaTime);
         }
     }
 }
