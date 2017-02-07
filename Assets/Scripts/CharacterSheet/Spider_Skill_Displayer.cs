@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using UnityEngine.UI;
 
 public class Spider_Skill_Displayer : MonoBehaviour {
 
@@ -9,6 +10,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     public static float[] staticSkillAmount;
     Transform firstBranch;
     int firstBranchSkillNumber;
+    int lastBranchSkillNumber;
     public GameObject CompetencePrefab;
     public GameObject SpiderWebWirePrefab;
     public float branchesSize = 20;
@@ -17,6 +19,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     public int tagsFontSize = 3;
     bool MouseOverThis = false;
     bool fullScreen = false;
+    Image backgroundWindow;
 
     public GameObject tagPrefab;
 
@@ -30,6 +33,12 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     Dictionary<int, int> GeneralSkillPoints = new Dictionary<int, int>();
 
     bool initComplete = false;
+
+    void Start ()
+    {
+        backgroundWindow = GameObject.Find("FullScreenSpiderBack").GetComponent<Image>();
+        backgroundWindow.enabled = false;
+    }
 
     public void SavePlayerStats()
     {
@@ -48,6 +57,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         characterSheet = transform.parent.GetComponent<CharacterSheetManager>();
 
         bool first = true;
+        int iterator = 0;
         foreach (KeyValuePair<int, CompetenceENI> competenceENI in characterSheet.competencesList)
         {
             if (!GeneralSkillPoints.ContainsKey(competenceENI.Value._MainSkillNumber)) //If the dictionary already contains the General Skill we're looking at, let's skip it and just add the points if any.
@@ -63,11 +73,12 @@ public class Spider_Skill_Displayer : MonoBehaviour {
                 first = false;
             }
 
+
         }
 
 
 
-        LoadPlayerStats(); //TODO: I was here ok
+        LoadPlayerStats();
 
         //Let's get the greatest skill value first && associate each branch & line with its skill number
         foreach (KeyValuePair<int, int> valuePair in GeneralSkillPoints)
@@ -102,6 +113,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         Vector3 previousSkillPosition = Vector3.zero;
         Vector3 currentSkillPosition = Vector3.zero;
 
+        int iterator = 0;
         KeyValuePair<int, int> previousKeyValue = new KeyValuePair<int, int>(0, 0);
         foreach (KeyValuePair<int,int> keyValue in GeneralSkillPoints)
         {
@@ -129,10 +141,17 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
             previousSkillPosition = currentSkillPosition;
             previousKeyValue = keyValue;
+
+            if (iterator >= spawnedLines.Count - 1)
+            {
+                lastBranchSkillNumber = keyValue.Key;
+            }
+
+            iterator++;
         }
 
         //For the very last web wire, we spawn it using the first branch position
-        spawnedLines[GeneralSkillPoints.Count - 1] = SpawnWebWire(currentSkillPosition, firstBranchPosition, GeneralSkillPoints.Count - 1);
+        spawnedLines[lastBranchSkillNumber] = SpawnWebWire(currentSkillPosition, firstBranchPosition, lastBranchSkillNumber);
     }
 
     void SpawnTags ()
@@ -151,6 +170,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         tagsFontSize = 10;
         gameObject.GetComponent<CircleCollider2D>().radius = branchesSize;
         fullScreen = false;
+        backgroundWindow.enabled = false;
     }
 
     void GoFullScreen ()
@@ -161,6 +181,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         tagsFontSize = 20;
         gameObject.GetComponent<CircleCollider2D>().radius = branchesSize;
         fullScreen = true;
+        backgroundWindow.enabled = true;
     }
 
     void UpdateTags()
@@ -288,6 +309,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
 
         KeyValuePair<int, int> previousKeyValue = new KeyValuePair<int, int>(0, 0);
+        int iterator = 0;
         foreach (KeyValuePair<int, int> keyValue in GeneralSkillPoints)
         {
             UpdateBranchPosAndSkillValues(addAngle, newPositions, keyValue.Key, ref currentSkillPosition, spawnedBranches[keyValue.Key].gameObject);
@@ -295,17 +317,23 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             if (firstBranchPosition == Vector3.zero)
                 firstBranchPosition = currentSkillPosition;
 
-            if ( previousKeyValue.Key != 0) //TODO : Holy crap, how am I going to adapt this with a foreach ? =S
-                //ALl right, I know, just make sure to register the first, last and "avant dernier" skill number, so you can adapt this snippet of code, got it ?
+            if ( previousKeyValue.Key != 0)
                 UpdateWebWirePositions(spawnedLines[previousKeyValue.Key], previousSkillPosition, currentSkillPosition);
 
             addAngle -= BranchAngle;
 
             previousSkillPosition = currentSkillPosition;
             previousKeyValue = keyValue;
-        }
 
-         UpdateWebWirePositions(spawnedLines[GeneralSkillPoints.Count - 1], currentSkillPosition, firstBranchPosition);
+            if (iterator >= spawnedLines.Count - 1)
+            {
+                lastBranchSkillNumber = keyValue.Key;
+            }
+
+            iterator++;
+        }
+        //TODO: BUGFIX : I think this is broken...
+         UpdateWebWirePositions(spawnedLines[lastBranchSkillNumber], currentSkillPosition, firstBranchPosition);
 
         
     }

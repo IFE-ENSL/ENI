@@ -43,13 +43,12 @@ namespace Assets.Scripts.Labyrinthe
 
         }
 
-        //Le joueur arrive sur la ligne d'arrivée, on stop les timers 
-        void OnTriggerEnter2D(Collider2D coll)
+        public void win (Collider2D coll)
         {
             GameObject.Find("Menu").SetActive(false);
             this.SaveData();
             StartCoroutine(_winScript.Win(_playerData.nbrCoins));
-            if(_playerData.nbrCoins == 3)
+            if (_playerData.nbrCoins == 3)
                 bravo1.SetActive(true);
             else
                 bravo2.SetActive(true);
@@ -62,11 +61,17 @@ namespace Assets.Scripts.Labyrinthe
                 dureeDebutJeu = _timer.timerDebutJeu,
                 nbrEtoiles = Convert.ToString(_playerData.nbrCoins),
                 chemin = Convert.ToString(_playerData.cheminChoisi),
-            
+
             };
-        
-            StartCoroutine(_connexion.PostLog("Fin du jeu", "Labyrinthe",logLaby,wait));
+
+            StartCoroutine(_connexion.PostLog("Fin du jeu", "Labyrinthe", logLaby, wait));
             StartCoroutine(waitBeforeLeave(wait));
+        }
+
+        //Le joueur arrive sur la ligne d'arrivée, on stop les timers 
+        void OnTriggerEnter2D(Collider2D coll)
+        {
+            win(coll);
         }
         //On compte le nombre d'étoiles qu'a obtenu le joueur, et on sauvegarde les données
         private void SaveData()
@@ -77,12 +82,17 @@ namespace Assets.Scripts.Labyrinthe
             {
                 case 0:
                     _playerData.nbrCoins = 1;
+                    GameObject.FindGameObjectWithTag("CharacterSheetManager").GetComponent<CharacterSheetManager>().AddQualityStep(1, "mini-jeu 01");
                     break;
                 case 1:
                     if (_playerData.nbrMortsAfterFirstCheckpoint <= 2)
+                    {
+                        GameObject.FindGameObjectWithTag("CharacterSheetManager").GetComponent<CharacterSheetManager>().AddQualityStep(3, "mini-jeu 01");
                         _playerData.nbrCoins = 3;
+                    }
                     else
                     {
+                        GameObject.FindGameObjectWithTag("CharacterSheetManager").GetComponent<CharacterSheetManager>().AddQualityStep(2, "mini-jeu 01");
                         _playerData.nbrCoins = 2;
                     }
                     break;

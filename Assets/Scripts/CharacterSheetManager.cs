@@ -47,7 +47,7 @@ public class CharacterSheetManager : MonoBehaviour {
             competencesList = PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences;
     }
 
-    public void AddQualityStep (int[] compGenId, int stepIncrementation, string gameLabel)
+    public void AddQualityStep (int stepIncrementation, string gameLabel)
     {
         int gameID = 0;
 
@@ -57,24 +57,15 @@ public class CharacterSheetManager : MonoBehaviour {
         if (gameLabel == "mini-jeu 02")
             gameID = game2ID;
 
-        foreach (int id in compGenId)
+        foreach (KeyValuePair<int,CompetenceENI> skill in competencesList)
         {
-            foreach (KeyValuePair<int, CompetenceENI> keyValue in competencesList)
-            {
-                if (keyValue.Value._MainSkillNumber == id )
+                if (skill.Value._idJM == gameID)
                 {
-                    Debug.Log("Comp Gen Number is okay...");
-                    if (keyValue.Value._idJM == gameID)
-                    {
-                        Debug.Log("And idJM too !");
-                        competencesList[keyValue.Key]._nbPointsCompetence = stepIncrementation;
+                    Debug.Log("Comp Gen idJM Number is okay...");
+                        competencesList[skill.Key]._nbPointsCompetence = stepIncrementation;
                         Debug.Log("Calling coroutine for ending player stats...");
-                        StartCoroutine(PostPLayerStats(keyValue.Key, competencesList[keyValue.Key]._nbPointsCompetence));
-                    }
-                    else
-                        Debug.Log("But not idJM ='(");
+                        StartCoroutine(PostPLayerStats(skill.Key, competencesList[skill.Key]._nbPointsCompetence));
                 }
-            }
         }
     }
 
