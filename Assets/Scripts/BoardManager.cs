@@ -74,10 +74,18 @@ public class BoardManager : MonoBehaviour {
                 if (zone.name == "Zone" + value["idZone"].Value)
                 {
 
-                    if (gameListIterator < steps.Length - 1)
+                    if (gameListIterator < steps.Length)
                     {
                         steps[gameListIterator].SceneToLoad = value["jeuNom"].Value;
                         steps[gameListIterator].stepContentText.text = value["slogan"].Value;
+
+                        if (value["typeJM"].Value == "Jeux")
+                            steps[gameListIterator].currentStepType = BoardStep.StepType.MiniGame;
+                        else if (value["typeJM"].Value == "Mission")
+                        {
+                            steps[gameListIterator].currentStepType = BoardStep.StepType.Mission;
+                            steps[gameListIterator].MissionId = value["idJeu"].AsInt;
+                        }
 
                         if (steps[gameListIterator].SceneToLoad == "mini-jeu 01")
                             steps[gameListIterator].SceneToLoad = "IntroLabyrinthe";
@@ -104,6 +112,8 @@ public class BoardManager : MonoBehaviour {
         string sessionId = PlayerPrefs.GetString("sessionId");
         Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
         string post_url = getUserStats;
+
+
         WWW hs_get = new WWW(post_url, null, headers);
         yield return hs_get;
         if (hs_get.error != null)

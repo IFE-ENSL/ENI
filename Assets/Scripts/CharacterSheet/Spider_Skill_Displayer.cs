@@ -332,7 +332,6 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
             iterator++;
         }
-        //TODO: BUGFIX : I think this is broken...
          UpdateWebWirePositions(spawnedLines[lastBranchSkillNumber], currentSkillPosition, firstBranchPosition);
 
         

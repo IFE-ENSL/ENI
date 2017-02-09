@@ -14,6 +14,7 @@ public class BoardStep : MonoBehaviour {
 
     public string SceneToLoad;
     public int OptionalAltSceneLayout = 0;
+    public int MissionId = 0;
 
     SpriteRenderer spriteRenderer;
     [HideInInspector]
@@ -77,11 +78,21 @@ public class BoardStep : MonoBehaviour {
                 if (persistentDatas.alternativeSceneId <= 0)
                     persistentDatas.alternativeSceneId = 1;
 
+                if(currentStepType == StepType.Mission)
+                    persistentDatas.missionId = MissionId;
+
                 BoardManager.preventPlayerControl = true;
                 GameObject ConfirmationWindow = GameUI.transform.FindChild("ConfirmationWindow").gameObject;
                 Board_LaunchConfirmation confirmationWindowScript = ConfirmationWindow.GetComponent<Board_LaunchConfirmation>();
                 ConfirmationWindow.SetActive(true);
-                confirmationWindowScript.SceneToLoadNext = SceneToLoad;
+
+                //Depending if what we're launching is a mission or a game, we set this...
+                if (currentStepType == StepType.MiniGame)
+                    confirmationWindowScript.SceneToLoadNext = SceneToLoad;
+                else
+                    confirmationWindowScript.SceneToLoadNext = "MissionInterface";
+                //TODO: Send to the mission scene the datas needed to display the mission and all that stuff y'know
+
                 confirmationWindowScript.UpdateContentName (stepContentText.text);
             }
         }
