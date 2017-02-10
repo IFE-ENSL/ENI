@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
+using System;
+using System.Linq;
 
 public class ObjectifLine : MonoBehaviour
 {
@@ -13,16 +16,52 @@ public class ObjectifLine : MonoBehaviour
     public string _I;
     public int _point;
 
-    public void SetObjectifLine (int idUserObjMission, int ObjMission, string libelleObjMission, string TB, string B, string M, string I, int point)
+    [SerializeField]
+    List<Image> choices = new List<Image>();
+    public static System.Random getRandom = new System.Random();
+    List<Vector3> choicesStartPos = new List<Vector3>();
+
+    void RandomizeTextPositions ()
     {
+        List<int> orders = new List<int>();
+        for (int iterator = 0; iterator < 4; iterator++)
+        {
+            int random = getRandom.Next(4);
+            while (orders.Contains(random))
+            {
+                random = getRandom.Next(4);
+            }
+
+            orders.Add(random);
+        }
+
+        int i = 0;
+        foreach (int order in orders)
+        {
+            choices[i].rectTransform.position = choicesStartPos[order];
+            i++;
+        }
+
+        Debug.Log("Randomized choice order with this sequence = " + orders[0] + " + " + orders[1] + " + " + orders[2] + " + " + orders[3]);
+    }
+
+    public void SetObjectifLine (int idUserObjMission, int ObjMission, string libelleObjMission, List<string> choiceList, int point)
+    {
+        int iterator = 0;
+        foreach (Image choice in choices)
+        {
+            choicesStartPos.Add(choice.rectTransform.position);
+            choice.GetComponentInChildren<Text>().text = choiceList[iterator];
+            iterator++;
+        }
+    
         _idUserObjMission = idUserObjMission;
         _ObjMission = ObjMission;
         _libelleObjMission = libelleObjMission;
-        _TB = TB;
-        _B = B;
-        _M = M;
-        _I = I;
         _point = point;
+
+        RandomizeTextPositions();
+
     }
 
 }

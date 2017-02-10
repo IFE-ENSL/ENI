@@ -20,6 +20,7 @@ public class MissionInterface : MonoBehaviour {
     private Waiter _waiter = new Waiter();
     public const string baseURL = "http://vm-web7.ens-lyon.fr/eni"; //Prod
     private const string getMissionDatasURL = baseURL + "/web/app_dev.php/unity/management/initMission";
+    Canvas canvas;
 
     PersistentFromSceneToScene persistentData;
 
@@ -33,6 +34,7 @@ public class MissionInterface : MonoBehaviour {
         objectif = transform.Find("Objectif").GetComponentInChildren<Text>();
         KeyWords = transform.Find("KeyWords").GetComponentInChildren<Text>();
 
+        canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
 
         persistentData = GameObject.Find("PersistentSceneDatas").GetComponent<PersistentFromSceneToScene>();
         StartCoroutine(getMissionDatas(_waiter));
@@ -56,12 +58,36 @@ public class MissionInterface : MonoBehaviour {
 
     void SpawnObjectiveLine (int seanceNumber)
     {
+        int iterator = 0;
+        GameObject previouslySpawnedLine = null;
         foreach (JSONNode value in missionData["listeObjectifs"].Children)
         {
             if (value["seance"].AsInt == seanceNumber)
             {
-                GameObject instatiatedLine = GameObject.Instantiate(ObjectifLinePrefab);
-                instatiatedLine.GetComponent<ObjectifLine>().SetObjectifLine(value["idUserObjMission"].AsInt, value["idObjMission"].AsInt, value["libelleObjMission"].Value, value["TB"].Value, value["B"].Value, value["M"].Value, value["I"].Value, value["point"].AsInt);
+                Vector3 targetPosition = Vector3.zero;
+
+                if (iterator > 0)
+                    targetPosition = new Vector3(previouslySpawnedLine.transform.localPosition.x,
+                                                    previouslySpawnedLine.transform.localPosition.y - (previouslySpawnedLine.GetComponentInChildren<Text>().rectTransform.rect.height /* canvas.scaleFactor*/),
+                                                    previouslySpawnedLine.transform.localPosition.z);
+
+                GameObject instantiatedLine = GameObject.Instantiate(ObjectifLinePrefab, targetPosition, Quaternion.identity) as GameObject;
+
+
+                List<string> choiceList = new List<string>();
+                choiceList.Add(value["TB"].Value);
+                choiceList.Add(value["B"].Value);
+                choiceList.Add(value["M"].Value);
+                choiceList.Add(value["I"].Value);
+
+                instantiatedLine.GetComponent<ObjectifLine>().SetObjectifLine(value["idUserObjMission"].AsInt, value["idObjMission"].AsInt, value["libelleObjMission"].Value, choiceList, value["point"].AsInt);
+                instantiatedLine.transform.SetParent(GameObject.Find("AutoEvaluation").transform);
+                instantiatedLine.GetComponent<RectTransform>().localPosition = targetPosition;
+                instantiatedLine.name = "ObjectiveLine" + iterator;
+
+                previouslySpawnedLine = instantiatedLine;
+
+                iterator++;
             }
         }
     }
