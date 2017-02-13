@@ -66,10 +66,11 @@ public class MissionInterface : MonoBehaviour {
             {
                 Vector3 targetPosition = Vector3.zero;
 
-                if (iterator > 0)
+                /*if (iterator > 0)
                     targetPosition = new Vector3(previouslySpawnedLine.transform.localPosition.x,
-                                                    previouslySpawnedLine.transform.localPosition.y - (previouslySpawnedLine.GetComponentInChildren<Text>().rectTransform.rect.height /* canvas.scaleFactor*/),
+                                                    previouslySpawnedLine.transform.localPosition.y - (previouslySpawnedLine.GetComponentInChildren<Text>().rectTransform.rect.height),
                                                     previouslySpawnedLine.transform.localPosition.z);
+                */
 
                 GameObject instantiatedLine = GameObject.Instantiate(ObjectifLinePrefab, targetPosition, Quaternion.identity) as GameObject;
 
@@ -81,8 +82,9 @@ public class MissionInterface : MonoBehaviour {
                 choiceList.Add(value["I"].Value);
 
                 instantiatedLine.GetComponent<ObjectifLine>().SetObjectifLine(value["idUserObjMission"].AsInt, value["idObjMission"].AsInt, value["libelleObjMission"].Value, choiceList, value["point"].AsInt);
-                instantiatedLine.transform.SetParent(GameObject.Find("AutoEvaluation").transform);
-                instantiatedLine.GetComponent<RectTransform>().localPosition = targetPosition;
+
+                instantiatedLine.transform.SetParent(GameObject.Find("GlobalLayoutTest").transform);
+                instantiatedLine.transform.localScale = Vector3.one;
                 instantiatedLine.name = "ObjectiveLine" + iterator;
 
                 previouslySpawnedLine = instantiatedLine;
@@ -90,6 +92,9 @@ public class MissionInterface : MonoBehaviour {
                 iterator++;
             }
         }
+
+        //GameObject.Find ("AllObjectiveLines").GetComponent<RectTransform>().off
+
     }
 
 
@@ -117,7 +122,7 @@ public class MissionInterface : MonoBehaviour {
         Debug.Log("Mission datas retrieved successfully =)");
 
         UpdateText();
-        SpawnObjectiveLine(numeroSeance); //TODO : I was here.
+        SpawnObjectiveLine(numeroSeance);
     }
 
 }

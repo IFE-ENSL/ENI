@@ -38,10 +38,11 @@ public class ObjectifLine : MonoBehaviour
         int i = 0;
         foreach (int order in orders)
         {
-            choices[i].rectTransform.position = choicesStartPos[order];
+            choices[i].rectTransform.SetSiblingIndex(order + 1);
             i++;
         }
 
+        transform.GetChild(1).GetComponent<Toggle>().isOn = true;
         Debug.Log("Randomized choice order with this sequence = " + orders[0] + " + " + orders[1] + " + " + orders[2] + " + " + orders[3]);
     }
 
@@ -57,7 +58,7 @@ public class ObjectifLine : MonoBehaviour
     
         _idUserObjMission = idUserObjMission;
         _ObjMission = ObjMission;
-        _libelleObjMission = libelleObjMission;
+        transform.Find("LibellePic").GetComponentInChildren<Text>().text = libelleObjMission;
         _point = point;
 
         RandomizeTextPositions();
