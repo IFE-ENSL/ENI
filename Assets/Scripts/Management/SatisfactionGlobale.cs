@@ -31,7 +31,9 @@ namespace Assets.Scripts.Management
                 }
             }
             satisfactionGlobale = satisfactionGlobale/nbrPersonnage;
-            textPourcentage.text = satisfactionGlobale + " %";
+
+            if(textPourcentage != null)
+                textPourcentage.text = satisfactionGlobale + " %";
         }
     }
 }

@@ -15,6 +15,8 @@ public class ObjectifLine : MonoBehaviour
     public string _M;
     public string _I;
     public int _point;
+    public bool choseOneToggle = false;
+    public List<int> linkedCompENI = new List<int>();
 
     [SerializeField]
     List<Image> choices = new List<Image>();
@@ -42,8 +44,36 @@ public class ObjectifLine : MonoBehaviour
             i++;
         }
 
-        transform.GetChild(1).GetComponent<Toggle>().isOn = true;
+        //transform.GetChild(1).GetComponent<Toggle>().isOn = true;
         Debug.Log("Randomized choice order with this sequence = " + orders[0] + " + " + orders[1] + " + " + orders[2] + " + " + orders[3]);
+    }
+
+    public void changedValue ()
+    {
+        foreach (Image choice in choices)
+        {
+            if (choice.GetComponent<Toggle>().isOn)
+            {
+                switch (choice.name)
+                {
+                    case "TBToggle":
+                        _point = 3;
+                        break;
+                    case "BToggle":
+                        _point = 2;
+                        break;
+                    case "MToggle":
+                        _point = 1;
+                        break;
+                    case "IToggle":
+                        _point = 0;
+                        break;
+                }
+                break;
+            }
+        }
+
+        choseOneToggle = true;
     }
 
     public void SetObjectifLine (int idUserObjMission, int ObjMission, string libelleObjMission, List<string> choiceList, int point)

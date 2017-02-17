@@ -40,19 +40,17 @@ namespace Assets.Scripts.Management
             Debug.Log("Yeah well so, the nbr of characters is..." + nbrPers);
             if (nbrPers == 5)
             {
-                if (globalSatisfaction.satisfactionGlobale < 60)
+                if (globalSatisfaction.satisfactionGlobale <= 73)
                 {
                     _pieceRobot.Bras = (int)TypePieceRobot.Bronze;
                     GameObject.FindGameObjectWithTag("CharacterSheetManager").GetComponent<CharacterSheetManager>().AddQualityStep(1, "mini-jeu 02");
-                    //TODO : Urgent : Add the persistent GO that retain all the skill datas
-
                 }
-                else if (globalSatisfaction.satisfactionGlobale < 80)
+                else if (globalSatisfaction.satisfactionGlobale <= 75f)
                 {
                     _pieceRobot.Bras = (int)TypePieceRobot.Argent;
                     GameObject.FindGameObjectWithTag("CharacterSheetManager").GetComponent<CharacterSheetManager>().AddQualityStep(2, "mini-jeu 02");
                 }
-                else if (globalSatisfaction.satisfactionGlobale > 80)
+                else
                 {
                     _pieceRobot.Bras = (int)TypePieceRobot.Or;
                     GameObject.FindGameObjectWithTag("CharacterSheetManager").GetComponent<CharacterSheetManager>().AddQualityStep(3, "mini-jeu 02");
