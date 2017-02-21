@@ -338,15 +338,15 @@ namespace Assets.Scripts.Management
         {
             if (character.Satisfaction.surface < 80)
             {
-                dialogueDescription = "Pour pouvoir bien travailler, j'aurais besoin d'une surface de travail <b><i>aux alentours de " + character.surfaceSalarie;
-                dialogueDescription += "M².</i></b> ";
+                dialogueDescription = "Pour pouvoir bien travailler, j'ai besoin d'une surface de travail <b><i>aux alentours de " + character.surfaceSalarie;
+                dialogueDescription += "m².</i></b> ";
 
                 if (character.Satisfaction.luminosite <= 60f)
                 {
                     if (character.luminosite == 1)
-                        dialogueDescription += "J'aurais également besoin d'une <b><i>pièce un minimum lumineuse.</i></b> ";
+                        dialogueDescription += "J'ai également besoin d'une <b><i>pièce un minimum lumineuse.</i></b> ";
                     else if (character.luminosite == 2)
-                        dialogueDescription += "J'aurais également besoin d'une <b><i>pièce la plus lumineuse possible.</i></b> ";
+                        dialogueDescription += "J'ai également besoin d'une <b><i>pièce la plus lumineuse possible.</i></b> ";
                 }
             }
             else
@@ -357,17 +357,17 @@ namespace Assets.Scripts.Management
                 if (character.Satisfaction.luminosite <= 60f)
                 {
                     if (character.luminosite == 1)
-                        dialogueDescription += "Nottament, j'aurais besoin d'une <b><i>pièce pièce un minimum lumineuse.</i></b> ";
+                        dialogueDescription += "Nottament, j'ai besoin d'une <b><i>pièce pièce pas trop sombre.</i></b> ";
                     else if (character.luminosite == 2)
-                        dialogueDescription += "Nottament, j'aurais besoin d'une <b><i>pièce la plus lumineuse possible.</i></b> ";
+                        dialogueDescription += "Nottament, j'ai besoin d'une <b><i>pièce la plus lumineuse possible.</i></b> ";
                 }
             }
 
             if (character.accesExterieur && character.Satisfaction.accesExterieur < 100)
-                dialogueDescription += "Il est indispensable que j'ai <b><i>un accès direct à l'extérieur.</i></b> ";
+                dialogueDescription += "Il est indispensable que j'aie <b><i>un accès direct à l'extérieur.</i></b> ";
 
             if (character.myProductiveLink )
-                dialogueDescription += "J'ai besoin d'être <b><i>proche de mon collègue du service " + character.myProductiveLink.role + "</i></b> pour être plus efficace. ";
+                dialogueDescription += "J'ai besoin d'être <b><i>proche de mon collègue du service " + character.myProductiveLink.role.ToLower() + "</i></b> pour être plus efficace. ";
 
             bool displayBreakRoomNeed = false;
             bool displayBathroomNeed = false;
@@ -411,7 +411,7 @@ namespace Assets.Scripts.Management
                 }
             }
             if (character.friend)
-                dialogueDescription += "Pour finir, je m'entends bien avec mon <b><i>collègue du service " + character.friend.role + "</i></b>, pourrais-je être placé pas loin de son bureau ? Merci !";
+                dialogueDescription += "Pour finir, je m'entends bien avec mon <b><i>collègue du service " + character.friend.role.ToLower() + "</i></b>, pourrais-je être placé pas loin de son bureau ? Merci !";
             
         }
 
@@ -421,7 +421,7 @@ namespace Assets.Scripts.Management
             go_roomDescription.SetActive(true);
             //go_characterDescription.SetActive(false);
             Room p = highlightedRoom.GetComponent<Room>();
-            textRoomStats[0].text = "Taille de la pièce : " + p.surface;
+            textRoomStats[0].text = "Taille de la pièce : " + p.surface + "m²";
 
             if (p.ouvertureExterieur < 2f)
                 textRoomStats[2].text = "Très lumineuse. ";
@@ -435,8 +435,8 @@ namespace Assets.Scripts.Management
             else
                 textRoomStats[3].text = "Pas d'Accès Extèrieur.";
 
-            textRoomStats[4].text = "Distance salle de pause : " + p.distanceSallePause;
-                textRoomStats[5].text = "Distance toilette : " + p.distanceToilette;
+            textRoomStats[4].text = "Distance salle de pause : " + p.distanceSallePause + "m";
+                textRoomStats[5].text = "Distance toilette : " + p.distanceToilette + "m";
         }
 
         //Updating the description windows according to the selected object in game
@@ -453,13 +453,13 @@ namespace Assets.Scripts.Management
                 string dialogueDescription = "";
                 GenerateDialogueDescription(p, ref dialogueDescription);
 
-                textCharStats[0].text = "{Personnage } : " + p.role;
+                textCharStats[0].text = "Service : " + p.role;
                 textCharStats[1].text = dialogueDescription; //Description part
-                textCharStats[2].text = "Surface salarié : " + p.surfaceSalarie;
+                textCharStats[2].text = "Surface : " + p.surfaceSalarie + "m²";
                 textCharStats[3].text = "Luminosité : " + p.luminosite;
                 textCharStats[4].text = "Accès Extérieur : " + p.accesExterieur;
-                textCharStats[5].text = "Distance salle de pause : " + p.distanceSallePause;
-                textCharStats[6].text = "Distance toilette : " + p.distanceToilette;
+                textCharStats[5].text = "Distance salle de pause : " + p.distanceSallePause + "m";
+                textCharStats[6].text = "Distance toilette : " + p.distanceToilette + "m";
                 if (p.friend != null)
                 {
                     string description = "Copain : ";

@@ -65,11 +65,11 @@ namespace Assets.Scripts.Management
                 if (!satisfactionIcon.gameObject.activeInHierarchy)
                     satisfactionIcon.gameObject.SetActive(true);
 
-                if (Satisfaction.satisfactionTotale <= 25)
+                if (Satisfaction.satisfactionTotale <= 35)
                 {
                     satisfactionIcon.sprite = satisfactionSprites[0];
                 }
-                else if (Satisfaction.satisfactionTotale <= 50)
+                else if (Satisfaction.satisfactionTotale <= 45)
                 {
                     satisfactionIcon.sprite = satisfactionSprites[1];
                 }

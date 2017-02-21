@@ -11,6 +11,8 @@ public class MissionInterface : MonoBehaviour {
     public GameObject planning;
     public GameObject autoEvaluation;
     public GameObject PlanningButtonPrefab;
+    public GameObject PlanningGlobalLayout;
+    public GameObject DialogBox;
     JSONNode missionData;
 
     Text titre;
@@ -32,6 +34,8 @@ public class MissionInterface : MonoBehaviour {
     Dictionary<int, int> uniqueENICompForDisplayedObjectives = new Dictionary<int, int>();
     int seanceCount = 0;
 
+    bool InitSpiderNow = true;
+
     // Use this for initialization
     void Start ()
     {
@@ -44,13 +48,19 @@ public class MissionInterface : MonoBehaviour {
         canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
 
         persistentData = GameObject.Find("PersistentSceneDatas").GetComponent<PersistentFromSceneToScene>();
+
         StartCoroutine(getMissionDatas(_waiter));
-	}
+
+    }
 	
 	// Update is called once per frame
-	void Update ()
+	void LateUpdate ()
     {
-	
+	    if (InitSpiderNow)
+        {
+            GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().InitSpider();
+            InitSpiderNow = false;
+        }
 	}
 
     void UpdateText ()
@@ -95,16 +105,44 @@ public class MissionInterface : MonoBehaviour {
         }
     }
 
-    public void GoToPlanning ()
+    void ClearAutoEvalInterface()
     {
+        foreach (ObjectifLine line in displayedObjectives)
+        {
+            Destroy(line.gameObject);
+        }
+
+        displayedObjectives.Clear();
+    }
+
+    public void GoToPlanning (bool OnEvalValidation)
+    {
+        if (displayedObjectives.Count > 0)
+            ClearAutoEvalInterface();
+
         FicheDescriptive.SetActive(false);
         autoEvaluation.SetActive(false);
         planning.SetActive(true);
+
+        Transform[] planningButtons = PlanningGlobalLayout.GetComponentsInChildren<Transform>();
+
+        foreach (Transform planningButton in planningButtons)
+        {
+            if (planningButton.name != "Planning_GlobalLayout")
+                Destroy(planningButton.gameObject);
+        }
+
+        if (OnEvalValidation)
+        {
+            DialogBox.SetActive(true);
+        }
+
         SpawnPlanning();
     }
 
     public void GoToAutoEval (int seanceNumber)
     {
+        planning.transform.Find("ValidationText").GetComponent<Text>().enabled = false;
         planning.SetActive(false);
         autoEvaluation.SetActive(true);
         SpawnObjectiveLine(seanceNumber);
@@ -112,6 +150,7 @@ public class MissionInterface : MonoBehaviour {
 
     public void GoToDescription ()
     {
+        planning.transform.Find("ValidationText").GetComponent<Text>().enabled = false;
         planning.SetActive(false);
         FicheDescriptive.SetActive(true);
     }
@@ -135,7 +174,8 @@ public class MissionInterface : MonoBehaviour {
             instantiatedSeance.GetComponent<Button>().onClick.AddListener(() => GoToAutoEval(tempInt));
             instantiatedSeance.transform.name = "SeanceButton" + i;
             instantiatedSeance.GetComponentInChildren<Text>().text = "Seance " + (i + 1);
-            instantiatedSeance.transform.SetParent(planning.transform);
+            instantiatedSeance.transform.SetParent(PlanningGlobalLayout.transform);
+            instantiatedSeance.transform.localScale = Vector3.one;
         }
     }
 
@@ -148,6 +188,8 @@ public class MissionInterface : MonoBehaviour {
             {
                 Debug.LogWarning("All objectives should have at least one toggle selected!");
                 GameObject.Find("ErrorText").GetComponent<Text>().enabled = true;
+                GameObject.Find("ErrorText").GetComponent<Text>().text = "[!] Un ou plusieurs objectifs n'ont pas été renseignés avant validation, merci de vérifier que chaque objectif a été évalué.";
+                GameObject.Find("ErrorText").GetComponent<Text>().color = Color.red;
                 AllObjectivesActivated = false;
                 break;
             }
@@ -175,8 +217,9 @@ public class MissionInterface : MonoBehaviour {
                 StartCoroutine(characterSheet.PostPLayerStats(keyValue.Key, keyValue.Value));
             }
 
+            GameObject.Find("ErrorText").GetComponent<Text>().enabled = false;
             autoEvaluation.SetActive(false);
-            planning.SetActive(true);
+            GoToPlanning(true);
         }
     }
 
@@ -185,6 +228,7 @@ public class MissionInterface : MonoBehaviour {
         SceneManager.LoadScene("MainBoard");
     }
 
+
     public IEnumerator SetPoint (int idUserObjMission, int point)
     {
         string sessionId = PlayerPrefs.GetString("sessionId");
@@ -192,6 +236,7 @@ public class MissionInterface : MonoBehaviour {
         WWWForm hs_post = new WWWForm();
         hs_post.AddField("idUserObjMission", idUserObjMission);
         hs_post.AddField("point", point);
+        hs_post.AddField("comments", "Ceci est un test. Bonjour Yvonnick. Ca va ? On se fait un petit café ?");
 
         WWW hs_get = new WWW(baseURL + "/web/app_dev.php/unity/missionPoint", hs_post.data, headers);
         yield return hs_get;

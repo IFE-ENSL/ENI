@@ -339,7 +339,8 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     void OnMouseOver()
     {
-        MouseOverThis = true;
+        if(characterSheet.ClickableSpider)
+            MouseOverThis = true;
     }
 
     void OnMouseExit()

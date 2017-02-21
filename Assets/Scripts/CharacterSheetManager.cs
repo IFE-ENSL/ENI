@@ -10,6 +10,7 @@ public class CharacterSheetManager : MonoBehaviour {
     //private const string baseURL = "http://vm-web-qualif.pun.ens-lyon.fr/eni/"; //Preprod
 
     public bool GenerateCharacterSheetDisplay = true;
+    public bool ClickableSpider = true;
 
     Camera SheetCamera;
     GameObject gameCanvas;
