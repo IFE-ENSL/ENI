@@ -51,16 +51,16 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             characterSheet.competencesList = PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences;
     }
 
-    // Use this for initialization
-    public void InitSpider ()
+    public void UpdateGeneralSkillPoints ()
     {
-        characterSheet = transform.parent.GetComponent<CharacterSheetManager>();
-
         bool first = true;
         int iterator = 0;
+
+        GeneralSkillPoints.Clear();
+
         foreach (KeyValuePair<int, CompetenceENI> competenceENI in characterSheet.competencesList)
         {
-            if (!GeneralSkillPoints.ContainsKey(competenceENI.Value._MainSkillNumber)) //If the dictionary already contains the General Skill we're looking at, let's skip it and just add the points if any.
+            if (!GeneralSkillPoints.ContainsKey(competenceENI.Value._MainSkillNumber)) //If the dictionary already contains the General Skill we're looking at, let's skip it and just add the points;
             {
                 GeneralSkillPoints.Add(competenceENI.Value._MainSkillNumber, competenceENI.Value._nbPointsCompetence);
             }
@@ -75,7 +75,15 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
 
         }
+    }
 
+    // Use this for initialization
+    public void InitSpider ()
+    {
+        characterSheet = transform.parent.GetComponent<CharacterSheetManager>();
+
+
+        UpdateGeneralSkillPoints();
 
 
         LoadPlayerStats();
@@ -102,7 +110,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         initComplete = true;
 	}
 
-    void InitializeSpider ()
+    public void InitializeSpider ()
     {
         float BranchAngle = 360 / GeneralSkillPoints.Count;
         float addAngle = BranchAngle;
@@ -265,7 +273,6 @@ public class Spider_Skill_Displayer : MonoBehaviour {
          Debug.DrawLine(transform.position, transform.position + newRotatedVector * .1f, Color.blue, Time.deltaTime);
 
         //Set the position of the skill point, it should be on the associated branch
-        //TODO : A foreach would be a better idea, actually, adapt this plz...
         float percentageValue;
 
         if (greatestSkillValue > 0)
@@ -274,11 +281,16 @@ public class Spider_Skill_Displayer : MonoBehaviour {
                 percentageValue = GeneralSkillPoints[i] * branchesSize + branchesSize * .1f;
             else
                 percentageValue = GeneralSkillPoints[i] / greatestSkillValue * (branchesSize - branchesSize * .1f) + branchesSize * .1f;
+
+            //Debug.Log("Percentage value for " + i + " is " + percentageValue + " with a GeneralSkillPoint Value of " + GeneralSkillPoints[i] + " greatest skill value is " + greatestSkillValue);
         }
         else
         {
             percentageValue = branchesSize * .1f;
+            //The update bug does not come from here, soooo... Maybe on the upper lines ?
         }
+
+
 
         currentSkillPosition = new Vector3(0, percentageValue, 0);
         currentSkillPosition = Quaternion.AngleAxis(-addAngle, Vector3.forward) * currentSkillPosition;
@@ -329,6 +341,8 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             {
                 lastBranchSkillNumber = keyValue.Key;
             }
+
+            //Debug.Log("Updated branch " + keyValue.Key + " with value " + keyValue.Value + " which new position is " + currentSkillPosition);
 
             iterator++;
         }

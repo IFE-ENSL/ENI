@@ -217,6 +217,7 @@ public class MissionInterface : MonoBehaviour {
                 StartCoroutine(characterSheet.PostPLayerStats(keyValue.Key, keyValue.Value));
             }
 
+            StartCoroutine (getUserStatsAtLogin(_waiter)); //TODO: I think this method doesn't have time to be called BEFORE the datas are sent by the previous Coroutine... Soo....
             GameObject.Find("ErrorText").GetComponent<Text>().enabled = false;
             autoEvaluation.SetActive(false);
             GoToPlanning(true);
@@ -226,6 +227,67 @@ public class MissionInterface : MonoBehaviour {
     public void LoadMainBoard()
     {
         SceneManager.LoadScene("MainBoard");
+    }
+
+    JSONNode userStats;
+
+    public IEnumerator getUserStatsAtLogin(Waiter waiter)
+    {
+        yield return new WaitWhile(() => CharacterSheetManager.sendingDatas);
+        Debug.Log("Attempting to retrieve the player's stats...");
+        waiter.waiting = true;
+        string sessionId = PlayerPrefs.GetString("sessionId");
+        Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
+        string post_url = "http://vm-web7.ens-lyon.fr/eni/web/app_dev.php/unity/management/initJeu";
+
+
+        WWW hs_get = new WWW(post_url, null, headers);
+        yield return hs_get;
+        if (hs_get.error != null)
+        {
+            Debug.Log("Error while retrieving all the player's stats : " + hs_get.error);
+            Debug.Log(hs_get.text);
+            SceneManager.LoadScene(0);
+        }
+        waiter.data = hs_get.text;
+        userStats = JSON.Parse(waiter.data);
+
+        waiter.waiting = false;
+        Debug.Log("Player stats retrieved successfully =)");
+        PopulateCharacterSkills();
+    }
+
+    void PopulateCharacterSkills()
+    {
+
+        CharacterSheetManager charSheet = GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>();
+
+        charSheet.competencesList.Clear();
+        //charSheet.correspondenceUserCompENIAndMiniGame.Clear();
+
+        Dictionary<int, string> SkillTags = new Dictionary<int, string>();
+
+        foreach (JSONNode value in userStats["listeCompetences"].Children)
+        {
+            if (!SkillTags.ContainsKey(value["idCompGen"].AsInt))
+                SkillTags.Add(value["idCompGen"].AsInt, value["LibCompGen"].Value);
+        }
+
+        foreach (JSONNode value in userStats["listeCriteres"].Children)
+        {
+            charSheet.competencesList.Add(value["idCompEni"].AsInt, new CompetenceENI(SkillTags[value["idCompGen"].AsInt], value["idCompGen"].AsInt, value["point"].AsInt, value["idCritere"].AsInt, value["idJM"].AsInt)); //TODO : Replace RandomName by the real skill name
+            //charSheet.correspondenceUserCompENIAndMiniGame.Add(value["idCompENI"].AsInt, value["idJM"].AsInt);
+        }
+
+        foreach (JSONNode value in userStats["listeJeux"].Children)
+        {
+            if (value["jeuNom"].Value == "mini-jeu 01")
+                CharacterSheetManager.game1ID = value["idJeu"].AsInt;
+            else if (value["jeuNom"].Value == "mini-jeu 02")
+                CharacterSheetManager.game2ID = value["idJeu"].AsInt;
+        }
+
+        GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().UpdateGeneralSkillPoints();
     }
 
 
@@ -256,6 +318,7 @@ public class MissionInterface : MonoBehaviour {
 
     public IEnumerator getMissionDatas(Waiter waiter)
     {
+        yield return new WaitWhile(() => CharacterSheetManager.sendingDatas);
         Debug.Log("Attempting to retrieve the mission datas...");
         waiter.waiting = true;
         string sessionId = PlayerPrefs.GetString("sessionId");

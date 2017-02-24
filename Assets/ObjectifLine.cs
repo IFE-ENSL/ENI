@@ -45,7 +45,7 @@ public class ObjectifLine : MonoBehaviour
         }
 
         //transform.GetChild(1).GetComponent<Toggle>().isOn = true;
-        Debug.Log("Randomized choice order with this sequence = " + orders[0] + " + " + orders[1] + " + " + orders[2] + " + " + orders[3]);
+        //Debug.Log("Randomized choice order with this sequence = " + orders[0] + " + " + orders[1] + " + " + orders[2] + " + " + orders[3]);
     }
 
     public void changedValue ()

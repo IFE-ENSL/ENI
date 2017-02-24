@@ -18,6 +18,7 @@ public class CharacterSheetManager : MonoBehaviour {
 
     static public int game1ID;
     static public int game2ID;
+    static public bool sendingDatas = false;
 
     public Dictionary <int, CompetenceENI> competencesList = new Dictionary<int, CompetenceENI>();
     public Dictionary<int, int> correspondenceUserCompENIAndMiniGame = new Dictionary<int, int>();
@@ -109,6 +110,7 @@ public class CharacterSheetManager : MonoBehaviour {
     //Sending the skill points to the SQL DB
     public IEnumerator PostPLayerStats(int idCompEni, int pointCompEni)
     {
+        sendingDatas = true;
         string sessionId = PlayerPrefs.GetString("sessionId");
         Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
         WWWForm hs_post = new WWWForm();
@@ -120,6 +122,7 @@ public class CharacterSheetManager : MonoBehaviour {
         WWW hs_get = new WWW(baseURL + "/web/app_dev.php/unity/compEniPoint", hs_post.data, headers);
         yield return hs_get;
         Debug.Log("Sent new player skill datas");
+        sendingDatas = false;
 
         if (hs_get.error != null)
         {
