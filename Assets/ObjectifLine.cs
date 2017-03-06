@@ -48,7 +48,7 @@ public class ObjectifLine : MonoBehaviour
         //Debug.Log("Randomized choice order with this sequence = " + orders[0] + " + " + orders[1] + " + " + orders[2] + " + " + orders[3]);
     }
 
-    public void changedValue ()
+    public void changedValue () //Called via Unity UI when the toggle value is changed for this line
     {
         foreach (Image choice in choices)
         {
@@ -76,13 +76,26 @@ public class ObjectifLine : MonoBehaviour
         choseOneToggle = true;
     }
 
-    public void SetObjectifLine (int idUserObjMission, int ObjMission, string libelleObjMission, List<string> choiceList, int point)
+    public void SetObjectifLine (int idUserObjMission, int ObjMission, string libelleObjMission, List<string> choiceList, int point, bool AlreadyValidatedOnce)
     {
         int iterator = 0;
         foreach (Image choice in choices)
         {
             choicesStartPos.Add(choice.rectTransform.position);
             choice.GetComponentInChildren<Text>().text = choiceList[iterator];
+
+            if (AlreadyValidatedOnce)
+            {
+                if (choice.name == "IToggle" && point == 0)
+                    choice.GetComponent<Toggle>().isOn = true;
+                if (choice.name == "MToggle" && point == 1)
+                    choice.GetComponent<Toggle>().isOn = true;
+                if (choice.name == "BToggle" && point == 2)
+                    choice.GetComponent<Toggle>().isOn = true;
+                if (choice.name == "TBToggle" && point == 3)
+                    choice.GetComponent<Toggle>().isOn = true;
+            }
+
             iterator++;
         }
     

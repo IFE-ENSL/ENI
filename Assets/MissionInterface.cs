@@ -73,7 +73,22 @@ public class MissionInterface : MonoBehaviour {
 
     void SpawnObjectiveLine (int seanceNumber)
     {
+        GameObject.Find("AlreadyValidatedText").GetComponent<Text>().enabled = false;
+
+        bool alreadyValidatedOnce = false;
         int iterator = 0;
+        foreach (JSONNode value in missionData["listeObjectifs"].Children)
+        {
+            if (value["seance"].AsInt == seanceNumber)
+            {
+                    if (value["point"].AsInt > 0)
+                {
+                    GameObject.Find("AlreadyValidatedText").GetComponent<Text>().enabled = true;
+                    alreadyValidatedOnce = true;
+                }
+            }
+        }
+
         foreach (JSONNode value in missionData["listeObjectifs"].Children)
         {
             if (value["seance"].AsInt == seanceNumber)
@@ -81,14 +96,13 @@ public class MissionInterface : MonoBehaviour {
                 Vector3 targetPosition = Vector3.zero;
                 GameObject instantiatedLine = GameObject.Instantiate(ObjectifLinePrefab, targetPosition, Quaternion.identity) as GameObject;
 
-
                 List<string> choiceList = new List<string>();
                 choiceList.Add(value["TB"].Value);
                 choiceList.Add(value["B"].Value);
                 choiceList.Add(value["M"].Value);
                 choiceList.Add(value["I"].Value);
 
-                instantiatedLine.GetComponent<ObjectifLine>().SetObjectifLine(value["idUserObjMission"].AsInt, value["idObjMission"].AsInt, value["libelleObjMission"].Value, choiceList, value["point"].AsInt);
+                instantiatedLine.GetComponent<ObjectifLine>().SetObjectifLine(value["idUserObjMission"].AsInt, value["idObjMission"].AsInt, value["libelleObjMission"].Value, choiceList, value["point"].AsInt, alreadyValidatedOnce);
 
                 foreach (JSONNode ENIComp in value["capacites"].Children)
                 {
@@ -217,7 +231,8 @@ public class MissionInterface : MonoBehaviour {
                 StartCoroutine(characterSheet.PostPLayerStats(keyValue.Key, keyValue.Value));
             }
 
-            StartCoroutine (getUserStatsAtLogin(_waiter)); //TODO: I think this method doesn't have time to be called BEFORE the datas are sent by the previous Coroutine... Soo....
+            StartCoroutine (getUserStatsAtLogin(_waiter));
+            StartCoroutine(getMissionDatas(_waiter));
             GameObject.Find("ErrorText").GetComponent<Text>().enabled = false;
             autoEvaluation.SetActive(false);
             GoToPlanning(true);
