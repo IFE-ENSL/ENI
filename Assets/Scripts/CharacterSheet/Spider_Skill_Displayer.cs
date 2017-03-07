@@ -34,6 +34,9 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     bool initComplete = false;
 
+    public Vector3 minimizePosLargeScreen;
+    public Vector3 minimizePosSmallScreen;
+
     void Start ()
     {
         backgroundWindow = GameObject.Find("FullScreenSpiderBack").GetComponent<Image>();
@@ -172,24 +175,29 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     void minimize ()
     {
-        transform.position = new Vector3(7.13f, 3.35f, transform.position.z);
         branchesSize = .85f;
         spiderThickness = .01f;
         tagsFontSize = 10;
         gameObject.GetComponent<CircleCollider2D>().radius = branchesSize;
         fullScreen = false;
         backgroundWindow.enabled = false;
+
+        if (Camera.main.aspect > 1.4f && Camera.main.aspect < 1.8f) // 16/9
+            transform.position = minimizePosLargeScreen;
+        else if (Camera.main.aspect > 1f && Camera.main.aspect < 1.4f) // 4/3
+            transform.position = minimizePosSmallScreen;
+
     }
 
     void GoFullScreen ()
     {
-        transform.position = new Vector3(0,0,transform.position.z);
         branchesSize = 3.7f;
         spiderThickness = .1f;
         tagsFontSize = 20;
         gameObject.GetComponent<CircleCollider2D>().radius = branchesSize;
         fullScreen = true;
         backgroundWindow.enabled = true;
+        transform.position = new Vector3(0, 0, -1f);
     }
 
     void UpdateTags()
@@ -232,6 +240,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         GameObject spawnedWebWire = GameObject.Instantiate(SpiderWebWirePrefab, transform.position, Quaternion.identity) as GameObject;
         LineRenderer spawnedWebWireRenderer = spawnedWebWire.GetComponent<LineRenderer>();
         spawnedWebWire.name = "Spider_StatWire_" + spawnNumber;
+        spawnedWebWire.transform.SetParent(transform);
 
         UpdateWebWirePositions(spawnedWebWireRenderer, previousLineTip, newPositions);
 

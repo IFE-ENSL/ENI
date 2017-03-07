@@ -20,8 +20,8 @@ namespace Assets.Scripts.Management
         public int sceneId; //The management minigame id for this scene. Used to load the appropriate rooms stats.
         private int miniGameSession;
 
-        private readonly Vector3[] charactersGridPositions = new[] {new Vector3(0.03999f,2.51f), new Vector3(-2.91f,2.51f),
-        new Vector3(2.96f,2.51f),new Vector3(-2.94f,0.09f),new Vector3(0.07f,0.09f),new Vector3(0.07f,-2.646f),
+        private readonly Vector3[] charactersGridPositions = new[] {new Vector3(0.03999f,1.25f), new Vector3(-2.91f,1.25f),
+        new Vector3(2.96f,1.25f),new Vector3(-2.94f,-1.17f),new Vector3(0.07f,-1.17f),new Vector3(0.07f,-2.646f),
         new Vector3(-2.9f,-2.57f)};
         #endregion
 

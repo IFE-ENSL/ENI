@@ -13,6 +13,8 @@ public class MissionInterface : MonoBehaviour {
     public GameObject PlanningButtonPrefab;
     public GameObject PlanningGlobalLayout;
     public GameObject DialogBox;
+
+    GameObject spider;
     JSONNode missionData;
 
     Text titre;
@@ -39,13 +41,15 @@ public class MissionInterface : MonoBehaviour {
     // Use this for initialization
     void Start ()
     {
+        spider = GameObject.Find("SkillSpider");
+        spider.SetActive(false);
         characterSheet = GameObject.FindObjectOfType<CharacterSheetManager>();
         titre = FicheDescriptive.transform.Find("Titre").GetComponentInChildren<Text>();
         description = FicheDescriptive.transform.Find("Description").GetComponentInChildren<Text>();
         objectif = FicheDescriptive.transform.Find("Objectif").GetComponentInChildren<Text>();
         KeyWords = FicheDescriptive.transform.Find("KeyWords").GetComponentInChildren<Text>();
 
-        canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
+        canvas = GameObject.Find("MissionCanvas").GetComponent<Canvas>();
 
         persistentData = GameObject.Find("PersistentSceneDatas").GetComponent<PersistentFromSceneToScene>();
 
@@ -134,6 +138,7 @@ public class MissionInterface : MonoBehaviour {
         if (displayedObjectives.Count > 0)
             ClearAutoEvalInterface();
 
+        spider.SetActive(true);
         FicheDescriptive.SetActive(false);
         autoEvaluation.SetActive(false);
         planning.SetActive(true);
@@ -156,6 +161,7 @@ public class MissionInterface : MonoBehaviour {
 
     public void GoToAutoEval (int seanceNumber)
     {
+        spider.SetActive(false);
         planning.transform.Find("ValidationText").GetComponent<Text>().enabled = false;
         planning.SetActive(false);
         autoEvaluation.SetActive(true);
@@ -164,6 +170,7 @@ public class MissionInterface : MonoBehaviour {
 
     public void GoToDescription ()
     {
+        spider.SetActive(false);
         planning.transform.Find("ValidationText").GetComponent<Text>().enabled = false;
         planning.SetActive(false);
         FicheDescriptive.SetActive(true);
