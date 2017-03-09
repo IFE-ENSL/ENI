@@ -36,14 +36,14 @@ namespace Assets.Scripts.Management
             #region Satisfaction Surface
             surface = Character.room.surface > Character.surfaceSalarie ? 1 : (Character.room.surface / Character.surfaceSalarie) * (Character.room.surface / Character.surfaceSalarie);
             surface *= 100;
-            Debug.Log("Satisfaction surface = " + surface);
+            //Debug.Log("Satisfaction surface = " + surface);
             #endregion
 
             #region Satisfaction Acces Exterieur
             if (Character.accesExterieur)
             {
                 accesExterieur = Character.room.accesExterieur ? 100 : 0;
-                Debug.Log("Acces Exterieur = " + accesExterieur);
+                //Debug.Log("Acces Exterieur = " + accesExterieur);
             }
             #endregion
 
@@ -69,7 +69,7 @@ namespace Assets.Scripts.Management
                 luminosite = 0.2f;
 
             luminosite *= 100;
-            Debug.Log("Luminosite = " + luminosite);
+            //Debug.Log("Luminosite = " + luminosite);
             #endregion
 
             #region Satsifaction Distance Salle Pause
@@ -94,7 +94,7 @@ namespace Assets.Scripts.Management
 
             distanceSallePause *= 100;
             
-            Debug.Log("Salle pause = " + distanceSallePause);
+            //Debug.Log("Salle pause = " + distanceSallePause);
             #endregion
 
             #region Satisfaction Distance Toilette
@@ -118,7 +118,7 @@ namespace Assets.Scripts.Management
             }
 
             distanceToilette *= 100;
-            Debug.Log("Toilette = " + distanceToilette);
+            //Debug.Log("Toilette = " + distanceToilette);
             #endregion
 
             satisfactionTotale = surface + luminosite + distanceSallePause + distanceToilette;
@@ -139,7 +139,7 @@ namespace Assets.Scripts.Management
                 }
                 satisfactionFriend = satisfactionFriend / 4;
                 satisfactionTotale += satisfactionFriend * 100;
-                Debug.Log("Satisfaction  de " + Character.role + " en tant qu'ami = " + satisfactionFriend * 100);
+                //Debug.Log("Satisfaction  de " + Character.role + " en tant qu'ami = " + satisfactionFriend * 100);
                 nbrParam++;
             }
             if (Character.myProductiveLink != null)
@@ -151,7 +151,7 @@ namespace Assets.Scripts.Management
                 }
                 satisfactionProdLink = satisfactionProdLink / 4;
                 satisfactionTotale += satisfactionProdLink * 100;
-                Debug.Log("Satisfaction  de " + Character.role + " en tant que prod = " + satisfactionProdLink * 100);
+                //Debug.Log("Satisfaction  de " + Character.role + " en tant que prod = " + satisfactionProdLink * 100);
                 nbrParam++;
             }
 

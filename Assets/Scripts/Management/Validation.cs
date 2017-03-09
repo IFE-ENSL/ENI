@@ -10,7 +10,7 @@ namespace Assets.Scripts.Management
     //Cette classe sert à valider la grille de jeu lorsque l'élève a terminé le mini jeu
     public class Validation : MonoBehaviour
     {
-
+        public GameObject warningWindow;
         public SatisfactionGlobale globalSatisfaction;
         public GameObject[] imagesDirecteur;
         private PieceRobot _pieceRobot;
@@ -31,6 +31,7 @@ namespace Assets.Scripts.Management
         {
             _pieceRobot = GameObject.Find("PlayerData").GetComponent<PieceRobot>();
             _winScript = GetComponent<WinScript>();
+            warningWindow.SetActive(false);
         }
         public void Validate()
         {
@@ -62,6 +63,7 @@ namespace Assets.Scripts.Management
             else
             {
                 print("Il n'y a pas 5 personnes");
+                warningWindow.SetActive(true);
             }
         }
 

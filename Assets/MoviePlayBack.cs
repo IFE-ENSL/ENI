@@ -10,10 +10,13 @@ public class MoviePlayBack : MonoBehaviour {
     public Text LoadingText;
     public Text SkipText;
     float time;
+    int vsyncPrevious;
 
     // Use this for initialization
     void Start ()
     {
+        vsyncPrevious = QualitySettings.vSyncCount;
+        QualitySettings.vSyncCount = 0;
         LoadingText.enabled = false;
         SkipText.enabled = false;
         RawImage r = GetComponent<RawImage>();
@@ -30,6 +33,7 @@ public class MoviePlayBack : MonoBehaviour {
 	    if (!movie.isPlaying)
         {
             LoadingText.enabled = true;
+            QualitySettings.vSyncCount = vsyncPrevious;
             async.allowSceneActivation = true;
         }
 
@@ -50,6 +54,7 @@ public class MoviePlayBack : MonoBehaviour {
                 SkipText.enabled = true;
             else
             {
+                QualitySettings.vSyncCount = vsyncPrevious;
                 async.allowSceneActivation = true;
             }
         }

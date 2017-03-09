@@ -41,6 +41,8 @@ public class Spider_Skill_Displayer : MonoBehaviour {
     {
         backgroundWindow = GameObject.Find("FullScreenSpiderBack").GetComponent<Image>();
         backgroundWindow.enabled = false;
+
+        minimize();
     }
 
     public void SavePlayerStats()

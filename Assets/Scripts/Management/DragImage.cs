@@ -48,7 +48,7 @@ namespace Assets.Scripts.Management
             globalSatisfaction = GameObject.Find("TextPourcentage").GetComponent<SatisfactionGlobale>();
         }
 
-        void Update()
+        void LateUpdate()
         {
             x = Input.mousePosition.x;
             y = Input.mousePosition.y;
