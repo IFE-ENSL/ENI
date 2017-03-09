@@ -14,6 +14,6 @@ public class NextLevel : MonoBehaviour {
     private IEnumerator waitBeforeLeave()
     {
         yield return new WaitForSeconds(10f);
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene("MainBoard");
     }
 }
