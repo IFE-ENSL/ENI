@@ -17,6 +17,10 @@ namespace Assets.Scripts.Management
     public class GameManager : MonoBehaviour
     {
         #region General Vars
+        bool globalWait = false;
+        public Camera mainCamera;
+        public Camera LoadingCamera;
+        public GameObject mainCanvas;
         public int sceneId; //The management minigame id for this scene. Used to load the appropriate rooms stats.
         private int miniGameSession;
 
@@ -93,6 +97,22 @@ namespace Assets.Scripts.Management
             descriptionPanel.SetActive(false);
         }
 
+        void Update ()
+        {
+            if (globalWait)
+            {
+                mainCamera.depth = -1;
+                LoadingCamera.depth = 0;
+                mainCanvas.SetActive(false);
+            }
+            else
+            {
+                mainCamera.depth = 0;
+                LoadingCamera.depth = -1;
+                mainCanvas.SetActive(true);
+            }
+        }
+
         void SpawnBackgroundAndRooms ()
         {
             GameObject.Instantiate(backgroundPrefabs[sceneId - 1], Vector3.zero, Quaternion.identity);
@@ -112,7 +132,7 @@ namespace Assets.Scripts.Management
         private IEnumerator getRooms()
         {
             Waiter wait = new Waiter();
-            
+
             StartCoroutine(connexionController.mConnexion.getRooms(wait,this.sceneId));
             while (wait.waiting)
             {
@@ -185,6 +205,7 @@ namespace Assets.Scripts.Management
         {
             #region Getting Character from SQL
             Waiter wait = new Waiter();
+            globalWait = true;
             //Creating a new session for this minigame
             StartCoroutine(connexionController.mConnexion.insertSessionMiniJeu(wait));
             while (wait.waiting)
@@ -332,6 +353,7 @@ namespace Assets.Scripts.Management
                 }
 
             }
+            globalWait = false;
         }
 
         void GenerateDialogueDescription (ManagementCharacter character, ref string dialogueDescription)

@@ -15,6 +15,9 @@ public class BoardManager : MonoBehaviour {
     public const string baseURL = "http://vm-web7.ens-lyon.fr/eni"; //Prod
     //public const string baseURL = "http://127.0.0.1/eni"; //Local
     private const string getUserStats = baseURL + "/web/app_dev.php/unity/management/initJeu";
+    public Camera mainCamera;
+    public Camera LoadingCamera;
+    public GameObject mainCanvas;
 
     public List<string> ActivitiesNames = new List<string>();
 
@@ -26,6 +29,22 @@ public class BoardManager : MonoBehaviour {
         Zones = GameObject.FindGameObjectsWithTag("BoardZone");
 
         StartCoroutine(getUserStatsAtLogin(_waiter));
+    }
+
+    void Update ()
+    {
+        if (_waiter.waiting)
+        {
+            mainCamera.depth = -1;
+            LoadingCamera.depth = 0;
+            mainCanvas.SetActive(false);
+        }
+        else
+        {
+            mainCamera.depth = 0;
+            LoadingCamera.depth = -1;
+            mainCanvas.SetActive(true);
+        }
     }
 
     void PopulateCharacterSkills ()

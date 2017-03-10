@@ -60,6 +60,11 @@ public class MissionInterface : MonoBehaviour {
 	// Update is called once per frame
 	void LateUpdate ()
     {
+        if(_waiter.waiting)
+        {
+            Debug.Log("Iiiiii'm waitiiiiing");
+        }
+
 	    if (InitSpiderNow)
         {
             GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().InitSpider();
@@ -166,6 +171,7 @@ public class MissionInterface : MonoBehaviour {
         planning.SetActive(false);
         autoEvaluation.SetActive(true);
         SpawnObjectiveLine(seanceNumber);
+        GameObject.Find("TitreSeanceNumber").GetComponent<Text>().text = missionData["slogan"].Value + " - Séance " + seanceNumber;
     }
 
     public void GoToDescription ()
@@ -178,23 +184,23 @@ public class MissionInterface : MonoBehaviour {
 
     void SpawnPlanning ()
     {
+        List<int> seanceNumbers = new List<int>();
         foreach (JSONNode value in missionData["listeObjectifs"].Children)
         {
-            if (value["seance"].AsInt > seanceCount)
+            if (!seanceNumbers.Contains (value["seance"].AsInt))
             {
-                seanceCount = value["seance"].AsInt;
+                seanceNumbers.Add(value["seance"].AsInt);
             }
         }
 
         Debug.Log("Finished first loop");
 
-        for (int i = 0; i < seanceCount; i++)
+        foreach (int i in seanceNumbers)
         {
             GameObject instantiatedSeance = GameObject.Instantiate(PlanningButtonPrefab);
-            int tempInt = i + 1;
-            instantiatedSeance.GetComponent<Button>().onClick.AddListener(() => GoToAutoEval(tempInt));
+            instantiatedSeance.GetComponent<Button>().onClick.AddListener(() => GoToAutoEval(i));
             instantiatedSeance.transform.name = "SeanceButton" + i;
-            instantiatedSeance.GetComponentInChildren<Text>().text = "Seance " + (i + 1);
+            instantiatedSeance.GetComponentInChildren<Text>().text = "Seance " + (i);
             instantiatedSeance.transform.SetParent(PlanningGlobalLayout.transform);
             instantiatedSeance.transform.localScale = Vector3.one;
         }
