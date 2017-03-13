@@ -10,5 +10,6 @@ namespace Assets.Scripts.Management
     {
         public GameObject prefabPersonnage;
         public Sprite[] avatarsSprites;
+        public GameObject textPourcentage;
     }
 }

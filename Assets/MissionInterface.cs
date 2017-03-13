@@ -24,7 +24,7 @@ public class MissionInterface : MonoBehaviour {
 
     private Waiter _waiter = new Waiter();
     public const string baseURL = "http://vm-web7.ens-lyon.fr/eni"; //Prod
-    private const string getMissionDatasURL = baseURL + "/web/app_dev.php/unity/management/initMission";
+    private const string getMissionDatasURL = baseURL + "/web/app.php/unity/management/initMission";
     Canvas canvas;
     CharacterSheetManager characterSheet;
 
@@ -266,7 +266,7 @@ public class MissionInterface : MonoBehaviour {
         waiter.waiting = true;
         string sessionId = PlayerPrefs.GetString("sessionId");
         Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
-        string post_url = "http://vm-web7.ens-lyon.fr/eni/web/app_dev.php/unity/management/initJeu";
+        string post_url = "http://vm-web7.ens-lyon.fr/eni/web/app.php/unity/management/initJeu";
 
 
         WWW hs_get = new WWW(post_url, null, headers);
@@ -328,7 +328,7 @@ public class MissionInterface : MonoBehaviour {
         hs_post.AddField("point", point);
         hs_post.AddField("comments", "Ceci est un test. Bonjour Yvonnick. Ca va ? On se fait un petit café ?");
 
-        WWW hs_get = new WWW(baseURL + "/web/app_dev.php/unity/missionPoint", hs_post.data, headers);
+        WWW hs_get = new WWW(baseURL + "/web/app.php/unity/missionPoint", hs_post.data, headers);
         yield return hs_get;
 
         if (hs_get.error != null)

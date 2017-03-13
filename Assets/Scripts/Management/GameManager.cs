@@ -20,7 +20,7 @@ namespace Assets.Scripts.Management
         bool globalWait = false;
         public Camera mainCamera;
         public Camera LoadingCamera;
-        public GameObject mainCanvas;
+        public Canvas mainCanvas;
         public int sceneId; //The management minigame id for this scene. Used to load the appropriate rooms stats.
         private int miniGameSession;
 
@@ -103,29 +103,21 @@ namespace Assets.Scripts.Management
             {
                 mainCamera.depth = -1;
                 LoadingCamera.depth = 0;
-                mainCanvas.SetActive(false);
+                mainCanvas.enabled = false;
             }
             else
             {
                 mainCamera.depth = 0;
                 LoadingCamera.depth = -1;
-                mainCanvas.SetActive(true);
+                mainCanvas.enabled = true;
             }
         }
 
         void SpawnBackgroundAndRooms ()
         {
-            GameObject.Instantiate(backgroundPrefabs[sceneId - 1], Vector3.zero, Quaternion.identity);
-
-            GameObject[] RoomObjects = GameObject.FindGameObjectsWithTag("ManagementRoom").OrderBy( go => go.name ).ToArray();
-            rooms = new Room[RoomObjects.Length];
-
-            int iterator = 0;
-            foreach (GameObject roomObject in RoomObjects)
-            {
-                rooms[iterator] = roomObject.GetComponent<Room>();
-                iterator++;
-            }
+            GameObject instantiatedBackgroundAndRooms;
+            instantiatedBackgroundAndRooms = GameObject.Instantiate(backgroundPrefabs[sceneId - 1], Vector3.zero, Quaternion.identity) as GameObject;
+            rooms = instantiatedBackgroundAndRooms.GetComponentsInChildren<Room>().OrderBy( go => go.transform.name ).ToArray();
         }
 
         //Récupère la liste des pièces depuis la base de donnée

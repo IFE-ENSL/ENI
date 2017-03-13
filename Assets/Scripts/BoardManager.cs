@@ -14,7 +14,7 @@ public class BoardManager : MonoBehaviour {
     private Waiter _waiter = new Waiter();
     public const string baseURL = "http://vm-web7.ens-lyon.fr/eni"; //Prod
     //public const string baseURL = "http://127.0.0.1/eni"; //Local
-    private const string getUserStats = baseURL + "/web/app_dev.php/unity/management/initJeu";
+    private const string getUserStats = baseURL + "/web/app.php/unity/management/initJeu";
     public Camera mainCamera;
     public Camera LoadingCamera;
     public GameObject mainCanvas;

@@ -119,7 +119,7 @@ public class CharacterSheetManager : MonoBehaviour {
 
         Debug.Log("Envoi d'un log au serveur");
 
-        WWW hs_get = new WWW(baseURL + "/web/app_dev.php/unity/compEniPoint", hs_post.data, headers);
+        WWW hs_get = new WWW(baseURL + "/web/app.php/unity/compEniPoint", hs_post.data, headers);
         yield return hs_get;
         Debug.Log("Sent new player skill datas");
         sendingDatas = false;

@@ -10,12 +10,12 @@ namespace Assets.Scripts.Connexion
     {
 
 
-        private const string getPiecesURL = ConnexionController.baseURL + "/web/app_dev.php/unity/management/getPieces";
-        private const string getPiecesDistancesURL = ConnexionController.baseURL + "/web/app_dev.php/unity/management/getPiecesDistances";
-        private const string getPersonnagesURL = ConnexionController.baseURL + "/web/app_dev.php/unity/management/getPersonnages";
-        private const string insertSessionURL = ConnexionController.baseURL + "/web/app_dev.php/unity/management/insertSessionPersonnage";
-        private const string insertSessionMiniJeuURL = ConnexionController.baseURL + "/web/app_dev.php/unity/management/insertNewSessionMiniJeu";
-        private const string updateAvatarURL = ConnexionController.baseURL + "/web/app_dev.php/unity/management/updateAvatar";
+        private const string getPiecesURL = ConnexionController.baseURL + "/web/app.php/unity/management/getPieces";
+        private const string getPiecesDistancesURL = ConnexionController.baseURL + "/web/app.php/unity/management/getPiecesDistances";
+        private const string getPersonnagesURL = ConnexionController.baseURL + "/web/app.php/unity/management/getPersonnages";
+        private const string insertSessionURL = ConnexionController.baseURL + "/web/app.php/unity/management/insertSessionPersonnage";
+        private const string insertSessionMiniJeuURL = ConnexionController.baseURL + "/web/app.php/unity/management/insertNewSessionMiniJeu";
+        private const string updateAvatarURL = ConnexionController.baseURL + "/web/app.php/unity/management/updateAvatar";
 
         void Start()
         {

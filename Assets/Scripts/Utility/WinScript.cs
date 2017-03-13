@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 //Cette classe permet d'afficher une liste de pièces au milieu de l'écran ( jusqu'à 3 pièces) et de choisir le type de pièce (argent ou or)
@@ -12,10 +13,12 @@ namespace Assets.Scripts.Utility
         public GameObject goldCoin;
         public GameObject ironCoin;
         public GameObject[] UItoDeactivate;
+        
 
         void Start()
         {
             //StartCoroutine(Win(3));
+
         }
         //Fait apparaitre les pièces, le nombre passé en paramètre définit le nombre de pièces en or
         public IEnumerator Win(int nbrCoinGold)
@@ -24,8 +27,12 @@ namespace Assets.Scripts.Utility
             {
                 GO.SetActive(false);
             }
-            this.GetComponent<Image>().enabled = false;
-            GameObject.Find("GrillePersonnages").GetComponent<SpriteRenderer>().enabled = false;
+
+            if (SceneManager.GetActiveScene().name == "Management")
+            {
+                this.GetComponent<Image>().enabled = false;
+                GameObject.Find("GrillePersonnages").GetComponent<SpriteRenderer>().enabled = false;
+            }
 
             int cptBoucle = 0;
             for (int i = 0; i < nbrCoinGold ; i++)

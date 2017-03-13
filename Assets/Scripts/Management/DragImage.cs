@@ -45,7 +45,7 @@ namespace Assets.Scripts.Management
             startPoint = this.transform.position;
             thisManagementCharacter = GetComponent<ManagementCharacter>();
             gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-            globalSatisfaction = GameObject.Find("TextPourcentage").GetComponent<SatisfactionGlobale>();
+            globalSatisfaction = transform.parent.GetComponent<CharacterGrid>().textPourcentage.GetComponent<SatisfactionGlobale>();
         }
 
         void LateUpdate()
@@ -53,13 +53,18 @@ namespace Assets.Scripts.Management
             x = Input.mousePosition.x;
             y = Input.mousePosition.y;
             draggingAnyCharacter();
+
+            if (globalSatisfaction == null)
+            {
+                globalSatisfaction = transform.parent.GetComponent<CharacterGrid>().textPourcentage.GetComponent<SatisfactionGlobale>();
+            }
         }
 
         //Unity API Method.
         //Called when the user clicked the GO and is still holding down the mouse
         void OnMouseDrag()
         {
-            transform.position = Camera.main.ScreenToWorldPoint(new Vector3(x, y, 10.0f));
+            transform.position = gameManager.mainCamera.ScreenToWorldPoint(new Vector3(x, y, 10.0f));
             IsDragging = true;
         }
 
