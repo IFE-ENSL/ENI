@@ -83,7 +83,7 @@ public class BoardStep : MonoBehaviour {
 
                 BoardManager.preventPlayerControl = true;
                 GameObject ConfirmationWindow = GameUI.transform.FindChild("ConfirmationWindow").gameObject;
-                Board_LaunchConfirmation confirmationWindowScript = ConfirmationWindow.GetComponent<Board_LaunchConfirmation>();
+                ConfirmationWindow confirmationWindowScript = ConfirmationWindow.GetComponent<ConfirmationWindow>();
                 ConfirmationWindow.SetActive(true);
 
                 //Depending if what we're launching is a mission or a game, we set this...
