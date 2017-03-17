@@ -8,15 +8,6 @@ namespace Assets.Scripts.Connexion
 {
     public class ManagementConnexion : MonoBehaviour
     {
-
-
-        private const string getPiecesURL = ConnexionController.baseURL + "/web/app.php/unity/management/getPieces";
-        private const string getPiecesDistancesURL = ConnexionController.baseURL + "/web/app.php/unity/management/getPiecesDistances";
-        private const string getPersonnagesURL = ConnexionController.baseURL + "/web/app.php/unity/management/getPersonnages";
-        private const string insertSessionURL = ConnexionController.baseURL + "/web/app.php/unity/management/insertSessionPersonnage";
-        private const string insertSessionMiniJeuURL = ConnexionController.baseURL + "/web/app.php/unity/management/insertNewSessionMiniJeu";
-        private const string updateAvatarURL = ConnexionController.baseURL + "/web/app.php/unity/management/updateAvatar";
-
         void Start()
         {
         }
@@ -33,7 +24,7 @@ namespace Assets.Scripts.Connexion
             waiter.waiting = true;
             string sessionId = PlayerPrefs.GetString("sessionId");
             Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
-            string post_url = getPiecesDistancesURL + "/" + scene;
+            string post_url = SQLCommonVars.getPiecesDistancesURL + "/" + scene;
             print(post_url);
             WWW hs_get = new WWW(post_url, null, headers);
             yield return hs_get;
@@ -53,7 +44,7 @@ namespace Assets.Scripts.Connexion
             waiter.waiting = true;
             string sessionId = PlayerPrefs.GetString("sessionId");
             Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
-            string post_url = getPiecesURL + "/" + scene;
+            string post_url = SQLCommonVars.getPiecesURL + "/" + scene;
             print(post_url);
             WWW hs_get = new WWW(post_url, null, headers);
             yield return hs_get;
@@ -74,7 +65,7 @@ namespace Assets.Scripts.Connexion
             string sessionId = PlayerPrefs.GetString("sessionId");
             Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
 
-            string post_url = getPersonnagesURL;
+            string post_url = SQLCommonVars.getPersonnagesURL;
             WWWForm post_data = new WWWForm();
             post_data.AddField("sessionMiniJeuId", sessionMiniJeuId);
             WWW hs_get = new WWW(post_url, post_data.data, headers);
@@ -95,7 +86,7 @@ namespace Assets.Scripts.Connexion
             string sessionId = PlayerPrefs.GetString("sessionId");
             Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
 
-            string post_url = insertSessionURL;
+            string post_url = SQLCommonVars.insertSessionURL;
             WWWForm post_data = new WWWForm();
             post_data.AddField("personnageId",personnageId);
             post_data.AddField("sessionMiniJeu", miniGameSession);
@@ -116,7 +107,7 @@ namespace Assets.Scripts.Connexion
             string sessionId = PlayerPrefs.GetString("sessionId");
             Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
 
-            string post_url = insertSessionMiniJeuURL;
+            string post_url = SQLCommonVars.insertSessionMiniJeuURL;
             WWW hs_get = new WWW(post_url, null, headers);
             yield return hs_get;
             if (hs_get.error != null)
@@ -135,7 +126,7 @@ namespace Assets.Scripts.Connexion
             string sessionId = PlayerPrefs.GetString("sessionId");
             Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
 
-            string post_url = updateAvatarURL;
+            string post_url = SQLCommonVars.updateAvatarURL;
             WWWForm post_data = new WWWForm();
             post_data.AddField("personnageId", persId);
             post_data.AddField("avatarId", avatarId);

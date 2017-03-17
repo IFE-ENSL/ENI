@@ -23,18 +23,13 @@ public class MissionInterface : MonoBehaviour {
     Text KeyWords;
 
     private Waiter _waiter = new Waiter();
-    public const string baseURL = "http://vm-web7.ens-lyon.fr/eni"; //Prod
-    private const string getMissionDatasURL = baseURL + "/web/app.php/unity/management/initMission";
-    Canvas canvas;
-    CharacterSheetManager characterSheet;
 
-    PersistentFromSceneToScene persistentData;
+    CharacterSheetManager characterSheet;
 
     public GameObject ObjectifLinePrefab;
 
     List<ObjectifLine> displayedObjectives = new List<ObjectifLine>();
     Dictionary<int, int> uniqueENICompForDisplayedObjectives = new Dictionary<int, int>();
-    int seanceCount = 0;
 
     bool InitSpiderNow = true;
 
@@ -49,10 +44,6 @@ public class MissionInterface : MonoBehaviour {
         objectif = FicheDescriptive.transform.Find("Objectif").GetComponentInChildren<Text>();
         KeyWords = FicheDescriptive.transform.Find("KeyWords").GetComponentInChildren<Text>();
 
-        canvas = GameObject.Find("MissionCanvas").GetComponent<Canvas>();
-
-        persistentData = GameObject.Find("PersistentSceneDatas").GetComponent<PersistentFromSceneToScene>();
-
         StartCoroutine(getMissionDatas(_waiter));
 
     }
@@ -65,7 +56,7 @@ public class MissionInterface : MonoBehaviour {
             Debug.Log("Iiiiii'm waitiiiiing");
         }
 
-	    if (InitSpiderNow)
+	    if (InitSpiderNow && planning.activeInHierarchy)
         {
             GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().InitSpider();
             InitSpiderNow = false;
@@ -257,8 +248,6 @@ public class MissionInterface : MonoBehaviour {
         SceneManager.LoadScene("MainBoard");
     }
 
-    JSONNode userStats;
-
     public IEnumerator getUserStatsAtLogin(Waiter waiter)
     {
         yield return new WaitWhile(() => CharacterSheetManager.sendingDatas);
@@ -278,45 +267,14 @@ public class MissionInterface : MonoBehaviour {
             SceneManager.LoadScene(0);
         }
         waiter.data = hs_get.text;
-        userStats = JSON.Parse(waiter.data);
+        CharacterSheetManager.userStats = JSON.Parse(waiter.data);
 
         waiter.waiting = false;
         Debug.Log("Player stats retrieved successfully =)");
-        PopulateCharacterSkills();
+        CharacterSheetManager.PopulateCharacterSkills();
     }
 
-    void PopulateCharacterSkills()
-    {
-
-        CharacterSheetManager charSheet = GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>();
-
-        charSheet.competencesList.Clear();
-        //charSheet.correspondenceUserCompENIAndMiniGame.Clear();
-
-        Dictionary<int, string> SkillTags = new Dictionary<int, string>();
-
-        foreach (JSONNode value in userStats["listeCompetences"].Children)
-        {
-            if (!SkillTags.ContainsKey(value["idCompGen"].AsInt))
-                SkillTags.Add(value["idCompGen"].AsInt, value["LibCompGen"].Value);
-        }
-
-        foreach (JSONNode value in userStats["listeCriteres"].Children)
-        {
-            charSheet.competencesList.Add(value["idCompEni"].AsInt, new CompetenceENI(SkillTags[value["idCompGen"].AsInt], value["idCompGen"].AsInt, value["point"].AsInt, value["idCritere"].AsInt, value["idJM"].AsInt)); //TODO : Replace RandomName by the real skill name
-            //charSheet.correspondenceUserCompENIAndMiniGame.Add(value["idCompENI"].AsInt, value["idJM"].AsInt);
-        }
-
-        foreach (JSONNode value in userStats["listeJeux"].Children)
-        {
-            if (value["jeuNom"].Value == "mini-jeu 01")
-                CharacterSheetManager.game1ID = value["idJeu"].AsInt;
-            else if (value["jeuNom"].Value == "mini-jeu 02")
-                CharacterSheetManager.game2ID = value["idJeu"].AsInt;
-        }
-
-        GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().UpdateGeneralSkillPoints();
-    }
+   
 
 
     public IEnumerator SetPoint (int idUserObjMission, int point)
@@ -328,7 +286,7 @@ public class MissionInterface : MonoBehaviour {
         hs_post.AddField("point", point);
         hs_post.AddField("comments", "Ceci est un test. Bonjour Yvonnick. Ca va ? On se fait un petit café ?");
 
-        WWW hs_get = new WWW(baseURL + "/web/app.php/unity/missionPoint", hs_post.data, headers);
+        WWW hs_get = new WWW(SQLCommonVars.baseURL + "/web/app.php/unity/missionPoint", hs_post.data, headers);
         yield return hs_get;
 
         if (hs_get.error != null)
@@ -351,7 +309,7 @@ public class MissionInterface : MonoBehaviour {
         waiter.waiting = true;
         string sessionId = PlayerPrefs.GetString("sessionId");
         Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
-        string post_url = getMissionDatasURL;
+        string post_url = SQLCommonVars.getMissionDatasURL;
         WWWForm post_data = new WWWForm();
         post_data.AddField("idMission", GameObject.FindObjectOfType<PersistentFromSceneToScene>().missionId);
         WWW hs_get = new WWW(post_url, post_data.data, headers);

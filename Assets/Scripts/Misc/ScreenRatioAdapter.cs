@@ -14,19 +14,13 @@ public class ScreenRatioAdapter : MonoBehaviour {
     {
         if (Camera.main.aspect > 1f && Camera.main.aspect < 1.4f) //4/3 Resolution
         {
-            if (SmallScreenPos != null && SmallScreenScale != null)
-            {
                 transform.position = SmallScreenPos;
                 transform.localScale = SmallScreenScale;
-            }
         }
         else if (Camera.main.aspect > 1.4f && Camera.main.aspect < 1.8f) //16/9 Resolution
         {
-            if (LargeScreenPos != null && LargeScreenScale != null)
-            {
                 transform.position = LargeScreenPos;
                 transform.localScale = LargeScreenScale;
-            }
         }
     }
 	

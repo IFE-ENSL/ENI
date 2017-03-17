@@ -1,18 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class SeanceNumberForButton : MonoBehaviour {
-
-    // Use this for initialization
+public class SeanceNumberForButton : MonoBehaviour
+{
     public int seanceNumber = 0;
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
 
     public void CallAutoEvalOnClick ()
     {

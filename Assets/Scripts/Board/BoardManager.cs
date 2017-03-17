@@ -5,68 +5,74 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using Assets.Scripts.Utility;
 
-public class BoardManager : MonoBehaviour {
-
-    public static bool preventPlayerControl = false;
-
-    GameObject[] Zones;
-    ConnexionController connexionController;
+public class BoardManager : MonoBehaviour
+{
+    #region SQL
     private Waiter _waiter = new Waiter();
-    public const string baseURL = "http://vm-web7.ens-lyon.fr/eni"; //Prod
-    //public const string baseURL = "http://127.0.0.1/eni"; //Local
-    private const string getUserStats = baseURL + "/web/app.php/unity/management/initJeu";
+    #endregion
+
+    #region External objects & Components
     public Camera mainCamera;
     public Camera LoadingCamera;
     public GameObject mainCanvas;
+    GameObject[] Zones;
+    #endregion
 
+    #region Misc
+    bool InitSpiderNow = true;
     public List<string> ActivitiesNames = new List<string>();
-
-    JSONNode userStats;
+    #endregion
 
     void Start ()
     {
-        connexionController = GameObject.Find("ConnexionController").GetComponent<ConnexionController>();
+        //Objects init
         Zones = GameObject.FindGameObjectsWithTag("BoardZone");
 
+        //Init Methods
         StartCoroutine(getUserStatsAtLogin(_waiter));
+    }
+
+    void Update()
+    {
+        ManageLoadingScreen();
+    }
+
+    void LateUpdate()
+    {
+        if (InitSpiderNow) //To avoid getting nullRefExceptions, the spider is actually initialized last in a frame loop
+        {
+            GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().InitSpider();
+            InitSpiderNow = false;
+        }
     }
 
     //Called right after the mainBoard is loaded, this loads the player stats (Spider skill,...) AND the board content (Steps names,...)
     public IEnumerator getUserStatsAtLogin(Waiter waiter)
     {
         Debug.Log("Attempting to retrieve the player's stats...");
+
         waiter.waiting = true;
         string sessionId = PlayerPrefs.GetString("sessionId");
         Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
-        string post_url = getUserStats;
-
-
+        string post_url = SQLCommonVars.getUserStats;
         WWW hs_get = new WWW(post_url, null, headers);
         yield return hs_get;
+
         if (hs_get.error != null)
         {
             Debug.Log("Error while retrieving all the player's stats : " + hs_get.error);
             Debug.Log(hs_get.text);
             SceneManager.LoadScene(0);
         }
+
         waiter.data = hs_get.text;
-        userStats = JSON.Parse(waiter.data);
-
-        foreach (JSONNode activityName in userStats["listeJeux"].Children)
-        {
-            ActivitiesNames.Add(activityName["jeuNom"].Value);
-        }
-
+        CharacterSheetManager.userStats = JSON.Parse(waiter.data);
         waiter.waiting = false;
+
         Debug.Log("Player stats retrieved successfully =)");
 
         PopulateMainBoard();
-        PopulateCharacterSkills();
-    }
-
-    void Update ()
-    {
-        ManageLoadingScreen();
+        CharacterSheetManager.PopulateCharacterSkills();
     }
 
     //If the datas are being loaded, we display the loading screen (Which is attached to another camera inside the Unity scene)
@@ -86,40 +92,7 @@ public class BoardManager : MonoBehaviour {
         }
     }
 
-    //Use the datas retrieved on the scene start to populate the skill spider
-    //This also calculates the spider general skill points based on the points in the CompENI
-    void PopulateCharacterSkills ()
-    {
-        CharacterSheetManager charSheet = GameObject.Find("CharacterSheet").GetComponent<CharacterSheetManager>();
-
-        charSheet.competencesList.Clear();
-
-        Dictionary<int, string> SkillTags = new Dictionary<int, string>();
-
-        foreach (JSONNode value in userStats["listeCompetences"].Children)
-        {
-            if (!SkillTags.ContainsKey(value["idCompGen"].AsInt))
-                SkillTags.Add(value["idCompGen"].AsInt, value["LibCompGen"].Value);
-        }
-
-        foreach (JSONNode value in userStats["listeCriteres"].Children)
-        {
-            charSheet.competencesList.Add(value["idCompEni"].AsInt,
-            new CompetenceENI(SkillTags[value["idCompGen"].AsInt], value["idCompGen"].AsInt, value["point"].AsInt, value["idCritere"].AsInt, value["idJM"].AsInt));
-        }
-
-        foreach (JSONNode value in userStats["listeJeux"].Children)
-        {
-            if (value["jeuNom"].Value == "mini-jeu 01")
-                CharacterSheetManager.game1ID = value["idJeu"].AsInt;
-            else if (value["jeuNom"].Value == "mini-jeu 02")
-                CharacterSheetManager.game2ID = value["idJeu"].AsInt;
-        }
-
-        GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().InitSpider();
-    }
-
-    //Uses the server datas to put up all the names on the steps and on what scene they will redirect, etc...
+    //Uses the previously retrieved server datas to put up all the activities names on the steps and link them to the scenes they will redirect to, etc...
     void PopulateMainBoard ()
     {
         foreach (GameObject zone in Zones)
@@ -127,7 +100,7 @@ public class BoardManager : MonoBehaviour {
             BoardStep[] steps = zone.GetComponentsInChildren<BoardStep>();
 
             int gameListIterator = 0;
-            foreach (JSONNode value in userStats["listeJeux"].Children)
+            foreach (JSONNode value in CharacterSheetManager.userStats["listeJeux"].Children)
             {
                 if (zone.name == "Zone" + value["idZone"].Value)
                 {
@@ -165,15 +138,9 @@ public class BoardManager : MonoBehaviour {
             {
                 for (int i = gameListIterator; i < steps.Length; i++)
                 {
-                    steps[i].gameObject.SetActive(false);
+                    steps[i].gameObject.SetActive(false); //We deactivate the steps that are 
                 }
             }
         }
     }
-
-
-
-
-
-
 }

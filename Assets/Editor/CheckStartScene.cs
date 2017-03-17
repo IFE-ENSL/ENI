@@ -29,7 +29,7 @@ public class CheckStartScene {
 
     private static void CheckScene()
     {
-        Debug.Log("Changed play state");
+        Debug.Log("Changed play state.");
 
         if(EditorPrefs.GetBool("enableCheckStartScene") && SceneManager.GetActiveScene().name != "Login" && EditorApplication.isPlaying)
         {

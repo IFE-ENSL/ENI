@@ -13,16 +13,7 @@ namespace Assets.Scripts.Connexion
 {
     public class ConnexionController : MonoBehaviour
     {
-        public const string baseURL = "http://vm-web7.ens-lyon.fr/eni"; //Prod
-        //public const string baseURL = "http://127.0.0.1/eni"; //Local
-        //private const string baseURL = "http://vm-web-qualif.pun.ens-lyon.fr/eni/"; //Preprod
-        private const string addLogURL = baseURL + "/web/app.php/unity/addLog";
-        private const string loginURL = baseURL + "/web/app.php/unity/loginOne";
-        private const string checkLoginURL = baseURL + "/web/app.php/unity/loginCheck";
-        private const string addTokenURL = baseURL + "/web/app.php/unity/loginToken";
-        private const string insertMessageURL = baseURL + "/web/app.php/unity/insertMessage";
-        private const string getMessagesURL = baseURL + "/web/app.php/unity/getMessages";
-        private const string endSessionURL = baseURL + "/web/app.php/unity/endSession";
+
         public bool dontDestroyOnLoad = false;
         public bool isLogged = false;
         public bool wait = false;
@@ -73,8 +64,6 @@ namespace Assets.Scripts.Connexion
 
             Scene currentScene = SceneManager.GetActiveScene();
 
-            Waiter _waiter = new Waiter();
-
             if (currentScene.name == "MainBoard" && currentScene.isLoaded && justLoggedIn)
             {
                 //TODO : Move all those verifications in BoardManager maybe.
@@ -108,7 +97,7 @@ namespace Assets.Scripts.Connexion
 
             Debug.Log("Envoi d'un log au serveur");
 
-            WWW hs_get = new WWW(addLogURL, hs_post.data,headers);
+            WWW hs_get = new WWW(SQLCommonVars.addLogURL, hs_post.data,headers);
             yield return hs_get;
 
             if (hs_get.error != null)
@@ -143,7 +132,7 @@ namespace Assets.Scripts.Connexion
             //wait = true;
             WWWForm hs_post = new WWWForm();
             hs_post.AddField("username", login);
-            WWW hs_get = new WWW(loginURL,hs_post);
+            WWW hs_get = new WWW(SQLCommonVars.loginURL,hs_post);
             yield return hs_get;
             //Etape une : Génération du mot de passe en convertisant le mot de passe indiqué en SHA512 + combinaison avec le salage
             //Puis, vérification de la concordance identifiant / mot de passe, si oui on s'identifie avec symfony
@@ -161,7 +150,7 @@ namespace Assets.Scripts.Connexion
             hs_post = new WWWForm();
             hs_post.AddField("username", login);
             hs_post.AddField("password", hashed.ToLower());
-            hs_get = new WWW(checkLoginURL,hs_post);
+            hs_get = new WWW(SQLCommonVars.checkLoginURL,hs_post);
             yield return hs_get;
             step = 2;
             if (hs_get.error != null)
@@ -181,7 +170,7 @@ namespace Assets.Scripts.Connexion
                 hs_post.AddField("sessionId", sessionId);
                 //Renvoie du cookie d'authentification afin de maintenir la connexionController
                 Dictionary<String, String> headers = new Dictionary<string, string> {{"Cookie", sessionId}};
-                hs_get = new WWW(addTokenURL, hs_post.data,headers);
+                hs_get = new WWW(SQLCommonVars.addTokenURL, hs_post.data,headers);
                 yield return hs_get;
                 //Etape 3 : vérification du bon fonctionnement de l'authentification et insertion d'une nouvelle session de jeu dans la base de données
                 step = 3;
@@ -218,7 +207,7 @@ namespace Assets.Scripts.Connexion
             string sessionId = PlayerPrefs.GetString("sessionId");
             Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
 
-            string post_url = insertMessageURL;
+            string post_url = SQLCommonVars.insertMessageURL;
             WWWForm hs_form = new WWWForm();
             hs_form.AddField("message",message);
             WWW hs_post = new WWW(post_url,hs_form.data,headers);
@@ -241,7 +230,7 @@ namespace Assets.Scripts.Connexion
             string sessionId = PlayerPrefs.GetString("sessionId");
             Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
 
-            string post_url = getMessagesURL;
+            string post_url = SQLCommonVars.getMessagesURL;
             WWW hs_get = new WWW(post_url,null,headers);
             yield return hs_get;
             if (hs_get.error != null)
@@ -261,7 +250,7 @@ namespace Assets.Scripts.Connexion
             string sessionId = PlayerPrefs.GetString("sessionId");
             Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
 
-            string post_url = endSessionURL;
+            string post_url = SQLCommonVars.endSessionURL;
             WWW hs_post = new WWW(post_url, null, headers);
             yield return hs_post; // Wait until the download is done
             if (hs_post.error != null)

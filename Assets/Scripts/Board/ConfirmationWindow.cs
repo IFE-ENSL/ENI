@@ -58,7 +58,6 @@ public class ConfirmationWindow : MonoBehaviour {
 
     public void CloseWindow ()
     {
-        BoardManager.preventPlayerControl = false;
         Text ContentTextDisplay = transform.FindChild("ConfirmationText").GetComponent<Text>();
         ContentTextDisplay.text = defaultText;
         gameObject.SetActive(false);

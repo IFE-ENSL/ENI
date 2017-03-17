@@ -28,7 +28,6 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     Dictionary<int, Vector3> RegisteredBranchTopPositions = new Dictionary<int, Vector3>();
     Dictionary<int, GameObject> spawnedTags = new Dictionary<int, GameObject>();
-    Dictionary<int, String> tagsTexts = new Dictionary<int, string>();
 
     Dictionary<int, int> GeneralSkillPoints = new Dictionary<int, int>();
 
@@ -39,31 +38,35 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
     void Start ()
     {
-        backgroundWindow = GameObject.Find("FullScreenSpiderBack").GetComponent<Image>();
-        backgroundWindow.enabled = false;
+        GameObject backgroundObject = GameObject.Find("FullScreenSpiderBack");
+
+        if (backgroundObject != null)
+        {
+            backgroundWindow = backgroundObject.GetComponent<Image>();
+            backgroundWindow.enabled = false;
+        }
 
         minimize();
     }
 
     public void SavePlayerStats()
     {
-        PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences = characterSheet.competencesList;
+        PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences = CharacterSheetManager.competencesList;
     }
 
     public void LoadPlayerStats ()
     {
         if (PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences.Count > 0)
-            characterSheet.competencesList = PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences;
+            CharacterSheetManager.competencesList = PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences;
     }
 
     public void UpdateGeneralSkillPoints ()
     {
         bool first = true;
-        int iterator = 0;
 
         GeneralSkillPoints.Clear();
 
-        foreach (KeyValuePair<int, CompetenceENI> competenceENI in characterSheet.competencesList)
+        foreach (KeyValuePair<int, CompetenceENI> competenceENI in CharacterSheetManager.competencesList)
         {
             if (!GeneralSkillPoints.ContainsKey(competenceENI.Value._MainSkillNumber)) //If the dictionary already contains the General Skill we're looking at, let's skip it and just add the points;
             {
@@ -209,7 +212,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             spawnedTags[topPosition.Key].transform.position = topPosition.Value;
             spawnedTags[topPosition.Key].GetComponent<TextMesh>().fontSize = tagsFontSize;
 
-            foreach (KeyValuePair<int, CompetenceENI> competence in characterSheet.competencesList)
+            foreach (KeyValuePair<int, CompetenceENI> competence in CharacterSheetManager.competencesList)
             {
                 if (competence.Value._MainSkillNumber == topPosition.Key)
                 {

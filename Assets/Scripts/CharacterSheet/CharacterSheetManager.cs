@@ -2,25 +2,19 @@
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
+using Assets.Scripts.Utility;
 
 public class CharacterSheetManager : MonoBehaviour {
-
-    public const string baseURL = "http://vm-web7.ens-lyon.fr/eni"; //Prod
-    //public const string baseURL = "http://127.0.0.1/eni"; //Local
-    //private const string baseURL = "http://vm-web-qualif.pun.ens-lyon.fr/eni/"; //Preprod
-
     public bool GenerateCharacterSheetDisplay = true;
     public bool ClickableSpider = true;
 
-    Camera SheetCamera;
-    GameObject gameCanvas;
-    Canvas sheetCanvas;
+    static public JSONNode userStats;
 
     static public int game1ID;
     static public int game2ID;
     static public bool sendingDatas = false;
 
-    public Dictionary <int, CompetenceENI> competencesList = new Dictionary<int, CompetenceENI>();
+    static public Dictionary <int, CompetenceENI> competencesList = new Dictionary<int, CompetenceENI>();
     public Dictionary<int, int> correspondenceUserCompENIAndMiniGame = new Dictionary<int, int>();
 
     void Update ()
@@ -30,23 +24,39 @@ public class CharacterSheetManager : MonoBehaviour {
 
     void Start ()
     {
-        if (GenerateCharacterSheetDisplay)
-        {
-            try
-            {
-                SheetCamera = transform.Find("CharacterSheetCamera").GetComponent<Camera>();
-                gameCanvas = GameObject.Find("GameUI");
-                sheetCanvas = transform.Find("CharacterSheetCanvas").GetComponent<Canvas>();
-            }
-            catch (System.Exception)
-            {
-                Debug.LogError("Character sheet Manager is set to display the sheet, but one or more display component are missing from the scene! Please check that the CharacterSheet Object contains the CharacterSheetCamera, Canvas, and that a general Game UI Exists!");
-                GenerateCharacterSheetDisplay = false;
-            }
-        }
-
         if (PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences.Count > 0) //Loading for this playsession
             competencesList = PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences;
+    }
+
+    //Use the datas retrieved on the scene start to populate the skill spider
+    //This also calculates the spider general skill points based on the points in the CompENI
+    static public void PopulateCharacterSkills()
+    {
+        competencesList.Clear();
+
+        Dictionary<int, string> SkillTags = new Dictionary<int, string>();
+
+        foreach (JSONNode value in userStats["listeCompetences"].Children)
+        {
+            if (!SkillTags.ContainsKey(value["idCompGen"].AsInt))
+                SkillTags.Add(value["idCompGen"].AsInt, value["LibCompGen"].Value);
+        }
+
+        foreach (JSONNode value in userStats["listeCriteres"].Children)
+        {
+            competencesList.Add(value["idCompEni"].AsInt, 
+                new CompetenceENI(SkillTags[value["idCompGen"].AsInt], value["idCompGen"].AsInt, value["point"].AsInt, value["idCritere"].AsInt, value["idJM"].AsInt));
+        }
+
+        foreach (JSONNode value in userStats["listeJeux"].Children)
+        {
+            if (value["jeuNom"].Value == "mini-jeu 01")
+                CharacterSheetManager.game1ID = value["idJeu"].AsInt;
+            else if (value["jeuNom"].Value == "mini-jeu 02")
+                CharacterSheetManager.game2ID = value["idJeu"].AsInt;
+        }
+
+        GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().UpdateGeneralSkillPoints();
     }
 
     public void AddQualityStep (int stepIncrementation, string gameLabel)
@@ -71,42 +81,6 @@ public class CharacterSheetManager : MonoBehaviour {
         }
     }
 
-    public void ToggleDisplaySheet ()
-    {
-        //Basically, we just deactivate any Game UI to replace it with the character sheet.
-        //As the spider skill is not rendered by the Unity UI System, it is displayed through
-        //another Camera hidden in the game scene.
-        if (gameCanvas != null)
-        {
-            if (gameCanvas.activeSelf)
-                gameCanvas.SetActive(false);
-            else
-                gameCanvas.SetActive(true);
-        }
-
-        if (sheetCanvas.enabled)
-            sheetCanvas.enabled = false;
-        else
-            sheetCanvas.enabled = true;
-
-        if (SheetCamera.depth == -2)
-        {
-            SheetCamera.depth = 0;
-        }
-        else if (SheetCamera.depth == 0)
-        {
-            SheetCamera.depth = -2;
-        }
-
-        Debug.Log("Toggled Player Sheet");
-
-        //Let's add some controls constraints according to the scene we're in
-        Scene currentScene = SceneManager.GetActiveScene();
-
-        if (currentScene.name == "MainBoard")
-            ToggleMainBoardConstraints();
-    }
-
     //Sending the skill points to the SQL DB
     public IEnumerator PostPLayerStats(int idCompEni, int pointCompEni)
     {
@@ -119,7 +93,7 @@ public class CharacterSheetManager : MonoBehaviour {
 
         Debug.Log("Envoi d'un log au serveur");
 
-        WWW hs_get = new WWW(baseURL + "/web/app.php/unity/compEniPoint", hs_post.data, headers);
+        WWW hs_get = new WWW(SQLCommonVars.baseURL + "/web/app.php/unity/compEniPoint", hs_post.data, headers);
         yield return hs_get;
         Debug.Log("Sent new player skill datas");
         sendingDatas = false;
@@ -135,15 +109,6 @@ public class CharacterSheetManager : MonoBehaviour {
             print("Une erreur est survenue : " + hs_get.text);
             SceneManager.LoadScene(0);
         }
-    }
-
-    //This method will prevent the pawn from moving if we're clicking anywhere inside the character sheet
-    void ToggleMainBoardConstraints()
-    {
-        if (BoardManager.preventPlayerControl == true)
-            BoardManager.preventPlayerControl = false;
-        else if (BoardManager.preventPlayerControl == false)
-            BoardManager.preventPlayerControl = true;
     }
 
 }

@@ -81,7 +81,6 @@ public class BoardStep : MonoBehaviour {
                 if(currentStepType == StepType.Mission)
                     persistentDatas.missionId = MissionId;
 
-                BoardManager.preventPlayerControl = true;
                 GameObject ConfirmationWindow = GameUI.transform.FindChild("ConfirmationWindow").gameObject;
                 ConfirmationWindow confirmationWindowScript = ConfirmationWindow.GetComponent<ConfirmationWindow>();
                 ConfirmationWindow.SetActive(true);
