@@ -5,17 +5,24 @@ using System.Collections.Generic;
 using Assets.Scripts.Utility;
 
 public class CharacterSheetManager : MonoBehaviour {
+
+    #region Optional Features
     public bool GenerateCharacterSheetDisplay = true;
     public bool ClickableSpider = true;
+    #endregion
 
+    #region Retrieved datas from SQL
     static public JSONNode userStats;
+    static public Dictionary<int, CompetenceENI> competencesList = new Dictionary<int, CompetenceENI>();
+    public Dictionary<int, int> correspondenceUserCompENIAndMiniGame = new Dictionary<int, int>();
+    #endregion
 
+    #region Mandatory Parameters
     static public int game1ID;
     static public int game2ID;
-    static public bool sendingDatas = false;
+    #endregion
 
-    static public Dictionary <int, CompetenceENI> competencesList = new Dictionary<int, CompetenceENI>();
-    public Dictionary<int, int> correspondenceUserCompENIAndMiniGame = new Dictionary<int, int>();
+    static public bool sendingDatas = false; //Used if we have to check if the datas are being sent. For example, during a loading screen...
 
     void Update ()
     {
@@ -59,6 +66,7 @@ public class CharacterSheetManager : MonoBehaviour {
         GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().UpdateGeneralSkillPoints();
     }
 
+    //Add points to the player's qualities in the corresponding CompENI before send it to the server
     public void AddQualityStep (int stepIncrementation, string gameLabel)
     {
         int gameID = 0;

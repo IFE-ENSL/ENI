@@ -6,7 +6,7 @@ public class CustomizeLineRenderer : MonoBehaviour
     LineRenderer lineRenderer;
     public Vector3[] linePositions;
 
-    public void RoughCurve () //This is mainly used in debug to have a clear, rough view of the curve.
+    public void RoughCurve () //Used to display the lines on the spider
     {
         lineRenderer = gameObject.GetComponent<LineRenderer>();
 

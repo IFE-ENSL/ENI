@@ -41,7 +41,7 @@ public class BoardManager : MonoBehaviour
     {
         if (InitSpiderNow) //To avoid getting nullRefExceptions, the spider is actually initialized last in a frame loop
         {
-            GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().InitSpider();
+            GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().StartSpider();
             InitSpiderNow = false;
         }
     }

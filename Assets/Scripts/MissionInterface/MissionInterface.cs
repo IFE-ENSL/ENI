@@ -58,7 +58,7 @@ public class MissionInterface : MonoBehaviour {
 
 	    if (InitSpiderNow && planning.activeInHierarchy)
         {
-            GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().InitSpider();
+            GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().StartSpider();
             InitSpiderNow = false;
         }
 	}

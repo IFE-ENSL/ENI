@@ -2,7 +2,6 @@
 // Ian Grant v001
 
 using System.Collections;
-using Assets.Scripts.Chat;
 using UnityEngine;
 
 namespace Assets.Scripts.Utility
@@ -18,8 +17,6 @@ namespace Assets.Scripts.Utility
         public float angularDrag = 5.0f;
         //var distance = 0.2;
         public bool attachToCenterOfMass = false;
-
-        public ChatBoxFunctionsSQL fenetreChat;
 
         private SpringJoint2D springJoint;
 

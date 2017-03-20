@@ -6,35 +6,40 @@ using UnityEngine.UI;
 
 public class Spider_Skill_Displayer : MonoBehaviour {
 
-    CharacterSheetManager characterSheet;
-    public static float[] staticSkillAmount;
-    Transform firstBranch;
-    int firstBranchSkillNumber;
-    int lastBranchSkillNumber;
-    public GameObject CompetencePrefab;
-    public GameObject SpiderWebWirePrefab;
-    public float branchesSize = 20;
-    float greatestSkillValue = 0;
-    public float spiderThickness = .1f;
-    public int tagsFontSize = 3;
-    bool MouseOverThis = false;
-    bool fullScreen = false;
-    Image backgroundWindow;
-
+    #region External Objects
     public GameObject tagPrefab;
+    Image backgroundWindow;
+    CharacterSheetManager characterSheet;
+    #endregion
 
-    Dictionary<int, LineRenderer> spawnedBranches = new Dictionary <int,LineRenderer>();
+    #region Render
+    Dictionary<int, LineRenderer> spawnedBranches = new Dictionary<int, LineRenderer>();
     Dictionary<int, LineRenderer> spawnedLines = new Dictionary<int, LineRenderer>();
-
     Dictionary<int, Vector3> RegisteredBranchTopPositions = new Dictionary<int, Vector3>();
     Dictionary<int, GameObject> spawnedTags = new Dictionary<int, GameObject>();
+    Transform firstBranch;
 
-    Dictionary<int, int> GeneralSkillPoints = new Dictionary<int, int>();
+    public float spiderThickness = .1f;
+    public int tagsFontSize = 3;
 
-    bool initComplete = false;
-
+    public GameObject CompetencePrefab;
+    public GameObject SpiderWebWirePrefab;
     public Vector3 minimizePosLargeScreen;
     public Vector3 minimizePosSmallScreen;
+    public float branchesSize = 20;
+    #endregion
+
+    #region Stats & state
+    Dictionary<int, int> GeneralSkillPoints = new Dictionary<int, int>();
+    float greatestSkillValue = 0;
+    int firstBranchSkillNumber;
+    int lastBranchSkillNumber;
+
+    bool MouseOverThis = false;
+    bool fullScreen = false;
+    bool initComplete = false;
+    public static float[] staticSkillAmount;
+    #endregion
 
     void Start ()
     {
@@ -49,50 +54,12 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         minimize();
     }
 
-    public void SavePlayerStats()
-    {
-        PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences = CharacterSheetManager.competencesList;
-    }
-
-    public void LoadPlayerStats ()
-    {
-        if (PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences.Count > 0)
-            CharacterSheetManager.competencesList = PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences;
-    }
-
-    public void UpdateGeneralSkillPoints ()
-    {
-        bool first = true;
-
-        GeneralSkillPoints.Clear();
-
-        foreach (KeyValuePair<int, CompetenceENI> competenceENI in CharacterSheetManager.competencesList)
-        {
-            if (!GeneralSkillPoints.ContainsKey(competenceENI.Value._MainSkillNumber)) //If the dictionary already contains the General Skill we're looking at, let's skip it and just add the points;
-            {
-                GeneralSkillPoints.Add(competenceENI.Value._MainSkillNumber, competenceENI.Value._nbPointsCompetence);
-            }
-            else
-                GeneralSkillPoints[competenceENI.Value._MainSkillNumber] += (int)competenceENI.Value._nbPointsCompetence;
-
-            if (first)
-            {
-                firstBranchSkillNumber = competenceENI.Value._MainSkillNumber;
-                first = false;
-            }
-
-
-        }
-    }
-
     // Use this for initialization
-    public void InitSpider ()
+    public void StartSpider()
     {
         characterSheet = transform.parent.GetComponent<CharacterSheetManager>();
 
-
         UpdateGeneralSkillPoints();
-
 
         LoadPlayerStats();
 
@@ -102,23 +69,22 @@ public class Spider_Skill_Displayer : MonoBehaviour {
             if (valuePair.Value > greatestSkillValue)
                 greatestSkillValue = valuePair.Value;
 
-            spawnedLines.Add (valuePair.Key, new LineRenderer());
-            spawnedBranches.Add (valuePair.Key, new LineRenderer());
+            spawnedLines.Add(valuePair.Key, new LineRenderer());
+            spawnedBranches.Add(valuePair.Key, new LineRenderer());
 
             //Initializing the dictionaries based on the number of skills contained in the character sheet class
             RegisteredBranchTopPositions.Add(valuePair.Key, Vector3.zero);
-            spawnedTags.Add (valuePair.Key, null);
+            spawnedTags.Add(valuePair.Key, null);
         }
 
-
-
-        InitializeSpider();
+        InitializeSpiderDisplayComponents();
         SpawnTags();
 
         initComplete = true;
-	}
+    }
 
-    public void InitializeSpider ()
+    //Setup and call every method needed to initialize all the components that are parts of the spider's display
+    public void InitializeSpiderDisplayComponents()
     {
         float BranchAngle = 360 / GeneralSkillPoints.Count;
         float addAngle = BranchAngle;
@@ -131,7 +97,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
         int iterator = 0;
         KeyValuePair<int, int> previousKeyValue = new KeyValuePair<int, int>(0, 0);
-        foreach (KeyValuePair<int,int> keyValue in GeneralSkillPoints)
+        foreach (KeyValuePair<int, int> keyValue in GeneralSkillPoints)
         {
             //Spawn a branch, parent it to the spider object, then rename it for better clarity.
             GameObject spawnedCompetence = GameObject.Instantiate(CompetencePrefab, transform.position, Quaternion.identity) as GameObject;
@@ -170,7 +136,8 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         spawnedLines[lastBranchSkillNumber] = SpawnWebWire(currentSkillPosition, firstBranchPosition, lastBranchSkillNumber);
     }
 
-    void SpawnTags ()
+    //Initialize the tag at the spider's display start
+    void SpawnTags()
     {
         foreach (KeyValuePair<int, Vector3> topPosition in RegisteredBranchTopPositions)
         {
@@ -178,69 +145,8 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         }
     }
 
-    void minimize ()
-    {
-        branchesSize = .85f;
-        spiderThickness = .01f;
-        tagsFontSize = 10;
-        gameObject.GetComponent<CircleCollider2D>().radius = branchesSize;
-        fullScreen = false;
-        backgroundWindow.enabled = false;
-
-        if (Camera.main.aspect > 1.4f && Camera.main.aspect < 1.8f) // 16/9
-            transform.position = minimizePosLargeScreen;
-        else if (Camera.main.aspect > 1f && Camera.main.aspect < 1.4f) // 4/3
-            transform.position = minimizePosSmallScreen;
-
-    }
-
-    void GoFullScreen ()
-    {
-        branchesSize = 3.7f;
-        spiderThickness = .1f;
-        tagsFontSize = 20;
-        gameObject.GetComponent<CircleCollider2D>().radius = branchesSize;
-        fullScreen = true;
-        backgroundWindow.enabled = true;
-        transform.position = new Vector3(0, 0, -1f);
-    }
-
-    void UpdateTags()
-    {
-        foreach (KeyValuePair<int, Vector3> topPosition in RegisteredBranchTopPositions)
-        {
-            spawnedTags[topPosition.Key].transform.position = topPosition.Value;
-            spawnedTags[topPosition.Key].GetComponent<TextMesh>().fontSize = tagsFontSize;
-
-            foreach (KeyValuePair<int, CompetenceENI> competence in CharacterSheetManager.competencesList)
-            {
-                if (competence.Value._MainSkillNumber == topPosition.Key)
-                {
-                    /*if (competence.Value._Name.Length > 13)
-                    {
-                        string[] wordArray;
-                        wordArray = competence.Value._Name.Split(' ');
-                        wordArray[0] = wordArray[0] + "<br>";
-                        competence.Value._Name.Remove(0);
-
-                        foreach (string word in wordArray)
-                        {
-                            competence.Value._Name += word;
-                        }
-
-                    }*/
-
-                    spawnedTags[topPosition.Key].GetComponent<TextMesh>().text = competence.Value._Name;
-                    break;
-                }
-            }
-
-            //spawnedTags[topPosition.Key].transform.name = "Tag_" + characterSheet.competencesList[topPosition.Key];
-            spawnedTags[topPosition.Key].transform.SetParent(transform);
-        }
-    }
-
-    LineRenderer SpawnWebWire (Vector3 previousLineTip, Vector3 newPositions, int spawnNumber)
+    //Called the first time, to initialize the wire render at the start of the spider
+    LineRenderer SpawnWebWire(Vector3 previousLineTip, Vector3 newPositions, int spawnNumber)
     {
         GameObject spawnedWebWire = GameObject.Instantiate(SpiderWebWirePrefab, transform.position, Quaternion.identity) as GameObject;
         LineRenderer spawnedWebWireRenderer = spawnedWebWire.GetComponent<LineRenderer>();
@@ -252,6 +158,95 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         return spawnedWebWire.GetComponent<LineRenderer>();
     }
 
+    public void SavePlayerStats()
+    {
+        PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences = CharacterSheetManager.competencesList;
+    }
+
+    public void LoadPlayerStats ()
+    {
+        if (PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences.Count > 0)
+            CharacterSheetManager.competencesList = PersistentFromSceneToScene.DataPersistenceInstance.listeCompetences;
+    }
+
+    void Update()
+    {
+        if (initComplete)
+        {
+            UpdateSpider();
+            SavePlayerStats();
+            UpdateTags();
+        }
+
+        float animSpeed = .5f;
+
+        //Adapting the spider's size.
+        if (MouseOverThis)
+        {
+            Debug.Log("Mouse over spider skill");
+
+            if (!fullScreen)
+                branchesSize = Mathf.MoveTowards(branchesSize, .90f, animSpeed * Time.deltaTime); //Small animation for the spider when the mouse is getting over it.
+
+            if (Input.GetMouseButtonDown(0)) //If we click it...
+            {
+                if (fullScreen)
+                    minimize();
+                else
+                    GoFullScreen();
+            }
+        }
+        else if (!fullScreen)
+        {
+            branchesSize = Mathf.MoveTowards(branchesSize, .85f, animSpeed * Time.deltaTime);
+        }
+    }
+
+    public void UpdateGeneralSkillPoints ()
+    {
+        bool first = true;
+
+        GeneralSkillPoints.Clear();
+
+        foreach (KeyValuePair<int, CompetenceENI> competenceENI in CharacterSheetManager.competencesList)
+        {
+            if (!GeneralSkillPoints.ContainsKey(competenceENI.Value._MainSkillNumber)) //If the dictionary already contains the General Skill we're looking at, let's skip it and just add the points;
+            {
+                GeneralSkillPoints.Add(competenceENI.Value._MainSkillNumber, competenceENI.Value._nbPointsCompetence);
+            }
+            else
+                GeneralSkillPoints[competenceENI.Value._MainSkillNumber] += (int)competenceENI.Value._nbPointsCompetence;
+
+            if (first)
+            {
+                firstBranchSkillNumber = competenceENI.Value._MainSkillNumber;
+                first = false;
+            }
+        }
+    }
+
+    //Update the name of each skill displayed on the spider
+    void UpdateTags()
+    {
+        foreach (KeyValuePair<int, Vector3> topPosition in RegisteredBranchTopPositions)
+        {
+            spawnedTags[topPosition.Key].transform.position = topPosition.Value;
+            spawnedTags[topPosition.Key].GetComponent<TextMesh>().fontSize = tagsFontSize;
+
+            foreach (KeyValuePair<int, CompetenceENI> competence in CharacterSheetManager.competencesList)
+            {
+                if (competence.Value._MainSkillNumber == topPosition.Key)
+                {
+                    spawnedTags[topPosition.Key].GetComponent<TextMesh>().text = competence.Value._Name;
+                    break;
+                }
+            }
+
+            spawnedTags[topPosition.Key].transform.SetParent(transform);
+        }
+    }
+
+    //Update every wire position, so that each time a skill value has change, it will be reflected immediately on the spider.
     void UpdateWebWirePositions (LineRenderer line, Vector3 previousLineTip, Vector3 newPositions)
     {
         Vector3[] webWirePos = new Vector3[2];
@@ -295,16 +290,11 @@ public class Spider_Skill_Displayer : MonoBehaviour {
                 percentageValue = GeneralSkillPoints[i] * branchesSize + branchesSize * .1f;
             else
                 percentageValue = GeneralSkillPoints[i] / greatestSkillValue * (branchesSize - branchesSize * .1f) + branchesSize * .1f;
-
-            //Debug.Log("Percentage value for " + i + " is " + percentageValue + " with a GeneralSkillPoint Value of " + GeneralSkillPoints[i] + " greatest skill value is " + greatestSkillValue);
         }
         else
         {
             percentageValue = branchesSize * .1f;
-            //The update bug does not come from here, soooo... Maybe on the upper lines ?
         }
-
-
 
         currentSkillPosition = new Vector3(0, percentageValue, 0);
         currentSkillPosition = Quaternion.AngleAxis(-addAngle, Vector3.forward) * currentSkillPosition;
@@ -312,6 +302,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         return CompetenceLine;
     }
 
+    //This method makes sure every aspect of the spider will be updated in real time, so we can move the spider, change its size, etc... In real time.
     void UpdateSpider ()
     {
         //Reset greatestSkillValue for update
@@ -336,7 +327,7 @@ public class Spider_Skill_Displayer : MonoBehaviour {
 
         KeyValuePair<int, int> previousKeyValue = new KeyValuePair<int, int>(0, 0);
         int iterator = 0;
-        foreach (KeyValuePair<int, int> keyValue in GeneralSkillPoints)
+        foreach (KeyValuePair<int, int> keyValue in GeneralSkillPoints) //For each general skill in the database...
         {
             UpdateBranchPosAndSkillValues(addAngle, newPositions, keyValue.Key, ref currentSkillPosition, spawnedBranches[keyValue.Key].gameObject);
 
@@ -356,8 +347,6 @@ public class Spider_Skill_Displayer : MonoBehaviour {
                 lastBranchSkillNumber = keyValue.Key;
             }
 
-            //Debug.Log("Updated branch " + keyValue.Key + " with value " + keyValue.Value + " which new position is " + currentSkillPosition);
-
             iterator++;
         }
          UpdateWebWirePositions(spawnedLines[lastBranchSkillNumber], currentSkillPosition, firstBranchPosition);
@@ -376,40 +365,35 @@ public class Spider_Skill_Displayer : MonoBehaviour {
         MouseOverThis = false;
     }
 
-    void Update()
+    //Reset the spider position to its original size, in case it was previously displayed on full screen
+    void minimize()
     {
-        if (initComplete)
-        {
-            /*foreach (KeyValuePair<int, int> keyValuePair in GeneralSkillPoints)
-            {
-                Debug.Log("SkillNumber = " + keyValuePair.Key + " & points for this skill = " + keyValuePair.Value);
-            }*/
+        branchesSize = .85f;
+        spiderThickness = .01f;
+        tagsFontSize = 10;
+        gameObject.GetComponent<CircleCollider2D>().radius = branchesSize;
+        fullScreen = false;
 
-            UpdateSpider();
-            SavePlayerStats();
-            UpdateTags();
-        }
+        if (backgroundWindow != null)
+            backgroundWindow.enabled = false;
 
-        float animSpeed = .5f;
+        if (Camera.main.aspect > 1.4f && Camera.main.aspect < 1.8f) // 16/9
+            transform.position = minimizePosLargeScreen;
+        else if (Camera.main.aspect > 1f && Camera.main.aspect < 1.4f) // 4/3
+            transform.position = minimizePosSmallScreen;
 
-        if (MouseOverThis)
-        {
-            Debug.Log("Mouse over spider skill");
-
-            if(!fullScreen)
-            branchesSize = Mathf.MoveTowards(branchesSize, .90f, animSpeed * Time.deltaTime);
-
-            if (Input.GetMouseButtonDown(0))
-            {
-                if (fullScreen)
-                    minimize();
-                else
-                    GoFullScreen();
-            }
-        }
-        else if (!fullScreen)
-        {
-           branchesSize = Mathf.MoveTowards(branchesSize, .85f, animSpeed * Time.deltaTime);
-        }
     }
+
+    //Display the spider on full screen
+    void GoFullScreen()
+    {
+        branchesSize = 3.7f;
+        spiderThickness = .1f;
+        tagsFontSize = 20;
+        gameObject.GetComponent<CircleCollider2D>().radius = branchesSize;
+        fullScreen = true;
+        backgroundWindow.enabled = true;
+        transform.position = new Vector3(0, 0, -1f);
+    }
+
 }

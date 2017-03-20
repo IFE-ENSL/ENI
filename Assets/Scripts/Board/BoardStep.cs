@@ -5,27 +5,26 @@ using UnityEngine.UI;
 
 public class BoardStep : MonoBehaviour {
 
-    static bool oneStepAlreadyHighlighted = false;
-
-    public enum StepType { Empty, MiniGame, Mission, JobSheet };
-    public StepType currentStepType = StepType.Empty;
-    public Canvas GameUI;
-    PersistentFromSceneToScene persistentDatas;
-
-    public string SceneToLoad;
-    public int OptionalAltSceneLayout = 0;
-    public int MissionId = 0;
-
-    SpriteRenderer spriteRenderer;
-    [HideInInspector]
-    public bool PawnOverThis = false;
+    #region Step States
     [HideInInspector]
     public bool MouseOverThis = false;
 
-    [SerializeField]
-    bool DebugThis = false;
-
+    public enum StepType { Empty, MiniGame, Mission, JobSheet };
+    public StepType currentStepType = StepType.Empty;
     public TextMesh stepContentText;
+    #endregion
+
+    #region External Objects
+    public Canvas GameUI;
+    PersistentFromSceneToScene persistentDatas;
+    #endregion
+
+    #region Misc
+    public string SceneToLoad;
+    public int OptionalAltSceneLayout = 0;
+    public int MissionId = 0;
+    SpriteRenderer spriteRenderer;
+    #endregion
 
 	// Use this for initialization
 	void Start ()
@@ -33,44 +32,20 @@ public class BoardStep : MonoBehaviour {
         persistentDatas = GameObject.Find("PersistentSceneDatas").GetComponent<PersistentFromSceneToScene>();
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
         GameUI = GameObject.Find("Canvas").GetComponent<Canvas>();
-
         stepContentText = transform.FindChild("ContentName").GetComponent<TextMesh>();
 
         if (currentStepType != StepType.Empty)
-            DescriptiveTextSetUp();
+            stepContentText.GetComponent<MeshRenderer>().enabled = false;
         else
             stepContentText.text = "";
 	}
 
-    void DescriptiveTextSetUp ()
-    {
-        /*switch (currentStepType)
-        {
-            case StepType.JobSheet:
-                stepContentText.text = "Fiche Métier";
-                break;
-            case StepType.Mission:
-                stepContentText.text = "Mission";
-                break;
-            case StepType.MiniGame:
-                stepContentText.text = "Mini-Jeu";
-                break;
-        }*/
-
-        if (DebugThis)
-            stepContentText.text += " " + SceneToLoad;
-
-        stepContentText.GetComponent<MeshRenderer>().enabled = false;
-    }
-	
-	// Update is called once per frame
-	void Update () 
+        // Update is called once per frame
+    void Update () 
     {
 	    if (MouseOverThis && Input.GetMouseButtonDown(0))
         {
             //Display launch confirmation according to type
-
-
             if (currentStepType != StepType.Empty)
             {
                 persistentDatas.alternativeSceneId = OptionalAltSceneLayout;
@@ -90,7 +65,6 @@ public class BoardStep : MonoBehaviour {
                     confirmationWindowScript.SceneToLoadNext = SceneToLoad;
                 else
                     confirmationWindowScript.SceneToLoadNext = "MissionInterface";
-                //TODO: Send to the mission scene the datas needed to display the mission and all that stuff y'know
 
                 confirmationWindowScript.UpdateContentName (stepContentText.text);
             }
@@ -101,7 +75,6 @@ public class BoardStep : MonoBehaviour {
     {
         spriteRenderer.color = Color.red;
         stepContentText.GetComponent<MeshRenderer>().enabled = true;
-        oneStepAlreadyHighlighted = true;
 
         MouseOverThis = true;
     }
@@ -110,24 +83,7 @@ public class BoardStep : MonoBehaviour {
     {
         spriteRenderer.color = Color.white;
         stepContentText.GetComponent<MeshRenderer>().enabled = false;
-        oneStepAlreadyHighlighted = false;
 
         MouseOverThis = false;
-    }
-
-    void OnTriggerStay2D (Collider2D hit)
-    { 
-        if (hit.name == "Pawn" && !oneStepAlreadyHighlighted)
-        {
-
-        }
-    }
-
-    void OnTriggerExit2D (Collider2D hit)
-    {
-        if (hit.name == "Pawn")
-        {
-
-        }
     }
 }

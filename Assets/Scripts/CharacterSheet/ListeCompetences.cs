@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 [System.Serializable]
-public class CompetenceENI : PropertyAttribute
+public class CompetenceENI : PropertyAttribute //This class is used to easily store the CompetenceENIs in convenient Lists
 {
     public string _Name;
     public int _MainSkillNumber;
@@ -26,7 +26,6 @@ public class CompetenceENI : PropertyAttribute
         _Name = Name;
         _MainSkillNumber = MainSkillNumber;
         _nbPointsCompetence = nbPointsCompetence;
-        //_listeCriteres = listeCriteres;
     }
 
     public CompetenceENI(string Name, int MainSkillNumber, int nbPointsCompetence)
