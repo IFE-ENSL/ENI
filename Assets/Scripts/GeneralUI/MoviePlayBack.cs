@@ -50,11 +50,11 @@ public class MoviePlayBack : MonoBehaviour {
 
         if (movie.isPlaying && Input.anyKeyDown)
         {
-            if(!SkipText.enabled)
+            if(!SkipText.enabled) //If a key is pressed, first display the text "Press again to skip..." for 3 seconds (See script up)
                 SkipText.enabled = true;
             else
             {
-                QualitySettings.vSyncCount = vsyncPrevious;
+                QualitySettings.vSyncCount = vsyncPrevious; //if texte already displayed, skip the intro
                 async.allowSceneActivation = true;
             }
         }

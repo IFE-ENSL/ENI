@@ -10,27 +10,37 @@ namespace Assets.Scripts.Management
     //Cette classe définit un managementCharacter, et définit ses indices de satisfaction
     public class ManagementCharacter : MonoBehaviour
     {
+        #region External Objects
         public GameManager gameManager;
         public CharacterGrid saveChildren;
+        public SpriteRenderer sr;
+        public SpriteRenderer satisfactionIcon;
+        public Sprite[] satisfactionSprites;
+        #endregion
 
+        #region General Vars
         public int persoId;
         public int serviceId;
         public string role = "[Service Name]";
+        public SatisfactionPersonnage Satisfaction { get; private set; }
+        public Room room;
+        #endregion
+
+        #region Needs
         public float surfaceSalarie = 5;
         public int luminosite = 3;
         public bool accesExterieur = false;
         public int distanceSallePause = 4;
         public float distanceToilette = 2f;
+        #endregion
 
-        public SpriteRenderer sr;
-        public SatisfactionPersonnage Satisfaction { get; private set; }
+        #region Relationships
         public ManagementCharacter friend;
         public ManagementCharacter likedBy;
         public ManagementCharacter myProductiveLink;
         public ManagementCharacter charIMakeProductive;
-        public Room room;
-        public SpriteRenderer satisfactionIcon;
-        public Sprite[] satisfactionSprites;
+        #endregion
+
 
         void Start()
         {

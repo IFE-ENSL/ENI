@@ -20,6 +20,7 @@ namespace Assets.Scripts.Menu
         {
             connexionController = GameObject.Find("ConnexionController").GetComponent<ConnexionController>();
         }
+
 		//Fonction appellée lors du clic sur le bouton login
         public void Login()
         {
@@ -37,6 +38,7 @@ namespace Assets.Scripts.Menu
                 msgErreur.text = "Veuillez remplir tous les champs";
             }
         }
+
 		//Affiche le message de connexionController en cours en fonction de la situation
         public IEnumerator Connect()
         {
@@ -48,10 +50,7 @@ namespace Assets.Scripts.Menu
 
             if (connexionController.isLogged)
             {
-                connexionController.justLoggedIn = true;
-                //StartCoroutine(connexionController.getUserStatsAtLogin(_waiter)); //retrieving every stats about skills, games played,... TODO: Bad idea to call it here, I think... Try calling it AFTER the scene was loaded.
                 PlayerPrefs.SetString("username", login.text);
-                //SceneManager.LoadScene("Menu");
                 SceneManager.LoadScene("MainBoard");
             }
             else if (connexionController.error)

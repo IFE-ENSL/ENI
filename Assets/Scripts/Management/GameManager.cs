@@ -99,7 +99,7 @@ namespace Assets.Scripts.Management
 
         void Update ()
         {
-            if (globalWait)
+            if (globalWait) //If we're waiting for datas to be retrieved from the server, display the loading screen
             {
                 mainCamera.depth = -1;
                 LoadingCamera.depth = 0;
@@ -348,6 +348,7 @@ namespace Assets.Scripts.Management
             globalWait = false;
         }
 
+        //Generating the text displayed for each character according to their needs
         void GenerateDialogueDescription (ManagementCharacter character, ref string dialogueDescription)
         {
             if (character.Satisfaction.surface < 80)
@@ -453,7 +454,7 @@ namespace Assets.Scripts.Management
                 textRoomStats[5].text = "Distance toilette : " + p.distanceToilette + "m";
         }
 
-        //Updating the description windows according to the selected object in game
+        //Updating the description windows for the characters
         public void UpdateDescription()
         {
             if (_selectedGameObject.GetComponent<ManagementCharacter>())

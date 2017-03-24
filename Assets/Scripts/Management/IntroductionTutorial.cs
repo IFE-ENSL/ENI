@@ -5,9 +5,9 @@ using UnityEngine.UI;
 namespace Assets.Scripts.Management
 {
     //Tutoriel au lancement du mini jeu
-    public class Introduction : MonoBehaviour
+    public class IntroductionTutorial : MonoBehaviour
     {
-        //TODO: This script is unused! What do we do?
+        //This script is unused, but we can use it for further reference on the tutorial texts
         public Text text;
         public GameObject[] gameObjects;
 

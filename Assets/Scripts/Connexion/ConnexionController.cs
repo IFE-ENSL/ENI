@@ -13,23 +13,21 @@ namespace Assets.Scripts.Connexion
 {
     public class ConnexionController : MonoBehaviour
     {
-
         public bool dontDestroyOnLoad = false;
         public bool isLogged = false;
         public bool wait = false;
         public bool error = false;
         public bool appQuit = false;
-        public int step = 0;
+
         public string returnText;
         public string messages = null;
-        public bool justLoggedIn = false;
+
+        public int step = 0;
+
+        public ManagementConnexion mConnexion;
+        public static ConnexionController ConnexionControllerInstance;
 
         bool enableCheckLog = false;
-
-        private SaveManager sm;
-        public ManagementConnexion mConnexion;
-
-        public static ConnexionController ConnexionControllerInstance;
 
         void Awake()
         {
@@ -49,11 +47,6 @@ namespace Assets.Scripts.Connexion
             enableCheckLog = true;
         }
 
-        void Start ()
-        {
-            sm = FindObjectOfType<SaveManager>();
-        }
-
         void LateUpdate ()
         {
             if (enableCheckLog)
@@ -61,20 +54,10 @@ namespace Assets.Scripts.Connexion
                 CheckLog();
                 enableCheckLog = false;
             }
-
-            Scene currentScene = SceneManager.GetActiveScene();
-
-            if (currentScene.name == "MainBoard" && currentScene.isLoaded && justLoggedIn)
-            {
-                //TODO : Move all those verifications in BoardManager maybe.
-                justLoggedIn = false;
-            }
         }
 
-
-
         //Let's make sure that if we're in game, we're properly logged, else, let us take the player back to the login screen
-        void CheckLog () //TODO: The thing is, if this object exists before getting deleted by the singleton principle, this method will put the player back to the login screen.
+        void CheckLog ()
         {
             if (!isLogged && SceneManager.GetActiveScene().name != "Login")
             {
@@ -112,8 +95,6 @@ namespace Assets.Scripts.Connexion
                 SceneManager.LoadScene(0);
             }
         }
-
-
 
         //Méthode permettant d'envoyer un log avec un retour d'information
         public IEnumerator PostLog(string nomLog, string miniJeu, ILog donnees, Waiter waiter)
@@ -201,50 +182,8 @@ namespace Assets.Scripts.Connexion
             waiter.waiting = false;
         }
 
-        //Méthode utilisée afin de poster un message sur le chat
-        public IEnumerator PostMessage(string message)
-        {
-            string sessionId = PlayerPrefs.GetString("sessionId");
-            Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
-
-            string post_url = SQLCommonVars.insertMessageURL;
-            WWWForm hs_form = new WWWForm();
-            hs_form.AddField("message",message);
-            WWW hs_post = new WWW(post_url,hs_form.data,headers);
-            yield return hs_post; // Wait until the download is done
-            if (hs_post.error != null)
-            {
-                print("Erreur lors de l'envoie d'un message au serveur : " + hs_post.error);
-            }
-            if (hs_post.text != "1")
-            {
-                print("Une erreur est survenue : " + hs_post.text);
-            }
-        }
-
-        //Méthode utilisée afin de récupérer les messages du chat
-        public IEnumerator getMessages()
-        {
-            Debug.Log("Get Messages Called...");
-            wait = true;
-            string sessionId = PlayerPrefs.GetString("sessionId");
-            Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
-
-            string post_url = SQLCommonVars.getMessagesURL;
-            WWW hs_get = new WWW(post_url,null,headers);
-            yield return hs_get;
-            if (hs_get.error != null)
-            {
-                Debug.Log("Erreur lors de la récupération des messages : " + hs_get.error);
-                Debug.Log(hs_get.text);
-                SceneManager.LoadScene(0);
-            }
-            //Debug.Log(messages);
-            this.messages = hs_get.text;
-            wait = false;
-        }
-
         //Méthode utilisée lors de la fermeture du jeu, afin de terminer proprement la session
+        //TODO: This is not used anymore, but we should reimplement it.
         public IEnumerator EndSession()
         {
             string sessionId = PlayerPrefs.GetString("sessionId");
@@ -261,20 +200,8 @@ namespace Assets.Scripts.Connexion
             {
                 print("Une erreur est survenue : " + hs_post.text);
             }
-            while (sm.isSaving == true)
-                yield return new WaitForSeconds(0.1f);
             this.appQuit = true;
             Application.Quit();
-        }
-
-        //Méthode appellée lors de la fermeture du jeu, permet de sauvegarder le jeu ainsi que terminer la session proprement
-        void OnApplicationQuit()
-        {
-            if (!isLogged) return;
-            if(!this.appQuit)
-                Application.CancelQuit();
-            if (sm.isSaving) return;
-            StartCoroutine(this.EndSession());
         }
 
     }
