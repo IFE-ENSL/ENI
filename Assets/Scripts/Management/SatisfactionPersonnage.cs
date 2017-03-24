@@ -164,8 +164,6 @@ namespace Assets.Scripts.Management
             this.surface = 0;
             this.luminosite = 0;
             this.satisfactionTotale = 0;
-            //this.productiveLinkSatisfaction = 0;
-            //this.aCoteCopain = 0;
             this.accesExterieur = 0;
             this.distanceSallePause = 0;
             this.distanceToilette = 0;

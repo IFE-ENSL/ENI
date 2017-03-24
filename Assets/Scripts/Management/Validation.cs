@@ -38,7 +38,6 @@ namespace Assets.Scripts.Management
 
 
             int nbrPers = gameManager.rooms.Count(room => room.managementCharacter);
-            Debug.Log("Yeah well so, the nbr of characters is..." + nbrPers);
             if (nbrPers == 5)
             {
                 if (globalSatisfaction.satisfactionGlobale <= 73)

@@ -51,11 +51,6 @@ public class MissionInterface : MonoBehaviour {
 	// Update is called once per frame
 	void LateUpdate ()
     {
-        if(_waiter.waiting)
-        {
-            Debug.Log("Iiiiii'm waitiiiiing");
-        }
-
 	    if (InitSpiderNow && planning.activeInHierarchy)
         {
             GameObject.Find("SkillSpider").GetComponent<Spider_Skill_Displayer>().StartSpider();
@@ -119,6 +114,7 @@ public class MissionInterface : MonoBehaviour {
         }
     }
 
+    //Used if we need to display a new autoEval page next
     void ClearAutoEvalInterface()
     {
         foreach (ObjectifLine line in displayedObjectives)
@@ -202,7 +198,7 @@ public class MissionInterface : MonoBehaviour {
         bool AllObjectivesActivated = true;
         foreach (ObjectifLine line in displayedObjectives)
         {
-            if (!line.choseOneToggle)
+            if (!line.choseOneToggle) //if one of the objective is not toggled
             {
                 Debug.LogWarning("All objectives should have at least one toggle selected!");
                 GameObject.Find("ErrorText").GetComponent<Text>().enabled = true;
@@ -235,7 +231,7 @@ public class MissionInterface : MonoBehaviour {
                 StartCoroutine(characterSheet.PostPLayerStats(keyValue.Key, keyValue.Value));
             }
 
-            StartCoroutine (getUserStatsAtLogin(_waiter));
+            StartCoroutine (getMissionUserStatsAtStart(_waiter));
             StartCoroutine(getMissionDatas(_waiter));
             GameObject.Find("ErrorText").GetComponent<Text>().enabled = false;
             autoEvaluation.SetActive(false);
@@ -243,19 +239,21 @@ public class MissionInterface : MonoBehaviour {
         }
     }
 
+    //When quitting the mission interface
     public void LoadMainBoard()
     {
         SceneManager.LoadScene("MainBoard");
     }
 
-    public IEnumerator getUserStatsAtLogin(Waiter waiter)
+    //Updating the User skill points...
+    public IEnumerator getMissionUserStatsAtStart(Waiter waiter)
     {
         yield return new WaitWhile(() => CharacterSheetManager.sendingDatas);
         Debug.Log("Attempting to retrieve the player's stats...");
         waiter.waiting = true;
         string sessionId = PlayerPrefs.GetString("sessionId");
         Dictionary<string, string> headers = new Dictionary<string, string> { { "Cookie", sessionId } };
-        string post_url = "http://vm-web7.ens-lyon.fr/eni/web/app.php/unity/management/initJeu";
+        string post_url = SQLCommonVars.getUserStats;
 
 
         WWW hs_get = new WWW(post_url, null, headers);
@@ -276,7 +274,7 @@ public class MissionInterface : MonoBehaviour {
 
    
 
-
+    //Set point for the validated objectives
     public IEnumerator SetPoint (int idUserObjMission, int point)
     {
         string sessionId = PlayerPrefs.GetString("sessionId");
@@ -302,6 +300,7 @@ public class MissionInterface : MonoBehaviour {
         }
     }
 
+    //Get this specifif mission datas (Name, description, ...)
     public IEnumerator getMissionDatas(Waiter waiter)
     {
         yield return new WaitWhile(() => CharacterSheetManager.sendingDatas);

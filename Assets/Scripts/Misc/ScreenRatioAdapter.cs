@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+//Attach this and parameters it to an object which need to see its size and/or position changed according to the screen aspect ratio
 public class ScreenRatioAdapter : MonoBehaviour {
 
     public Vector3 LargeScreenPos;

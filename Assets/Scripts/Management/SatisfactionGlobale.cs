@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts.Management
 {
+    //This class will mainly be used during the validation of the game by the player
     public class SatisfactionGlobale : MonoBehaviour
     {
         public GameObject go_characterGrid;

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
+//This class is used to retain some values from one scene to another
 public class PersistentFromSceneToScene : MonoBehaviour
 {
 

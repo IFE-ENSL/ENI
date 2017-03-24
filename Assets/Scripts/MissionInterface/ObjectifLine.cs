@@ -23,6 +23,7 @@ public class ObjectifLine : MonoBehaviour
     public static System.Random getRandom = new System.Random();
     List<Vector3> choicesStartPos = new List<Vector3>();
 
+    //Randomizing each block's position inside a line
     void RandomizeTextPositions ()
     {
         List<int> orders = new List<int>();
@@ -43,9 +44,6 @@ public class ObjectifLine : MonoBehaviour
             choices[i].rectTransform.SetSiblingIndex(order + 1);
             i++;
         }
-
-        //transform.GetChild(1).GetComponent<Toggle>().isOn = true;
-        //Debug.Log("Randomized choice order with this sequence = " + orders[0] + " + " + orders[1] + " + " + orders[2] + " + " + orders[3]);
     }
 
     public void changedValue () //Called via Unity UI when the toggle value is changed for this line
@@ -76,6 +74,7 @@ public class ObjectifLine : MonoBehaviour
         choseOneToggle = true;
     }
 
+    //Setting each new line with the datas retrieved by the server
     public void SetObjectifLine (int idUserObjMission, int ObjMission, string libelleObjMission, List<string> choiceList, int point, bool AlreadyValidatedOnce)
     {
         int iterator = 0;

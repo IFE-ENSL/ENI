@@ -13,6 +13,7 @@ namespace Assets.Scripts.Management
         private SpriteRenderer imagePiece;
         #endregion
 
+        #region Room stats
         public int id;
         public float surface = 55f;
         public int ouvertureExterieur = 4;
@@ -21,7 +22,8 @@ namespace Assets.Scripts.Management
         public float distanceSallePause = 5f;
         public float distanceToilette = 4f;
         public List<int> roomDistancesid = new List<int>();
-        
+        #endregion
+
 
         void Start()
         {
